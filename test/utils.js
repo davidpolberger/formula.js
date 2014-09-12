@@ -1,15 +1,8 @@
-var utils = require('../lib/utils');
+var utils = require('../utils');
 var should = require('should');
 var error = require('../lib/error');
 
 suite('Utils', function() {
-  test('flatten', function() {
-    should.deepEqual(utils.flatten([
-      [1, 2],
-      [3, 4]
-    ]), [1, 2, 3, 4]);
-  });
-
   test('argsToArray', function() {
     (function() {
       should.deepEqual(utils.argsToArray(arguments), [1, 2, 3]);
