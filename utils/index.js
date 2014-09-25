@@ -144,8 +144,12 @@ exports.anyIsError = function() {
 exports.arrayValuesToNumbers = function(arr) {
   var n = arr.length;
   var el;
+  var numbers = [];
   while (n--) {
     el = arr[n];
+    if (el === null) {
+      arr.splice(n, 1);
+    }
     if (typeof el === 'number') {
       continue;
     }
