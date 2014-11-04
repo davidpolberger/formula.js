@@ -570,6 +570,7 @@ suite('Math & Trig', function() {
       [3, 3]
     ], '>2').should.equal(6);
     mathTrig.SUMIF([1, 'invalid', 3], '>2').should.equal(error.value);
+    mathTrig.SUMIF(['"A"', '"B"'], '="A"', [1, 2]).should.equal(1);
   });
 
   test("SUMIFS", function() {
