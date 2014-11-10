@@ -569,7 +569,10 @@ suite('Math & Trig', function() {
       [2, 2],
       [3, 3]
     ], '>2').should.equal(6);
-    mathTrig.SUMIF([1, 'invalid', 3], '>2').should.equal(error.value);
+    mathTrig.SUMIF([1, 'invalid', 3], '>2').should.equal(3);
+    mathTrig.SUMIF(['"A"', '"B"'], '="A"', [1, 2]).should.equal(1);
+    mathTrig.SUMIF(['"A"', '"A"'], '"A"', [1, null]).should.equal(1);
+    mathTrig.SUMIF("A", null).should.equal(0);
   });
 
   test("SUMIFS", function() {

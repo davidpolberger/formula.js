@@ -289,9 +289,14 @@ suite('Statistical', function() {
     statistical.GAMMA('invalid').should.equal(error.value);
   });
 
-  // TODO: implement
   test('GAMMA.DIST', function() {
-    statistical.GAMMA.DIST.should.throw('GAMMA.DIST is not implemented');
+    statistical.GAMMA.DIST(1).should.equal(error.na);
+    statistical.GAMMA.DIST(1, 9, 2).should.equal(error.na);
+    statistical.GAMMA.DIST(-1, 9, 2, true).should.equal(error.value);
+    statistical.GAMMA.DIST(1, -9, 2, true).should.equal(error.value);
+    statistical.GAMMA.DIST(1, 9, -2, true).should.equal(error.value);
+    statistical.GAMMA.DIST(10.00001131, 9, 2, true).should.approximately(0.068094, 1e-6);
+    statistical.GAMMA.DIST(10.00001131, 9, 2, false).should.approximately(0.03263913, 1e-9);
   });
 
   // TODO: implement

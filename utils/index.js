@@ -58,7 +58,7 @@ exports.parseBool = function(bool) {
 };
 
 exports.parseNumber = function(string) {
-  if (string === undefined || string === '') {
+  if (string === undefined || string === null || string === '') {
     return error.value;
   }
   if (!isNaN(string)) {
