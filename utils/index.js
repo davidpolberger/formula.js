@@ -7,6 +7,11 @@ exports.argsToArray = function(args) {
 
 exports.numbers = function() {
   var possibleNumbers = _.flatten(arguments);
+  possibleNumbers.forEach(function (value, index) {
+    if (value instanceof Date) {
+      possibleNumbers[index] = exports.serialDate(value);
+    }
+  });
   return possibleNumbers.filter(function(el) {
     return typeof el === 'number';
   });
@@ -130,6 +135,14 @@ exports.parseDateArray = function(arr) {
   }
   return arr;
 };
+
+var d1900 = new Date(1900, 0, 1);
+exports.serialDate = function (date) {
+  if (date <= -2203891200000) {
+    return (date - d1900) / 86400000 + 1;
+  }
+  return (date - d1900) / 86400000 + 2;
+}
 
 exports.anyIsError = function() {
   var n = arguments.length;
