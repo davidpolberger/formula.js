@@ -665,7 +665,10 @@ suite('Math & Trig', function() {
   });
 
   test('TANH', function() {
+    mathTrig.TANH(-2).should.approximately(-0.9640275800758168, 1e-9);
+    mathTrig.TANH(0).should.equal(0);
     mathTrig.TANH(0.5).should.approximately(0.46211715726000974, 1e-9);
+    mathTrig.TANH(error.na).should.equal(error.na);
     mathTrig.TANH('invalid').should.equal(error.value);
   });
 
