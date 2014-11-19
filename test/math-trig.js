@@ -660,7 +660,10 @@ suite('Math & Trig', function() {
   });
 
   test('TAN', function() {
+    mathTrig.TAN(0.785).should.approximately(0.9992039901050427, 1e-9);
+    mathTrig.TAN(45*mathTrig.PI()/180).should.approximately(1, 1e-9);
     mathTrig.TAN(mathTrig.RADIANS(45)).should.approximately(1, 1e-9);
+    mathTrig.TANH(error.na).should.equal(error.na);
     mathTrig.TAN('invalid').should.equal(error.value);
   });
 
