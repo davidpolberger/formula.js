@@ -58,6 +58,9 @@ exports.parseBool = function(bool) {
 };
 
 exports.parseNumber = function(string) {
+  if (string instanceof Error) {
+    return string;
+  }
   if (string === undefined || string === null || string === '') {
     return error.value;
   }

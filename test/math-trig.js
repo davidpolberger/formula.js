@@ -673,6 +673,9 @@ suite('Math & Trig', function() {
     mathTrig.TRUNC(8.9).should.equal(8);
     mathTrig.TRUNC(-8.9).should.equal(-8);
     mathTrig.TRUNC(0.45).should.equal(0);
+    mathTrig.TRUNC(0.45, 1).should.equal(0.4);
+    mathTrig.TRUNC(error.na).should.equal(error.na);
+    mathTrig.TRUNC(1, error.na).should.equal(error.na);
     mathTrig.TRUNC('invalid').should.equal(error.value);
   });
 });
