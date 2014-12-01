@@ -12,6 +12,7 @@ var categories = [
   require('./lib/lookup-reference'),
   require('./lib/statistical'),
   require('./lib/web'),
+  require('./lib/error'),
 ];
 
 for (var c in categories) {
