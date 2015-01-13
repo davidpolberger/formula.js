@@ -137,7 +137,22 @@ exports.parseMatrix = function(matrix) {
   return matrix;
 };
 
-var d1900 = new Date(1900, 0, 1);
+// Parse dates
+exports.excelToJsTimestamp = function(timestamp) {
+  if (timestamp < 60) {
+    timestamp++;
+  }
+  return (timestamp - 25569) * 86400000;
+};
+
+exports.jsToExcelTimestamp = function(timestamp) {
+  timestamp = (timestamp / 86400000) + 25569;
+  if (timestamp <= 60) {
+    timestamp--;
+  }
+  return timestamp;
+};
+
 exports.parseDate = function(date) {
   if (!isNaN(date)) {
     if (date instanceof Date) {
@@ -147,10 +162,7 @@ exports.parseDate = function(date) {
     if (d < 0) {
       return error.num;
     }
-    if (d <= 60) {
-      return new Date(d1900.getTime() + (d - 1) * 86400000);
-    }
-    return new Date(d1900.getTime() + (d - 2) * 86400000);
+    return new Date(exports.excelToJsTimestamp(d));
   }
   if (typeof date === 'string') {
     date = new Date(date);
@@ -159,6 +171,27 @@ exports.parseDate = function(date) {
     }
   }
   return error.value;
+};
+
+exports.parseDates = function(array) {
+  if (!(array instanceof Array)) {
+    return error.value;
+  }
+  var result = [];
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] instanceof Error) {
+      return array[i];
+    }
+    if (array[i] === null || array[i] === undefined) {
+      continue;
+    }
+    var value = exports.parseDate(array[i]);
+    if (value instanceof Error) {
+      return value;
+    }
+    result[result.length] = value;
+  }
+  return result;
 };
 
 exports.parseDateArray = function(arr) {
@@ -180,7 +213,7 @@ exports.serialDate = function (date) {
     return (date - d1900) / 86400000 + 1;
   }
   return (date - d1900) / 86400000 + 2;
-}
+};
 
 exports.anyIsError = function() {
   var n = arguments.length;
