@@ -215,25 +215,6 @@ exports.serialDate = function (date) {
   return (date - d1900) / 86400000 + 2;
 };
 
-exports.anyIsError = function() {
-  var n = arguments.length;
-  while (n--) {
-    if (arguments[n] instanceof Error) {
-      return true;
-    }
-  }
-  return false;
-};
-
-exports.containsError = function() {
-  var n = arguments.length;
-  while (n--) {
-    if (arguments[n] instanceof Error) {
-      return arguments[n];
-    }
-  }
-};
-
 exports.arrayValuesToNumbers = function(arr) {
   var n = arr.length;
   var el;
