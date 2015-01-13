@@ -157,6 +157,15 @@ exports.anyIsError = function() {
   return false;
 };
 
+exports.containsError = function() {
+  var n = arguments.length;
+  while (n--) {
+    if (arguments[n] instanceof Error) {
+      return arguments[n];
+    }
+  }
+};
+
 exports.arrayValuesToNumbers = function(arr) {
   var n = arr.length;
   var el;
