@@ -119,7 +119,7 @@ suite('Text', function() {
 
   test('REPT', function() {
     text.REPT('multiple ', 3).should.equal('multiple multiple multiple ');
-    text.REPT('m').should.equal(error.value);
+    text.REPT('m').should.equal('');
   });
 
   test('RIGHT', function() {

@@ -57,17 +57,52 @@ exports.parseBool = function(bool) {
   return error.value;
 };
 
-exports.parseNumber = function(string) {
+exports.parseNumber = function(string, strict) {
   if (string instanceof Error) {
     return string;
   }
-  if (string === undefined || string === null || string === '') {
-    return error.value;
+  if (string === undefined || string === null) {
+    return 0;
+  }
+  if (string === true) {
+    return 1;
+  }
+  if (string === false) {
+    return 0;
+  }
+  if (strict === true && typeof(string) !== 'number') {
+    return 0;
   }
   if (!isNaN(string)) {
-    return parseFloat(string);
+    var value = parseFloat(string);
+    if (!isNaN(value)) {
+      return value;
+    }
   }
   return error.value;
+};
+
+exports.parseNumbers = function(array, convert) {
+  if (!(array instanceof Array)) {
+    return error.value;
+  }
+  var result = [];
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] instanceof Error) {
+      return array[i];
+    }
+    if (array[i] === null ||
+        array[i] === undefined ||
+        !convert && typeof(array[i]) !== 'number') {
+      continue;
+    }
+    var value = exports.parseNumber(array[i], true);
+    if (value instanceof Error) {
+      return value;
+    }
+    result[result.length] = value;
+  }
+  return result;
 };
 
 exports.parseNumberArray = function(arr) {
