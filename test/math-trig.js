@@ -241,7 +241,7 @@ suite('Math & Trig', function() {
     mathTrig.GCD(24, 36).should.equal(12);
     mathTrig.GCD(7, 1).should.equal(1);
     mathTrig.GCD(5, 0).should.equal(5);
-    mathTrig.GCD(5, 'invalid').should.equal(error.value);
+    mathTrig.GCD(5, 'invalid').should.equal(5);
   });
 
   test('INT', function() {
@@ -263,6 +263,8 @@ suite('Math & Trig', function() {
     mathTrig.LCM(5, 2).should.equal(10);
     mathTrig.LCM(24, 36).should.equal(72);
     mathTrig.LCM(24, 'invalid').should.equal(error.value);
+    mathTrig.LCM([2, null]).should.equal(0);
+    mathTrig.LCM([2, -2]).should.equal(error.num);
   });
 
 
@@ -379,7 +381,7 @@ suite('Math & Trig', function() {
 
   test('PRODUCT', function() {
     mathTrig.PRODUCT([5, 15, 30]).should.equal(2250);
-    mathTrig.PRODUCT([5, 'invalid', 30]).should.equal(error.value);
+    mathTrig.PRODUCT([5, 'invalid', 30]).should.equal(150);
   });
 
   test('QUOTIENT', function() {
@@ -569,7 +571,7 @@ suite('Math & Trig', function() {
       [2, 2],
       [3, 3]
     ], '>2').should.equal(6);
-    mathTrig.SUMIF([1, 'invalid', 3], '>2').should.equal(3);
+    mathTrig.SUMIF([1, '9', 3], '>2').should.equal(3);
     mathTrig.SUMIF(['"A"', '"B"'], '="A"', [1, 2]).should.equal(1);
     mathTrig.SUMIF(['"A"', '"A"'], '"A"', [1, null]).should.equal(1);
     mathTrig.SUMIF("A", null).should.equal(0);
@@ -642,25 +644,26 @@ suite('Math & Trig', function() {
       [2, 2],
       [3, 3]
     ]).should.equal(28);
-    mathTrig.SUMSQ(1, 'invalid', 3).should.equal(error.value);
+    mathTrig.SUMSQ(1, 'invalid', 3).should.equal(10);
   });
 
   test("SUMX2MY2", function() {
+    mathTrig.SUMX2MY2([1, 2], [4, 5, 6]).should.equal(error.na);
     mathTrig.SUMX2MY2([1, 2, 3], [4, 5, 6]).should.equal(-63);
-    mathTrig.SUMX2MY2([1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]).should.equal(-468);
-    mathTrig.SUMX2MY2([1, 2, 3], [4, 'invalid', 6]).should.equal(error.value);
+    mathTrig.SUMX2MY2([1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]).should.equal(-468);
+    mathTrig.SUMX2MY2([1, 2, 3], [4, 'invalid', 6]).should.equal(-42);
   });
 
   test("SUMX2PY2", function() {
     mathTrig.SUMX2PY2([1, 2, 3], [4, 5, 6]).should.equal(91);
-    mathTrig.SUMX2PY2([1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]).should.equal(650);
-    mathTrig.SUMX2PY2([1, 2, 'invalid'], [4, 5, 6]).should.equal(error.value);
+    mathTrig.SUMX2PY2([1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]).should.equal(650);
+    mathTrig.SUMX2PY2([1, 2, 'invalid'], [4, 5, 6]).should.equal(46);
   });
 
   test("SUMXMY2", function() {
     mathTrig.SUMXMY2([1, 2, 3], [4, 5, 6]).should.equal(27);
-    mathTrig.SUMXMY2([1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12, 13, 14, 15, 16]).should.equal(216);
-    mathTrig.SUMXMY2([1, 2, 'invalid'], [4, 5, 6]).should.equal(error.value);
+    mathTrig.SUMXMY2([1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]).should.equal(216);
+    mathTrig.SUMXMY2([1, 2, 'invalid'], [4, 5, 6]).should.equal(18);
   });
 
   test('TAN', function() {
