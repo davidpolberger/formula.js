@@ -101,7 +101,7 @@ exports.parseNumbers = function(array, convert) {
     if (value instanceof Error) {
       return value;
     }
-    result[i] = value;
+    result[result.length] = value;
   }
   return result;
 };
@@ -129,7 +129,7 @@ exports.parseMatrix = function(matrix) {
   }
   var pnarr;
   for (var i = 0; i < matrix.length; i++) {
-    pnarr = exports.parseNumbers(matrix[i]);
+    pnarr = exports.parseNumbers(matrix[i], true);
     matrix[i] = pnarr;
     if (pnarr instanceof Error) {
       return pnarr;
