@@ -92,12 +92,10 @@ exports.parseNumbers = function(array, convert) {
     if (array[i] instanceof Error) {
       return array[i];
     }
-    if (array[i] === null ||
-        array[i] === undefined ||
-        !convert && typeof(array[i]) !== 'number') {
+    if (!convert && typeof(array[i]) !== 'number') {
       continue;
     }
-    var value = exports.parseNumber(array[i]);
+    var value = exports.parseNumber(array[i], true);
     if (value instanceof Error) {
       return value;
     }
@@ -122,17 +120,18 @@ exports.parseNumberArray = function(arr) {
   return arr;
 };
 */
-exports.parseMatrix = function(matrix) {
-  var n;
-  if (!matrix || (n = matrix.length) === 0) {
+exports.parseMatrix = function(matrix, strict) {
+  var colSize;
+  if (!matrix || (colSize = matrix.length) === 0) {
     return error.value;
   }
-  var pnarr;
-  for (var i = 0; i < matrix.length; i++) {
-    pnarr = exports.parseNumbers(matrix[i], true);
-    matrix[i] = pnarr;
-    if (pnarr instanceof Error) {
-      return pnarr;
+  var rowSize = matrix[0].length;
+  for (var i = 0; i < colSize; i++) {
+    for (var j = 0; j < rowSize; j++) {
+      matrix[i][j] = exports.parseNumber(matrix[i][j]);
+      if (matrix[i][j] instanceof Error) {
+        return matrix[i][j];
+      }
     }
   }
   return matrix;
