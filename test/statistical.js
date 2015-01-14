@@ -388,7 +388,7 @@ suite('Statistical', function() {
     ]).should.approximately(0.04838709677419217, 1e-9);
 
     statistical.INTERCEPT([1, 2, 3], [1, 2, 3, 4]).should.equal(error.na);
-    statistical.INTERCEPT([1, 2, 3], [1, 'invalid', 3, 4]).should.equal(error.value);
+    statistical.INTERCEPT([1, 2, 3], [1, 'invalid', 3]).should.equal(0);
   });
 
   test('KURT', function() {
