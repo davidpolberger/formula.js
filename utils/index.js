@@ -4,7 +4,7 @@ var _ = require('./limited-lodash');
 exports.argsToArray = function(args) {
   return Array.prototype.slice.call(args, 0);
 };
-
+/*
 exports.numbers = function() {
   var possibleNumbers = _.flatten(arguments);
   possibleNumbers.forEach(function (value, index) {
@@ -15,7 +15,7 @@ exports.numbers = function() {
   return possibleNumbers.filter(function(el) {
     return typeof el === 'number';
   });
-};
+};*/
 
 exports.cleanFloat = function(number) {
   var power = 1e14;
@@ -87,7 +87,8 @@ exports.parseNumbers = function(array, convert) {
     return error.value;
   }
   var result = [];
-  for (var i = 0; i < array.length; i++) {
+  var n = array.length;
+  for (var i = 0; i < n; i++) {
     if (array[i] instanceof Error) {
       return array[i];
     }
@@ -96,15 +97,15 @@ exports.parseNumbers = function(array, convert) {
         !convert && typeof(array[i]) !== 'number') {
       continue;
     }
-    var value = exports.parseNumber(array[i], true);
+    var value = exports.parseNumber(array[i]);
     if (value instanceof Error) {
       return value;
     }
-    result[result.length] = value;
+    result[i] = value;
   }
   return result;
 };
-
+/*
 exports.parseNumberArray = function(arr) {
   var len;
   if (!arr || (len = arr.length) === 0) {
@@ -120,7 +121,7 @@ exports.parseNumberArray = function(arr) {
   }
   return arr;
 };
-
+*/
 exports.parseMatrix = function(matrix) {
   var n;
   if (!matrix || (n = matrix.length) === 0) {
@@ -128,7 +129,7 @@ exports.parseMatrix = function(matrix) {
   }
   var pnarr;
   for (var i = 0; i < matrix.length; i++) {
-    pnarr = exports.parseNumberArray(matrix[i]);
+    pnarr = exports.parseNumbers(matrix[i]);
     matrix[i] = pnarr;
     if (pnarr instanceof Error) {
       return pnarr;
@@ -193,7 +194,7 @@ exports.parseDates = function(array) {
   }
   return result;
 };
-
+/*
 exports.parseDateArray = function(arr) {
   var len = arr.length;
   var parsed;
@@ -246,3 +247,4 @@ exports.arrayValuesToNumbers = function(arr) {
   }
   return arr;
 };
+*/
