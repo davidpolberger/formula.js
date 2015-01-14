@@ -1,5 +1,6 @@
 var lookupAndReference = require('../lib/lookup-reference');
 var error = require('../lib/error');
+var should = require('should');
 
 suite('Lookup & Reference', function() {
   test('TRANSPOSE', function() {
