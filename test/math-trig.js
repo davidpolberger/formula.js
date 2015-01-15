@@ -53,7 +53,11 @@ suite('Math & Trig', function() {
   });
 
   test('ARABIC', function() {
+    mathTrig.ARABIC('').should.equal(0);
+    mathTrig.ARABIC('x').should.equal(10);
     mathTrig.ARABIC('X').should.equal(10);
+    mathTrig.ARABIC(' X ').should.equal(10);
+    mathTrig.ARABIC('-X').should.equal(-10);
     mathTrig.ARABIC('ABC').should.equal(error.value);
   });
 
