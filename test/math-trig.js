@@ -89,7 +89,12 @@ suite('Math & Trig', function() {
   test('BASE', function() {
     mathTrig.BASE(7, 2).should.equal('111');
     mathTrig.BASE(400, 10, 10).should.equal('0000000400');
+    mathTrig.BASE(2e54, 10, 10).should.equal(error.num);
+    mathTrig.BASE(400, 1, 10).should.equal(error.num);
+    mathTrig.BASE(400, 10, -1).should.equal(error.num);
     mathTrig.BASE('invalid', 10, 10).should.equal(error.value);
+    mathTrig.BASE(400, 'invalid', 10).should.equal(error.value);
+    mathTrig.BASE(400, 10, 'invalid').should.equal(error.value);
   });
 
   test('CEILING', function() {
