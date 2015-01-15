@@ -69,20 +69,7 @@ suite('Utils', function() {
     utils.parseNumbers([error.na], true).should.equal(error.na);
   });
 
-  test('parseNumberArray', function() {
-    utils.parseNumberArray().should.equal(error.value);
-  });
-
   test('parseMatrix', function() {
     utils.parseMatrix().should.equal(error.value);
-  });
-
-  test('parseDateArray', function() {
-    utils.parseDateArray(['01/jan/2009', 'invalid']).should.equal(error.value);
-  });
-
-  test('arrayValuesToNumbers', function() {
-    should.deepEqual(utils.arrayValuesToNumbers(['1.4']), [1.4]);
-    should.deepEqual(utils.arrayValuesToNumbers(['not convertible']), [0]);
   });
 });
