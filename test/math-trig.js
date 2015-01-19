@@ -213,6 +213,8 @@ suite('Math & Trig', function() {
 
   test('FACT', function() {
     mathTrig.FACT(6).should.equal(720);
+    mathTrig.FACT(6.5).should.equal(720);
+    mathTrig.FACT(-6).should.equal(error.num);
     mathTrig.FACT('invalid').should.equal(error.value);
   });
 
