@@ -45,26 +45,31 @@ exports.parseBool = function(bool) {
   return error.value;
 };
 
-// strict = false -> try to convert non-numbers, return error if not possible
-// strict = true -> convert non-numbers to 0 or 1
-exports.parseNumber = function(string, strict) {
-  if (string instanceof Error) {
-    return string;
+/*
+ * 2 -> 2
+ * '2' -> 2
+ * 'invalid' -> #value!
+ * true -> 1
+ * false -> 0
+ * undefined -> 0
+ * null -> 0
+ * error -> error
+ */
+exports.parseNumber = function(num) {
+  if (num instanceof Error) {
+    return num;
   }
-  if (string === undefined || string === null) {
+  if (num === undefined || num === null) {
     return 0;
   }
-  if (string === true) {
+  if (num === false) {
+    return 0;
+  }
+  if (num === true) {
     return 1;
   }
-  if (string === false) {
-    return 0;
-  }
-  if (strict === true && typeof(string) !== 'number') {
-    return 0;
-  }
-  if (!isNaN(string)) {
-    var value = parseFloat(string);
+  if (!isNaN(num)) {
+    var value = parseFloat(num);
     if (!isNaN(value)) {
       return value;
     }
@@ -72,10 +77,22 @@ exports.parseNumber = function(string, strict) {
   return error.value;
 };
 
-// null and undefined elements are always ignored
-// convert = false -> ignore non-numbers, ex: [1, "2", "a", true] -> [1]
-// convert = true -> convert non-numbers to 0 or 1, ex: [1, "2", "a", true] -> [1, 0, 0, 1]
-exports.parseNumbers = function(array, convert) {
+/*
+ * 2 -> #value!
+ * error -> error
+ * [2] -> [2]
+ * ['2'] -> []
+ * ['invalid'] -> []
+ * [true] -> []
+ * [false] -> []
+ * [undefined] -> []
+ * [null] -> []
+ * [error] -> error
+ */
+exports.parseNumbers = function(array) {
+  if (array instanceof Error) {
+    return array;
+  }
   if (!(array instanceof Array)) {
     return error.value;
   }
@@ -84,18 +101,133 @@ exports.parseNumbers = function(array, convert) {
     if (array[i] instanceof Error) {
       return array[i];
     }
-    if (array[i] === null ||
-        array[i] === undefined ||
-        !convert && typeof(array[i]) !== 'number') {
+    if (typeof(array[i]) !== 'number') {
       continue;
     }
-    var value = exports.parseNumber(array[i], true);
-    if (value instanceof Error) {
-      return value;
-    }
-    result[result.length] = value;
+    result.push(array[i]);
   }
   return result;
+};
+
+/*
+ * 2 -> #value!
+ * error -> error
+ * [2] -> [2]
+ * ['2'] -> [0]
+ * ['invalid'] -> [0]
+ * [true] -> [1]
+ * [false] -> [0]
+ * [undefined] -> []
+ * [null] -> []
+ * [error] -> error
+ */
+exports.parseNumbersA = function(array) {
+  if (array instanceof Error) {
+    return array;
+  }
+  if (!(array instanceof Array)) {
+    return error.value;
+  }
+  var result = [];
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] instanceof Error) {
+      return array[i];
+    }
+    if (array[i] === undefined || array[i] === null) {
+      continue;
+    }
+    if (array[i] === false) {
+      result.push(0);
+    } else if (array[i] === true) {
+      result.push(1);
+    } else if (typeof(array[i]) !== 'number') {
+      result.push(0);
+    } else {
+      result.push(array[i]);
+    }
+  }
+  return result;
+};
+
+/*
+ * 2 -> #value!
+ * error -> error
+ * [2] -> [2]
+ * ['2'] -> [2]
+ * ['invalid'] -> #value!
+ * [true] -> #value!
+ * [false] -> #value!
+ * [undefined] -> [0]
+ * [null] -> [0]
+ * [error] -> error
+ */
+exports.parseNumbersConvert = function(array) {
+  if (array instanceof Error) {
+    return array;
+  }
+  if (!(array instanceof Array)) {
+    return error.value;
+  }
+  var result = [];
+  for (var i = 0; i < array.length; i++) {
+    if (array[i] instanceof Error) {
+      return array[i];
+    }
+    if (array[i] === undefined || array[i] === null) {
+      result.push(0);
+    } else {
+      var value = parseFloat(array[i]);
+      if (!isNaN(value)) {
+        result.push(value);
+      } else {
+        return error.value;
+      }
+    }
+  }
+  return result;
+};
+
+/*
+ * 2, 2 -> #value!
+ * error, error -> error
+ * [2], [2] -> [[2], [2]]
+ * ['2'], ['2'] -> [[2], [2]]
+ * ['invalid'], ['invalid] -> [[], []]
+ * [true], [true] -> [[], []]
+ * [false], [false] -> [[], []]
+ * [undefined], [undefined] -> [[], []]
+ * [null], [null] -> [[], []]
+ * [error], [error] -> error
+ */
+exports.parseNumbersX = function(array_x, array_y) {
+    if (array_x instanceof Error) {
+      return array_x;
+    }
+    if (array_y instanceof Error) {
+      return array_y;
+    }
+    if (!(array_x instanceof Array) || !(array_y instanceof Array)) {
+      return error.value;
+    }
+    if (array_x.length !== array_y.length) {
+      return error.na;
+    }
+    var parsed_x = [];
+    var parsed_y = [];
+    for (var i = 0; i < array_x.length; i++) {
+      if (array_x[i] instanceof Error) {
+        return array_x[i];
+      }
+      if (array_y[i] instanceof Error) {
+        return array_y[i];
+      }
+      if (typeof(array_x[i]) !== 'number' || typeof(array_y[i]) !== 'number') {
+        continue;
+      }
+      parsed_x.push(array_x[i]);
+      parsed_y.push(array_y[i]);
+    }
+    return [parsed_x, parsed_y];
 };
 
 exports.parseMatrix = function(matrix, strict) {

@@ -250,7 +250,7 @@ suite('Math & Trig', function() {
     mathTrig.GCD(24, 36).should.equal(12);
     mathTrig.GCD(7, 1).should.equal(1);
     mathTrig.GCD(5, 0).should.equal(5);
-    mathTrig.GCD(5, 'invalid').should.equal(5);
+    mathTrig.GCD(5, 'invalid').should.equal(error.value);
   });
 
   test('INT', function() {

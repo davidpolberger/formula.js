@@ -26,47 +26,66 @@ suite('Utils', function() {
   });
 
   test('parseNumber', function() {
-    utils.parseNumber(1).should.equal(1);
-    utils.parseNumber('1').should.equal(1);
+    utils.parseNumber(2).should.equal(2);
+    utils.parseNumber('2').should.equal(2);
+    utils.parseNumber('string').should.equal(error.value);
     utils.parseNumber(true).should.equal(1);
     utils.parseNumber(false).should.equal(0);
     utils.parseNumber(null).should.equal(0);
     utils.parseNumber(undefined).should.equal(0);
-    utils.parseNumber('string').should.equal(error.value);
     utils.parseNumber(error.na).should.equal(error.na);
-
-    utils.parseNumber(1, true).should.equal(1);
-    utils.parseNumber('1', true).should.equal(0);
-    utils.parseNumber(true, true).should.equal(1);
-    utils.parseNumber(false, true).should.equal(0);
-    utils.parseNumber(null, true).should.equal(0);
-    utils.parseNumber(undefined, true).should.equal(0);
-    utils.parseNumber('string', true).should.equal(0);
-    utils.parseNumber(error.na, true).should.equal(error.na);
   });
 
   test('parseNumbers', function() {
-    utils.parseNumbers(null).should.equal(error.value);
-    utils.parseNumbers(1).should.equal(error.value);
-    utils.parseNumbers([1]).should.containEql(1);
-    utils.parseNumbers(['1']).should.be.empty;
-    utils.parseNumbers([true]).should.be.empty;
-    utils.parseNumbers([false]).should.be.empty;
-    utils.parseNumbers([null]).should.be.empty;
-    utils.parseNumbers([undefined]).should.be.empty;
-    utils.parseNumbers(['string']).should.be.empty;
-    utils.parseNumbers([error.na]).should.equal(error.na);
+    utils.parseNumbers(2).should.eql(error.value);
+    utils.parseNumbers(error.na).should.eql(error.na);
+    utils.parseNumbers([2]).should.eql([2]);
+    utils.parseNumbers(['2']).should.eql([]);
+    utils.parseNumbers(['string']).should.eql([]);
+    utils.parseNumbers([true]).should.eql([]);
+    utils.parseNumbers([false]).should.eql([]);
+    utils.parseNumbers([null]).should.eql([]);
+    utils.parseNumbers([undefined]).should.eql([]);
+    utils.parseNumbers([error.na]).should.eql(error.na);
+  });
 
-    utils.parseNumbers(null, true).should.equal(error.value);
-    utils.parseNumbers(1, true).should.equal(error.value);
-    utils.parseNumbers([1], true).should.containEql(1);
-    utils.parseNumbers(['1'], true).should.containEql(0);
-    utils.parseNumbers([true], true).should.containEql(1);
-    utils.parseNumbers([false], true).should.containEql(0);
-    utils.parseNumbers([null], true).should.be.empty;
-    utils.parseNumbers([undefined], true).should.be.empty;
-    utils.parseNumbers(['string'], true).should.containEql(0);
-    utils.parseNumbers([error.na], true).should.equal(error.na);
+  test('parseNumbersA', function() {
+    utils.parseNumbersA(2).should.eql(error.value);
+    utils.parseNumbersA(error.na).should.eql(error.na);
+    utils.parseNumbersA([2]).should.eql([2]);
+    utils.parseNumbersA(['2']).should.eql([0]);
+    utils.parseNumbersA(['string']).should.eql([0]);
+    utils.parseNumbersA([true]).should.eql([1]);
+    utils.parseNumbersA([false]).should.eql([0]);
+    utils.parseNumbersA([null]).should.eql([]);
+    utils.parseNumbersA([undefined]).should.eql([]);
+    utils.parseNumbersA([error.na]).should.eql(error.na);
+  });
+
+  test('parseNumbersConvert', function() {
+    utils.parseNumbersConvert(2).should.eql(error.value);
+    utils.parseNumbersConvert(error.na).should.eql(error.na);
+    utils.parseNumbersConvert([2]).should.eql([2]);
+    utils.parseNumbersConvert(['2']).should.eql([2]);
+    utils.parseNumbersConvert(['string']).should.eql(error.value);
+    utils.parseNumbersConvert([true]).should.eql(error.value);
+    utils.parseNumbersConvert([false]).should.eql(error.value);
+    utils.parseNumbersConvert([null]).should.eql([0]);
+    utils.parseNumbersConvert([undefined]).should.eql([0]);
+    utils.parseNumbersConvert([error.na]).should.eql(error.na);
+  });
+
+  test('parseNumbersX', function() {
+    utils.parseNumbersA(2, 2).should.eql(error.value);
+    utils.parseNumbersA(error.na, error.na).should.eql(error.na);
+    utils.parseNumbersX([2], [2]).should.eql([[2],[2]]);
+    utils.parseNumbersX(['2'], ['2']).should.eql([[], []]);
+    utils.parseNumbersX(['string'], ['string']).should.eql([[], []]);
+    utils.parseNumbersX([true], [true]).should.eql([[], []]);
+    utils.parseNumbersX([false], [false]).should.eql([[], []]);
+    utils.parseNumbersX([null], [null]).should.eql([[], []]);
+    utils.parseNumbersX([undefined], [undefined]).should.eql([[], []]);
+    utils.parseNumbersX([error.na], [error.na]).should.eql(error.na);
   });
 
   test('parseMatrix', function() {
