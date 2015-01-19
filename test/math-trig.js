@@ -219,7 +219,10 @@ suite('Math & Trig', function() {
   });
 
   test('FACTDOUBLE', function() {
-    mathTrig.FACTDOUBLE(10).should.equal(3840);
+    mathTrig.FACTDOUBLE(6).should.equal(48);
+    mathTrig.FACTDOUBLE(7).should.equal(105);
+    mathTrig.FACTDOUBLE(6.5).should.equal(48);
+    mathTrig.FACTDOUBLE(-10).should.equal(error.num);
     mathTrig.FACTDOUBLE('invalid').should.equal(error.value);
   });
 
