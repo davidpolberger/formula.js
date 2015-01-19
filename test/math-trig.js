@@ -194,8 +194,11 @@ suite('Math & Trig', function() {
   });
 
   test('DECIMAL', function() {
-    mathTrig.DECIMAL(10.5).should.equal(10);
-    mathTrig.DECIMAL('invalid').should.equal(error.value);
+    mathTrig.DECIMAL(1, 10).should.equal(1);
+    mathTrig.DECIMAL('FF', 16).should.equal(255);
+    mathTrig.DECIMAL(1, 0).should.equal(error.num);
+    mathTrig.DECIMAL('invalid', 10).should.equal(error.num);
+    mathTrig.DECIMAL(error.na).should.equal(error.na);
   });
 
   test('DEGREES', function() {
@@ -210,11 +213,16 @@ suite('Math & Trig', function() {
 
   test('FACT', function() {
     mathTrig.FACT(6).should.equal(720);
+    mathTrig.FACT(6.5).should.equal(720);
+    mathTrig.FACT(-6).should.equal(error.num);
     mathTrig.FACT('invalid').should.equal(error.value);
   });
 
   test('FACTDOUBLE', function() {
-    mathTrig.FACTDOUBLE(10).should.equal(3840);
+    mathTrig.FACTDOUBLE(6).should.equal(48);
+    mathTrig.FACTDOUBLE(7).should.equal(105);
+    mathTrig.FACTDOUBLE(6.5).should.equal(48);
+    mathTrig.FACTDOUBLE(-10).should.equal(error.num);
     mathTrig.FACTDOUBLE('invalid').should.equal(error.value);
   });
 
