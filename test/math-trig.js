@@ -194,8 +194,11 @@ suite('Math & Trig', function() {
   });
 
   test('DECIMAL', function() {
-    mathTrig.DECIMAL(10.5).should.equal(10);
-    mathTrig.DECIMAL('invalid').should.equal(error.value);
+    mathTrig.DECIMAL(1, 10).should.equal(1);
+    mathTrig.DECIMAL('FF', 16).should.equal(255);
+    mathTrig.DECIMAL(1, 0).should.equal(error.num);
+    mathTrig.DECIMAL('invalid', 10).should.equal(error.num);
+    mathTrig.DECIMAL(error.na).should.equal(error.na);
   });
 
   test('DEGREES', function() {
