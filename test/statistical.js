@@ -58,8 +58,8 @@ suite('Statistical', function() {
   });
 
   test('BETA.DIST', function() {
-    statistical.BETA.DIST(2, 8, 10, 1, 3).should.approximately(0.6854705810117458, 1e-9);
-    statistical.BETA.DIST(2, 8, 'invalid', 1, 3).should.equal(error.value);
+    statistical.BETA.DIST(2, 8, 10, true, 1, 3).should.approximately(0.6854705810117458, 1e-9);
+    statistical.BETA.DIST(2, 8, 'invalid', true, 1, 3).should.equal(error.value);
   });
 
   test('BETA.INV', function() {
@@ -121,10 +121,10 @@ suite('Statistical', function() {
 
   test('CORREL', function() {
     statistical.CORREL([3, 2, 4, 5, 6], [9, 7, 12, 15, 17]).should.approximately(0.9970544855015815, 1e-9);
-    // statistical.CORREL([3, 2, 4, 5, 6], [9, 7, 12, 'invalid', 17]).should.equal(error.value);
+    statistical.CORREL([3, 2, 4, 5, 6], [9, 7, 12, 'invalid', 17]).should.approximately(0.998488473754967, 1e-9);
   });
 
-  test("COUNT", function() {
+  test('COUNT', function() {
     statistical.COUNT().should.equal(0);
     statistical.COUNT(1, 2, 3, 4).should.equal(4);
     statistical.COUNT([1, 2, 3, 4]).should.equal(4);
@@ -141,6 +141,11 @@ suite('Statistical', function() {
     statistical.COUNT([
       [1, 2],
       ['a', 'b'],
+      [null, null]
+    ]).should.equal(2);
+    statistical.COUNT([
+      [1, 2],
+      ['10', 'b'],
       [null, null]
     ]).should.equal(2);
   });
