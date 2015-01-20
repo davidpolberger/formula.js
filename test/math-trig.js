@@ -431,18 +431,10 @@ suite('Math & Trig', function() {
   });
 
   test('RANDBETWEEN', function() {
-    var bottom = 5;
-    var top = 10;
-    var sum = 0;
-    var n = 100;
-    var i = n;
-    while (i--) {
-      sum += mathTrig.RANDBETWEEN(bottom, top);
-    }
-
-    var average = sum / n;
-    Number(parseInt(average, 10)).should.equal(7);
-    mathTrig.RANDBETWEEN(bottom, 'invalid').should.equal(error.value);
+    mathTrig.RANDBETWEEN(0, 1).should.be.within(0, 1);
+    mathTrig.RANDBETWEEN(-1, 0).should.be.within(-1, 0);
+    mathTrig.RANDBETWEEN(-1, 1).should.be.within(-1, 1);
+    mathTrig.RANDBETWEEN(0, 'invalid').should.equal(error.value);
   });
 
   test('ROMAN', function() {
