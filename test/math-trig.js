@@ -388,6 +388,7 @@ suite('Math & Trig', function() {
   });
 
   test('ODD', function() {
+    mathTrig.ODD(1.5).should.equal(3);
     mathTrig.ODD(3).should.equal(3);
     mathTrig.ODD(2).should.equal(3);
     mathTrig.ODD(-1).should.equal(-1);
