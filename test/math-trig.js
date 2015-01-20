@@ -417,6 +417,7 @@ suite('Math & Trig', function() {
     mathTrig.QUOTIENT(5, 2).should.equal(2);
     mathTrig.QUOTIENT(4.5, 3.1).should.equal(1);
     mathTrig.QUOTIENT(-10, 3).should.equal(-3);
+    mathTrig.QUOTIENT(5, 0).should.equal(error.div0);
     mathTrig.QUOTIENT(-10, 'invalid').should.equal(error.value);
   });
 
