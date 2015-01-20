@@ -427,15 +427,7 @@ suite('Math & Trig', function() {
   });
 
   test('RAND', function() {
-    var sum = 0;
-    var n = 10;
-    var i = n;
-    while (i--) {
-      sum += mathTrig.RAND();
-    }
-
-    var average = sum / n;
-    Number(parseInt(average), 10).should.equal(0);
+    mathTrig.RAND().should.be.within(0, 1);
   });
 
   test('RANDBETWEEN', function() {
