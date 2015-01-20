@@ -266,6 +266,7 @@ suite('Math & Trig', function() {
 
   test('INT', function() {
     mathTrig.INT(5.5).should.equal(5);
+    mathTrig.INT('5').should.equal(5);
     mathTrig.INT('invalid').should.equal(error.value);
   });
 
