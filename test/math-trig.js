@@ -254,15 +254,19 @@ suite('Math & Trig', function() {
   });
 
   test('GCD', function() {
+    mathTrig.GCD(1).should.equal(1);
     mathTrig.GCD(5, 2).should.equal(1);
     mathTrig.GCD(24, 36).should.equal(12);
     mathTrig.GCD(7, 1).should.equal(1);
     mathTrig.GCD(5, 0).should.equal(5);
+    mathTrig.GCD('5').should.equal(5);
+    mathTrig.GCD('invalid').should.equal(error.value);
     mathTrig.GCD(5, 'invalid').should.equal(error.value);
   });
 
   test('INT', function() {
     mathTrig.INT(5.5).should.equal(5);
+    mathTrig.INT('5').should.equal(5);
     mathTrig.INT('invalid').should.equal(error.value);
   });
 
@@ -279,6 +283,7 @@ suite('Math & Trig', function() {
   test('LCM', function() {
     mathTrig.LCM(5, 2).should.equal(10);
     mathTrig.LCM(24, 36).should.equal(72);
+    mathTrig.LCM('5').should.equal(5);
     mathTrig.LCM(24, 'invalid').should.equal(error.value);
     mathTrig.LCM([2, null]).should.equal(0);
     mathTrig.LCM([2, -2]).should.equal(error.num);
@@ -287,16 +292,22 @@ suite('Math & Trig', function() {
 
   test('LN', function() {
     mathTrig.LN(Math.E).should.equal(1);
+    mathTrig.LN(0).should.equal(error.num);
     mathTrig.LN('invalid').should.equal(error.value);
   });
 
   test('LOG', function() {
+    mathTrig.LOG(10).should.equal(1);
     mathTrig.LOG(10, 10).should.equal(1);
+    mathTrig.LOG(0).should.equal(error.num);
+    mathTrig.LOG(10, 0).should.equal(error.num);
+    mathTrig.LOG(10, 1).should.equal(error.div0);
     mathTrig.LOG(10, 'invalid').should.equal(error.value);
   });
 
   test('LOG10', function() {
     mathTrig.LOG10(10).should.equal(1);
+    mathTrig.LOG10(0).should.equal(error.num);
     mathTrig.LOG10('invalid').should.equal(error.value);
   });
 
