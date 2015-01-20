@@ -28,6 +28,8 @@ suite('Statistical', function() {
       [8, 16],
       [true, false]
     ]).should.approximately(7.5, 1e-9);
+    statistical.AVERAGE('invalid').should.equal(error.div0);
+    statistical.AVERAGE('invalid', 1).should.equal(1);
   });
 
   test("AVERAGEA", function() {
@@ -48,18 +50,24 @@ suite('Statistical', function() {
       [1, 2],
       [3, 4]
     ]).should.approximately(3.5, 1e-9);
-    // statistical.AVERAGEIF([2, 4, 'invalid', 16], '>5').should.equal(error.value);
+    statistical.AVERAGEIF(['invalid'], '>5').should.throw(error.div0);
   });
 
   test("AVERAGEIFS", function() {
     statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2').should.equal(12);
     statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2', [1, 2, 3, 4], '>2').should.equal(12);
-    statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2', [1, 1, 1, 1], '>2').should.equal(0);
+    statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2', [1, 1, 1, 1], '>2').should.equal(error.div0);
+    statistical.AVERAGEIFS([true, true, true, true], [1, 2, 3, 4], '>2', [1, 2, 3, 4], '>1').should.equal(error.div0);
   });
 
   test('BETA.DIST', function() {
     statistical.BETA.DIST(2, 8, 10, true, 1, 3).should.approximately(0.6854705810117458, 1e-9);
     statistical.BETA.DIST(2, 8, 'invalid', true, 1, 3).should.equal(error.value);
+  });
+
+  test('BETADIST', function() {
+    statistical.BETA.DIST(2, 8, 10, 1, 3).should.approximately(0.6854705810117458, 1e-9);
+    statistical.BETA.DIST(2, 8, 'invalid', 1, 3).should.equal(error.value);
   });
 
   test('BETA.INV', function() {
@@ -70,12 +78,16 @@ suite('Statistical', function() {
   test('BINOM.DIST', function() {
     statistical.BINOM.DIST(6, 10, 0.5, false).should.approximately(0.205078125, 1e-9);
     statistical.BINOM.DIST(6, 'invalid', 0.5, false).should.equal(error.value);
+    statistical.BINOM.DIST(11, 10, 0.5, false).should.equal(error.num);
+    statistical.BINOM.DIST(6, 10, -0.5, false).should.equal(error.num);
   });
 
   test('BINOM.DIST.RANGE', function() {
     statistical.BINOM.DIST.RANGE(60, 0.75, 48).should.approximately(0.08397496742904752, 1e-9);
     statistical.BINOM.DIST.RANGE(60, 0.75, 45, 50).should.approximately(0.5236297934718873, 1e-9);
     statistical.BINOM.DIST.RANGE(60, 0.75, 'invalid', 50).should.equal(error.value);
+    statistical.BINOM.DIST.RANGE(-1, 0.75, 45, 50).should.equal(error.num);
+    statistical.BINOM.DIST.RANGE(60, 1.27, 45, 50).should.equal(error.num);
   });
 
   test('BINOM.INV', function() {
