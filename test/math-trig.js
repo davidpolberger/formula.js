@@ -283,6 +283,7 @@ suite('Math & Trig', function() {
   test('LCM', function() {
     mathTrig.LCM(5, 2).should.equal(10);
     mathTrig.LCM(24, 36).should.equal(72);
+    mathTrig.LCM('5').should.equal(5);
     mathTrig.LCM(24, 'invalid').should.equal(error.value);
     mathTrig.LCM([2, null]).should.equal(0);
     mathTrig.LCM([2, -2]).should.equal(error.num);
