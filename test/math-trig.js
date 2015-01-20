@@ -292,16 +292,22 @@ suite('Math & Trig', function() {
 
   test('LN', function() {
     mathTrig.LN(Math.E).should.equal(1);
+    mathTrig.LN(0).should.equal(error.num);
     mathTrig.LN('invalid').should.equal(error.value);
   });
 
   test('LOG', function() {
+    mathTrig.LOG(10).should.equal(1);
     mathTrig.LOG(10, 10).should.equal(1);
+    mathTrig.LOG(0).should.equal(error.num);
+    mathTrig.LOG(10, 0).should.equal(error.num);
+    mathTrig.LOG(10, 1).should.equal(error.div0);
     mathTrig.LOG(10, 'invalid').should.equal(error.value);
   });
 
   test('LOG10', function() {
     mathTrig.LOG10(10).should.equal(1);
+    mathTrig.LOG10(0).should.equal(error.num);
     mathTrig.LOG10('invalid').should.equal(error.value);
   });
 
