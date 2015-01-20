@@ -254,10 +254,13 @@ suite('Math & Trig', function() {
   });
 
   test('GCD', function() {
+    mathTrig.GCD(1).should.equal(1);
     mathTrig.GCD(5, 2).should.equal(1);
     mathTrig.GCD(24, 36).should.equal(12);
     mathTrig.GCD(7, 1).should.equal(1);
     mathTrig.GCD(5, 0).should.equal(5);
+    mathTrig.GCD('5').should.equal(5);
+    mathTrig.GCD('invalid').should.equal(error.value);
     mathTrig.GCD(5, 'invalid').should.equal(error.value);
   });
 
