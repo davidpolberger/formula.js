@@ -17,6 +17,7 @@ suite('Engineering', function() {
 
   test('BESSELK', function() {
     engineering.BESSELK(1.5, 1).should.approximately(0.277388, 10e-6);
+    engineering.BESSELK(1.5, -1).should.equal(error.num);
     engineering.BESSELK('invalid').should.equal(error.value);
   });
 
