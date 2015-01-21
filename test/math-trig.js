@@ -468,9 +468,10 @@ suite('Math & Trig', function() {
   test('ROUNDUP', function() {
     mathTrig.ROUNDUP(3.2, 0).should.equal(4);
     mathTrig.ROUNDUP(76.9, 0).should.equal(77);
-    mathTrig.ROUNDUP(3.14159, 3).should.approximately(3.142, 1e-9);
-    mathTrig.ROUNDUP(-3.14159, 1).should.approximately(-3.2, 1e-9);
+    mathTrig.ROUNDUP(3.14159, 3).should.equal(3.142, 1e-9);
+    mathTrig.ROUNDUP(-3.14159, 1).should.equal(-3.2, 1e-9);
     mathTrig.ROUNDUP(31415.92654, -2).should.equal(31500);
+    mathTrig.ROUNDUP('invalid', 0).should.equal(error.value);
     mathTrig.ROUNDUP(31415.92654, 'invalid').should.equal(error.value);
   });
 
