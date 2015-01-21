@@ -444,13 +444,14 @@ suite('Math & Trig', function() {
   });
 
   test('ROUND', function() {
-    mathTrig.ROUND(2.15, 1).should.approximately(2.2, 1e-9);
-    mathTrig.ROUND(2.149, 1).should.approximately(2.1, 1e-9);
-    mathTrig.ROUND(-1.475, 2).should.approximately(-1.47, 1e-9); //TODO: check if -1.48 would be the correct result or a precision error
+    mathTrig.ROUND(2.15, 1).should.equal(2.2);
+    mathTrig.ROUND(2.149, 1).should.equal(2.1);
+    mathTrig.ROUND(-1.475, 2).should.equal(-1.48);
     mathTrig.ROUND(21.5, -1).should.equal(20);
     mathTrig.ROUND(626.3, -3).should.equal(1000);
     mathTrig.ROUND(1.98, -1).should.equal(0);
     mathTrig.ROUND(-50.55, -2).should.equal(-100);
+    mathTrig.ROUND('invalid', 1).should.equal(error.value);
     mathTrig.ROUND(-50.55, 'invalid').should.equal(error.value);
   });
 
