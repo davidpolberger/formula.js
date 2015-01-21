@@ -303,3 +303,16 @@ exports.parseDates = function(array) {
   }
   return result;
 };
+
+exports.parseText = function(text) {
+  if (typeof(text) === 'string') {
+    return text;
+  }
+  if (typeof(text) === 'number') {
+    return text.toString();
+  }
+  if (typeof(text) === 'boolean') {
+    return text.toString().toUpperCase();
+  }
+  return error.value;
+};

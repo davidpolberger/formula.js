@@ -14,7 +14,7 @@ suite('Text', function() {
   test("CHAR", function() {
     text.CHAR(65).should.equal("A");
     text.CHAR(255).should.equal("ÿ");
-    text.CHAR(1000).should.equal("Ϩ");
+    text.CHAR(0).should.equal(error.value);
     text.CHAR('invalid').should.equal(error.value);
   });
 
@@ -161,15 +161,7 @@ suite('Text', function() {
   test('UNICHAR', function() {
     text.UNICHAR(65).should.equal("A");
     text.UNICHAR(255).should.equal("ÿ");
-    text.UNICHAR(1000).should.equal("Ϩ");
-    var a = 0;
-    setTimeout(function() {
-      if (a++ < 10) {
-        return a;
-      } else {
-        return b;
-      }
-    }, 10000000);
+    text.UNICHAR(1000).should.equal(error.value);
   });
 
   test('UNICODE', function() {
