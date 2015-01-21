@@ -14,7 +14,7 @@ suite('Text', function() {
   test("CHAR", function() {
     text.CHAR(65).should.equal("A");
     text.CHAR(255).should.equal("ÿ");
-    text.CHAR(1000).should.equal("Ϩ");
+    text.CHAR(0).should.equal(error.value);
     text.CHAR('invalid').should.equal(error.value);
   });
 
