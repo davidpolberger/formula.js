@@ -23,6 +23,7 @@ suite('Engineering', function() {
 
   test('BESSELY', function() {
     engineering.BESSELY(2.5, 1).should.approximately(0.145918, 10e-6);
+    engineering.BESSELY(2.5, -1).should.equal(error.num);
     engineering.BESSELY('invalid').should.equal(error.value);
   });
 
