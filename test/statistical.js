@@ -93,11 +93,16 @@ suite('Statistical', function() {
   test('BINOM.INV', function() {
     statistical.BINOM.INV(6, 0.5, 0.75).should.equal(4);
     statistical.BINOM.INV(6, 'invalid', 0.75).should.equal(error.value);
+    statistical.BINOM.INV(-1, 0.5, 0.75).should.equal(error.num);
+    statistical.BINOM.INV(1, 1.5, 0.75).should.equal(error.num);
+    statistical.BINOM.INV(1, 0.5, -0.75).should.equal(error.num);
   });
 
   test('CHISQ.DIST', function() {
     statistical.CHISQ.DIST(0.5, 1, true).should.approximately(0.5204998778130242, 1e-9);
     statistical.CHISQ.DIST(0.5, 'invalid', true).should.equal(error.value);
+    statistical.CHISQ.DIST(-0.5, 1, true).should.equal(error.num);
+    statistical.CHISQ.DIST(0.5, Math.pow(10,10)+1, true).should.equal(error.num);
   });
 
   // TODO: implement
@@ -109,6 +114,8 @@ suite('Statistical', function() {
     statistical.CHISQ.INV(0.93, 1).should.approximately(3.283020286473263, 1e-9);
     statistical.CHISQ.INV(0.6, 2).should.approximately(1.83258146374831, 1e-9);
     statistical.CHISQ.INV(0.6, 'invalid').should.equal(error.value);
+    statistical.CHISQ.INV(-0.5, 1).should.equal(error.num);
+    statistical.CHISQ.INV(0.5, Math.pow(10,10)+1).should.equal(error.num);
   });
 
   // TODO: implement
@@ -123,17 +130,27 @@ suite('Statistical', function() {
 
   test('CONFIDENCE.NORM', function() {
     statistical.CONFIDENCE.NORM(0.05, 2.5, 50).should.approximately(0.6929519121748391, 1e-9);
-    statistical.CONFIDENCE.NORM(0.05, 'invalid', 50).should.equal(error.value);
+    statistical.CONFIDENCE.NORM('invalid', 2.5, 50).should.equal(error.value);
+    statistical.CONFIDENCE.NORM(-0.05, 2.5, 50).should.equal(error.num);
+    statistical.CONFIDENCE.NORM(0.05, 0, 50).should.equal(error.num);
+    statistical.CONFIDENCE.NORM(0.05, 2.5, 0).should.equal(error.num);
+
   });
 
   test('CONFIDENCE.T', function() {
     statistical.CONFIDENCE.T(0.05, 1, 50).should.approximately(0.28419685015290463, 1e-9);
     statistical.CONFIDENCE.T(0.05, 1, 'invalid').should.equal(error.value);
+    statistical.CONFIDENCE.T(-0.05, 2.5, 50).should.equal(error.num);
+    statistical.CONFIDENCE.T(0.05, 0, 50).should.equal(error.num);
+    statistical.CONFIDENCE.T(0.05, 2.5, 0).should.equal(error.num);
+    statistical.CONFIDENCE.T(0.05, 2.5, 1).should.equal(error.div0);
   });
 
   test('CORREL', function() {
     statistical.CORREL([3, 2, 4, 5, 6], [9, 7, 12, 15, 17]).should.approximately(0.9970544855015815, 1e-9);
     statistical.CORREL([3, 2, 4, 5, 6], [9, 7, 12, 'invalid', 17]).should.approximately(0.998488473754967, 1e-9);
+    statistical.CORREL([1], [3, 4]).should.equal(error.na);
+    statistical.CORREL([], []).should.equal(error.div0);
   });
 
   test('COUNT', function() {
@@ -160,17 +177,25 @@ suite('Statistical', function() {
       ['10', 'b'],
       [null, null]
     ]).should.equal(2);
+    statistical.COUNT('1', '2').should.equal(0);
   });
 
   test("COUNTA", function() {
     statistical.COUNTA().should.equal(0);
-    statistical.COUNTA(1, null, 3, 'a', '', 'c').should.equal(4);
-    statistical.COUNTA([1, null, 3, 'a', '', 'c']).should.equal(4);
-    statistical.COUNTA([1, null, 3], ['a', '', 'c']).should.equal(4);
+    statistical.COUNTA(1, null, 3, 'a', '', 'c').should.equal(5);
+    statistical.COUNTA([1, null, 3, 'a', '', 'c']).should.equal(5);
+    statistical.COUNTA([1, null, 3], ['a', '', 'c']).should.equal(5);
     statistical.COUNTA([
       [1, null, 3],
       ['a', '', 'c']
-    ]).should.equal(4);
+    ]).should.equal(5);
+    statistical.COUNTA(1).should.equal(1);
+    statistical.COUNTA('a').should.equal(1);
+    statistical.COUNTA('').should.equal(1);
+    statistical.COUNTA(true).should.equal(1);
+    statistical.COUNTA(error.value).should.equal(1);
+    statistical.COUNTA(null).should.equal(0);
+    statistical.COUNTA(undefined).should.equal(0);
   });
 
   test("COUNTBLANK", function() {
@@ -185,12 +210,12 @@ suite('Statistical', function() {
   });
 
   test("COUNTIF", function() {
-    statistical.COUNTIF([1, null, 3, 'a', ''], '>1').should.equal(1);
-    statistical.COUNTIF([1, null, 'c', 'a', ''], '>1').should.equal(0);
+    statistical.COUNTIF([1, null, 3, 'a', ''], '>1').should.equal(2);
+    statistical.COUNTIF([1, null, 'c', 'a', ''], '>1').should.equal(2);
     statistical.COUNTIF([
       [1, null, 3],
       ['a', 4, 'c']
-    ], '>1').should.equal(2);
+    ], '>1').should.equal(4);
     statistical.COUNTIF([
       [1, null, 'a'],
       ['a', 4, 'c']
@@ -198,25 +223,12 @@ suite('Statistical', function() {
   });
 
   test("COUNTIFS", function() {
-    statistical.COUNTIFS([1, null, 3, 'a', ''], '>1').should.equal(1);
-    statistical.COUNTIFS([1, null, 'c', 'a', ''], '>1').should.equal(0);
-    statistical.COUNTIFS([
-      [1, null, 3],
-      ['a', 4, 'c']
-    ], '>1').should.equal(2);
-    statistical.COUNTIFS([
-      [1, null, 'a'],
-      ['a', 4, 'c']
-    ], 'a').should.equal(2);
-    statistical.COUNTIFS([1, null], '1', [2, null], '2').should.equal(1);
-    statistical.COUNTIFS([1, null], '1', [null, 2], '2').should.equal(0);
-    statistical.COUNTIFS([
-      [1],
-      [null]
-    ], '1', [
-      [2],
-      [1]
-    ], '2').should.equal(1);
+    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '>1').should.equal(1);
+    statistical.COUNTIFS([1, null, 'c', 'a', ''], ">'1'").should.equal(2);
+    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '=1').should.equal(1);
+    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '=a').should.equal(1);
+    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '="a"').should.equal(1);
+    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], 1).should.equal(1);
   });
 
   test('COVARIANCE.P', function() {
