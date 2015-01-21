@@ -11,6 +11,7 @@ suite('Engineering', function() {
 
   test('BESSELJ', function() {
     engineering.BESSELJ(1.9, 2).should.approximately(0.329926, 10e-6);
+    engineering.BESSELJ(1.9, -2).should.equal(error.num);
     engineering.BESSELJ('invalid').should.equal(error.value);
   });
 
