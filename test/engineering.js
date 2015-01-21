@@ -5,6 +5,7 @@ var should = require('should');
 suite('Engineering', function() {
   test('BESSELI', function() {
     engineering.BESSELI(1.5, 1).should.approximately(0.981666, 10e-6);
+    engineering.BESSELI(1.5, -1).should.equal(error.num);
     engineering.BESSELI('invalid').should.equal(error.value);
   });
 
