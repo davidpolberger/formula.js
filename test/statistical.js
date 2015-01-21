@@ -233,12 +233,15 @@ suite('Statistical', function() {
 
   test('COVARIANCE.P', function() {
     statistical.COVARIANCE.P([3, 2, 4, 5, 6], [9, 7, 12, 15, 17]).should.approximately(5.2, 1e-9);
-    // statistical.COVARIANCE.P([3, 2, 4, 5, 6], [9, 'invalid', 12, 15, 17]).should.equal(error.value);
+    statistical.COVARIANCE.P([3, 2, 4, 5, 6], [9, 'invalid', 12, 15, 17]).should.equal(3.375);
+    statistical.COVARIANCE.P([3, 2, 4, 5], [9, 7, 12, 15, 17]).should.equal(error.na);
+    statistical.COVARIANCE.P([], []).should.equal(error.div0);
   });
 
   test('COVARIANCE.S', function() {
     statistical.COVARIANCE.S([2, 4, 8], [5, 11, 12]).should.approximately(9.666666666666668, 1e-9);
-    // statistical.COVARIANCE.S([2, 4, 8], [5, 'invalid', 12]).should.equal(error.value);
+    statistical.COVARIANCE.S([3, 2, 4, 5], [9, 7, 12, 15, 17]).should.equal(error.na);
+    statistical.COVARIANCE.S([], []).should.equal(error.div0);
   });
 
   test('DEVSQ', function() {
@@ -250,6 +253,8 @@ suite('Statistical', function() {
     statistical.EXPON.DIST(0.2, 10, true).should.approximately(0.8646647167633873, 1e-9);
     statistical.EXPON.DIST(0.2, 10, false).should.approximately(1.353352832366127, 1e-9);
     statistical.EXPON.DIST(0.2, 'invalid', false).should.equal(error.value);
+    statistical.EXPON.DIST(-0.2, 10, false).should.equal(error.num);
+    statistical.EXPON.DIST(0.2, 0, false).should.equal(error.num);
   });
 
   // TODO: verify if this is not the other way around
@@ -257,6 +262,9 @@ suite('Statistical', function() {
     statistical.F.DIST(15.20686486, 6, 4, true).should.approximately(0.0012237995987608916, 1e-9);
     statistical.F.DIST(15.20686486, 6, 4, false).should.approximately(0.9899999999985833, 1e-9);
     statistical.F.DIST(15.20686486, 6, 'invalid', false).should.equal(error.value);
+    statistical.F.DIST(-15.20686486, 6, 4, false).should.equal(error.num);
+    statistical.F.DIST(15.20686486, 0, 4, false).should.equal(error.num);
+    statistical.F.DIST(15.20686486, 6, 0, false).should.equal(error.num);
   });
 
   // TODO: implement
@@ -266,8 +274,10 @@ suite('Statistical', function() {
 
   test('F.INV', function() {
     statistical.F.INV(0.01, 6, 4).should.approximately(0.10930991412457851, 1e-9);
-    statistical.F.INV(0.0, 6, 4).should.equal(error.num);
     statistical.F.INV(0.0, 'invalid', 4).should.equal(error.value);
+    statistical.F.INV(-1, 6, 4).should.equal(error.num);
+    statistical.F.INV(1, 0, 4).should.equal(error.num);
+    statistical.F.INV(1, 6, 0).should.equal(error.num);
   });
 
   // TODO: implement
@@ -283,6 +293,7 @@ suite('Statistical', function() {
   test('FISHER', function() {
     statistical.FISHER(0.75).should.approximately(0.9729550745276566, 1e-9);
     statistical.FISHER('invalid').should.equal(error.value);
+    statistical.FISHER(-1.1).should.equal(error.num);
   });
 
   test('FISHERINV', function() {
@@ -292,7 +303,8 @@ suite('Statistical', function() {
 
   test('FORECAST', function() {
     statistical.FORECAST(30, [6, 7, 9, 15, 21], [20, 28, 31, 38, 40]).should.approximately(10.607253086419755, 1e-9);
-    // statistical.FORECAST(30, [6, 7, 'invalid', 15, 21], [20, 28, 31, 38, 40]).should.equal(error.value);
+    statistical.FORECAST(30, [7, 9, 15, 21], [20, 28, 31, 38, 40]).should.equal(error.na);
+    statistical.FORECAST(30, [], []).should.equal(error.na);
   });
 
   test('FREQUENCY', function() {
