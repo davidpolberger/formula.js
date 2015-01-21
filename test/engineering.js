@@ -30,6 +30,8 @@ suite('Engineering', function() {
   test('BIN2DEC', function() {
     engineering.BIN2DEC(1100100).should.equal(100);
     engineering.BIN2DEC(1111111111).should.equal(-1);
+    engineering.BIN2DEC(11111111111).should.equal(error.num);
+    engineering.BIN2DEC(2).should.equal(error.num);
     engineering.BIN2DEC('a').should.equal(error.num);
   });
 
