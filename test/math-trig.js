@@ -520,6 +520,7 @@ suite('Math & Trig', function() {
 
   test('SQRTPI', function() {
     mathTrig.SQRTPI(3).should.approximately(3.0699801238394655, 1e-9);
+    mathTrig.SQRTPI(-1).should.equal(error.num);
     mathTrig.SQRTPI('invalid').should.equal(error.value);
   });
 
