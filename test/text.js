@@ -66,6 +66,14 @@ suite('Text', function() {
     text.FIND('M', data).should.equal(1);
     text.FIND('m', data).should.equal(6);
     text.FIND('M', data, 3).should.equal(8);
+    text.FIND(1, '123').should.equal(1);
+    text.FIND('', 'string').should.equal(1);
+    text.FIND('nop', 'string').should.equal(error.value);
+    text.FIND('s', 'string', -1).should.equal(error.value);
+    text.FIND('s', 'string', 10).should.equal(error.value);
+    text.FIND(error.na, 'string', 10).should.equal(error.na);
+    text.FIND('s', error.na, 10).should.equal(error.na);
+    text.FIND('s', 'string', error.na).should.equal(error.na);
   });
 
   test('FIXED', function() {
