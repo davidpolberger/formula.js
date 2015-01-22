@@ -95,7 +95,9 @@ suite('Text', function() {
 
   test('LEN', function() {
     text.LEN('four').should.equal(4);
-    text.LEN().should.equal(error.value);
+    text.LEN().should.equal(0);
+    text.LEN(1).should.equal(1);
+    text.LEN(error.na).should.equal(error.na);
   });
 
   test("LOWER", function() {
