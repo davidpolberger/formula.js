@@ -320,6 +320,13 @@ suite('Statistical', function() {
     ], [
       70, 79, 89
     ]), [1, 2, 4, 1]);
+    should.deepEqual(statistical.FREQUENCY([], [
+      70, 79, 89
+    ]), [0, 0, 0, 0]);
+    should.deepEqual(statistical.FREQUENCY([
+      79, 85, 78, 85,
+      50, 81, 95, 88, 97
+    ], []), [0, 9]);
   });
 
   test('GAMMA', function() {
@@ -331,28 +338,35 @@ suite('Statistical', function() {
   });
 
   test('GAMMA.DIST', function() {
-    statistical.GAMMA.DIST(1).should.equal(error.na);
-    statistical.GAMMA.DIST(1, 9, 2).should.equal(error.na);
-    statistical.GAMMA.DIST(-1, 9, 2, true).should.equal(error.value);
-    statistical.GAMMA.DIST(1, -9, 2, true).should.equal(error.value);
-    statistical.GAMMA.DIST(1, 9, -2, true).should.equal(error.value);
     statistical.GAMMA.DIST(10.00001131, 9, 2, true).should.approximately(0.068094, 1e-6);
     statistical.GAMMA.DIST(10.00001131, 9, 2, false).should.approximately(0.03263913, 1e-9);
+    statistical.GAMMA.DIST(1, 9, 2).should.approximately(2.9380709195212246e-8, 1e-9);
+    statistical.GAMMA.DIST(1, 9, 2, true).should.approximately(3.4354902468473216e-9, 1e-9);
+    statistical.GAMMA.DIST().should.equal(error.num);
+    statistical.GAMMA.DIST(-1, 9, 2, true).should.equal(error.num);
+    statistical.GAMMA.DIST(1, 0, 2, true).should.equal(error.num);
+    statistical.GAMMA.DIST(1, 9, 0, true).should.equal(error.num);
+    statistical.GAMMA.DIST(1, 9, 'invalid', true).should.equal(error.value);
   });
 
-  // TODO: implement
   test('GAMMA.INV', function() {
-    statistical.GAMMA.INV.should.throw('GAMMA.INV is not implemented');
+    statistical.GAMMA.INV(0.068094, 9 , 2).should.approximately(10.0000112, 1e-8);
+    statistical.GAMMA.INV('invalid', 9 , 2).should.equal(error.value);
+    statistical.GAMMA.INV(1.06809, 9 , 2).should.equal(error.num);
+    statistical.GAMMA.INV(0.06809, 0 , 2).should.equal(error.num);
+    statistical.GAMMA.INV(0.06809, 0 , 0).should.equal(error.num);
   });
 
   test('GAMMALN', function() {
     statistical.GAMMALN(4).should.approximately(1.7917594692280547, 1e-9);
     statistical.GAMMALN('invalid').should.equal(error.value);
+    statistical.GAMMALN(0).should.equal(error.num);
   });
 
-  // TODO: implement
   test('GAMMALN.PRECISE', function() {
-    statistical.GAMMALN.PRECISE.should.throw('GAMMALN.PRECISE is not implemented');
+    statistical.GAMMALN.PRECISE(4).should.approximately(1.791759469228055, 1e-9);
+    statistical.GAMMALN.PRECISE('invalid').should.equal(error.value);
+    statistical.GAMMALN.PRECISE(0).should.equal(error.num);
   });
 
   test('GAUSS', function() {
@@ -363,6 +377,14 @@ suite('Statistical', function() {
   test('GEOMEAN', function() {
     statistical.GEOMEAN([4, 5, 8, 7, 11, 4, 3]).should.approximately(5.476986969656962, 1e-9);
     statistical.GEOMEAN([4, 5, 8, 7, 'invalid', 4, 3]).should.equal(4.876031973957155);
+    statistical.GEOMEAN([2, 2]).should.equal(2);
+    statistical.GEOMEAN([2, undefined]).should.equal(2);
+    statistical.GEOMEAN([2, '']).should.equal(2);
+    statistical.GEOMEAN([2, false]).should.equal(2);
+    statistical.GEOMEAN([2, true]).should.equal(2);
+    statistical.GEOMEAN([2, 0]).should.equal(error.num);
+    statistical.GEOMEAN([2, error.na]).should.equal(error.na);
+    statistical.GEOMEAN().should.equal(error.num);
   });
 
   test('GROWTH', function() {
@@ -408,17 +430,31 @@ suite('Statistical', function() {
 
     statistical.GROWTH(known_y, known_x, 'invalid', false).should.equal(error.value);
     statistical.GROWTH('invalid', known_x).should.equal(error.value);
+    statistical.GROWTH([1, 2, undefined]).should.equal(error.value);
+    statistical.GROWTH([1, -2]).should.equal(error.num);
+    statistical.GROWTH([1, 2], [1, 2, 3]).should.equal(error.ref);
+    statistical.GROWTH([1, 2], [1, 2, 'invalid']).should.equal(error.ref);
+    statistical.GROWTH([1, 2], [1, 'invalid']).should.equal(error.value);
+    statistical.GROWTH([1, 2], [1, 2], []).should.equal(error.value);
   });
 
   test('HARMEAN', function() {
     statistical.HARMEAN([4, 5, 8, 7, 11, 4, 3]).should.approximately(5.028375962061728, 1e-9);
     statistical.HARMEAN([4, 5, 8, 7, 'invalid', 4, 3]).should.approximately(4.611161939615737, 1e-9);
+    statistical.HARMEAN([2, 2]).should.approximately(2, 1e-9);
+    statistical.HARMEAN([2, 0]).should.equal(error.num);
   });
 
   test('HYPGEOM.DIST', function() {
     statistical.HYPGEOM.DIST(1, 4, 8, 20, true).should.approximately(0.46542827657378744, 1e-9);
     statistical.HYPGEOM.DIST(1, 4, 8, 20, false).should.approximately(0.3632610939112487, 1e-9);
     statistical.HYPGEOM.DIST(1, 'invalid', 8, 20, false).should.equal(error.value);
+    statistical.HYPGEOM.DIST(-1, 4, 8, 20, true).should.equal(error.num);
+    statistical.HYPGEOM.DIST(5, 4, 8, 20, true).should.equal(error.num);
+    statistical.HYPGEOM.DIST(1, 20, 8, 20, true).should.equal(error.num);
+    statistical.HYPGEOM.DIST(1, 4, 0, 20, true).should.equal(error.num);
+    statistical.HYPGEOM.DIST(1, 4, 21, 20, true).should.equal(error.num);
+    statistical.HYPGEOM.DIST(1, 4, 8, 0, true).should.equal(error.num);
   });
 
   test('INTERCEPT', function() {
@@ -430,6 +466,8 @@ suite('Statistical', function() {
 
     statistical.INTERCEPT([1, 2, 3], [1, 2, 3, 4]).should.equal(error.na);
     statistical.INTERCEPT([1, 2, 3], [1, 'invalid', 3]).should.equal(0);
+    statistical.INTERCEPT([1, 2, 3], [1, 2]).should.equal(error.na);
+    statistical.INTERCEPT([], []).should.equal(error.na);
   });
 
   test('KURT', function() {
@@ -439,11 +477,19 @@ suite('Statistical', function() {
     statistical.KURT([
       3, 4, 5, 2, 'invalid', 4, 5, 6, 4, 7
     ]).should.approximately(0.01682671878983477, 1e-9);
+    statistical.KURT([
+      3, 4, 5
+    ]).should.equal(error.div0);
+    statistical.KURT([
+      1, 1, 1, 1
+    ]).should.equal(error.div0);
   });
 
   test('LARGE', function() {
     statistical.LARGE([3, 5, 3, 5, 4], 3).should.equal(4);
     statistical.LARGE([3, 5, 3, 'invalid', 4], 3).should.equal(3);
+    statistical.LARGE([3, 5, 3, 5, 4], 0).should.equal(error.num);
+    statistical.LARGE([3, 5, 3, 5, 4], 6).should.equal(error.num);
   });
 
   test('LINEST', function() {
@@ -452,7 +498,6 @@ suite('Statistical', function() {
     should.deepEqual(statistical.LINEST(known_y, known_x), [
       2, 1
     ]);
-    // statistical.LINEST(known_y, 'invalid').should.equal(error.value);
   });
 
   // TODO: implement
@@ -464,11 +509,15 @@ suite('Statistical', function() {
     statistical.LOGNORM.DIST(4, 3.5, 1.2, true).should.approximately(0.0390835557068005, 1e-9);
     statistical.LOGNORM.DIST(4, 3.5, 1.2, false).should.approximately(0.01761759668181924, 1e-9);
     statistical.LOGNORM.DIST(4, 3.5, 'invalid', false).should.equal(error.value);
+    statistical.LOGNORM.DIST(0, 3.5, 1.2, false).should.equal(error.num);
+    statistical.LOGNORM.DIST(4, 3.5, 0, false).should.equal(error.num);
   });
 
   test('LOGNORM.INV', function() {
     statistical.LOGNORM.INV(0.0390835557068005, 3.5, 1.2).should.approximately(4.000000000000001, 1e-9);
     statistical.LOGNORM.INV(0.0390835557068005, 'invalid', 1.2).should.equal(error.value);
+    statistical.LOGNORM.INV(1.0390835557068005, 3.5, 1.2).should.equal(error.num);
+    statistical.LOGNORM.INV(0.0390835557068005, 3.5, -1.2).should.equal(error.num);
   });
 
   test("MAX", function() {
@@ -494,6 +543,7 @@ suite('Statistical', function() {
   test('MEDIAN', function() {
     statistical.MEDIAN(1, 2, 3, 4, 5).should.equal(3);
     statistical.MEDIAN(1, 2, 3, 4, 5, 6).should.approximately(3.5, 1e-9);
+    statistical.MEDIAN(1, 2, 'invalid', 4, 5, 6).should.approximately(4, 1e-9);
   });
 
   test("MIN", function() {
