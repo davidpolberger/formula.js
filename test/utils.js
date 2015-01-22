@@ -93,10 +93,12 @@ suite('Utils', function() {
   });
 
   test('parseText', function() {
+    utils.parseText(null).should.equal('');
     utils.parseText('string').should.equal('string');
     utils.parseText(123).should.equal('123');
     utils.parseText(true).should.equal('TRUE');
     utils.parseText(false).should.equal('FALSE');
     utils.parseText([1]).should.equal(error.value);
+    utils.parseText(error.na).should.equal(error.na);
   });
 });
