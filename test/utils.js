@@ -93,6 +93,7 @@ suite('Utils', function() {
   });
 
   test('parseText', function() {
+    utils.parseText(null).should.equal('');
     utils.parseText('string').should.equal('string');
     utils.parseText(123).should.equal('123');
     utils.parseText(true).should.equal('TRUE');
