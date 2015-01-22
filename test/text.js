@@ -199,6 +199,7 @@ suite('Text', function() {
     text.T('Rainfall').should.equal('Rainfall');
     text.T(19).should.equal('');
     text.T(true).should.equal('');
+    text.T(error.na).should.equal(error.na);
   });
 
   test('TEXT', function() {
