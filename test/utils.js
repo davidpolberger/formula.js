@@ -99,5 +99,6 @@ suite('Utils', function() {
     utils.parseText(true).should.equal('TRUE');
     utils.parseText(false).should.equal('FALSE');
     utils.parseText([1]).should.equal(error.value);
+    utils.parseText(error.na).should.equal(error.na);
   });
 });

@@ -305,6 +305,9 @@ exports.parseDates = function(array) {
 };
 
 exports.parseText = function(text) {
+  if (text instanceof Error) {
+    return text;
+  }
   if (text === undefined || text === null) {
     return '';
   }
