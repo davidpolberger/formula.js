@@ -224,7 +224,7 @@ suite('Text', function() {
 
   test('UPPER', function() {
     text.UPPER('to upper case please').should.equal('TO UPPER CASE PLEASE');
-    text.UPPER(true).should.equal(error.value);
+    text.UPPER(error.na).should.equal(error.na);
   });
 
   test('VALUE', function() {
