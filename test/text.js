@@ -208,7 +208,7 @@ suite('Text', function() {
 
   test('TRIM', function() {
     text.TRIM(' more  spaces ').should.equal('more spaces');
-    text.TRIM(true).should.equal(error.value);
+    text.TRIM(error.na).should.equal(error.na);
   });
 
   test('UNICHAR', function() {
