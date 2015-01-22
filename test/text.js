@@ -101,11 +101,12 @@ suite('Text', function() {
   });
 
   test("LOWER", function() {
-    text.LOWER('abcd').should.equal("abcd");
-    text.LOWER('ABcd').should.equal("abcd");
-    text.LOWER('ABCD').should.equal("abcd");
-    text.LOWER('').should.equal("");
-    text.LOWER().should.equal(error.value);
+    text.LOWER('abcd').should.equal('abcd');
+    text.LOWER('ABcd').should.equal('abcd');
+    text.LOWER('ABCD').should.equal('abcd');
+    text.LOWER('').should.equal('');
+    text.LOWER().should.equal('');
+    text.LOWER(error.na).should.equal(error.na);
   });
 
   test('MID', function() {
