@@ -142,7 +142,14 @@ suite('Text', function() {
     text.REPLACE('abcdefghijk', 6, 5, '*').should.equal('abcde*k');
     text.REPLACE('2009', 3, 2, '10').should.equal('2010');
     text.REPLACE('123456', 1, 3, '@').should.equal('@456');
-    text.REPLACE().should.equal(error.value);
+    text.REPLACE('string', 10, 1, 'xpto').should.equal('stringxpto');
+    text.REPLACE('string', 1, 10, 'xpto').should.equal('xpto');
+    text.REPLACE('string', 0, 1, 'xpto').should.equal(error.value);
+    text.REPLACE('string', 1, -1, 'xpto').should.equal(error.value);
+    text.REPLACE(error.na, 1, 0, 'xpto').should.equal(error.na);
+    text.REPLACE('string', error.na, 0, 'xpto').should.equal(error.na);
+    text.REPLACE('string', 1, error.na, 'xpto').should.equal(error.na);
+    text.REPLACE('string', 1, 0, error.na).should.equal(error.na);
   });
 
   test('REPT', function() {
