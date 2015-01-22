@@ -114,7 +114,11 @@ suite('Text', function() {
     text.MID(data, 1, 5).should.equal('Fluid');
     text.MID(data, 7, 20).should.equal('Flow');
     text.MID(data, 20, 50).should.equal('');
-    text.MID(0).should.equal(error.value);
+    text.MID(data, 0, 1).should.equal(error.value);
+    text.MID(data, 1, -1).should.equal(error.value);
+    text.MID(error.na, 1, -1).should.equal(error.na);
+    text.MID(data, error.na, -1).should.equal(error.na);
+    text.MID(data, 1, error.na).should.equal(error.na);
   });
 
   test('NUMBERVALUE', function() {
