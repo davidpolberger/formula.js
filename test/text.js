@@ -27,6 +27,7 @@ suite('Text', function() {
   test('CODE', function() {
     text.CODE('A').should.equal(65);
     text.CODE('Ϩ').should.equal(1000);
+    text.CODE(1).should.equal(49);
   });
 
   test('CONCATENATE', function() {
