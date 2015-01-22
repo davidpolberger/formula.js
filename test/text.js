@@ -54,6 +54,11 @@ suite('Text', function() {
 
   test('EXACT', function() {
     text.EXACT('yes', 'yes').should.equal(true);
+    text.EXACT('yes', 'no').should.equal(false);
+    text.EXACT(1, '1').should.equal(true);
+    text.EXACT(null, null).should.equal(true);
+    text.EXACT(error.na, '1').should.equal(error.na);
+    text.EXACT('1', error.na).should.equal(error.na);
   });
 
   test('FIND', function() {
