@@ -164,7 +164,10 @@ suite('Text', function() {
   test('RIGHT', function() {
     text.RIGHT('Sale Price', 5).should.equal('Price');
     text.RIGHT('Stock Number').should.equal('r');
-    text.RIGHT('something', 'invalid').should.equal(error.value);
+    text.RIGHT('Stock Number', 20).should.equal('Stock Number');
+    text.RIGHT('Stock Number', -1).should.equal(error.value);
+    text.RIGHT(error.na).should.equal(error.na);
+    text.RIGHT('string', error.na).should.equal(error.na);
   });
 
   test('SEARCH', function() {
