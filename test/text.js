@@ -134,8 +134,8 @@ suite('Text', function() {
     text.PROPER(true).should.equal('True');
     text.PROPER(false).should.equal('False');
     text.PROPER(90).should.equal('90');
-    text.PROPER(NaN).should.equal(error.value);
-    text.PROPER().should.equal(error.value);
+    text.PROPER().should.equal('');
+    text.PROPER(error.na).should.equal(error.na);
   });
 
   test('REPLACE', function() {
