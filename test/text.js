@@ -173,7 +173,14 @@ suite('Text', function() {
   test('SEARCH', function() {
     text.SEARCH('e', 'Statements', 6).should.equal(7);
     text.SEARCH('margin', 'Profit Margin').should.equal(8);
-    text.SEARCH(true, 'bool').should.equal(error.value);
+    text.SEARCH(1, '123').should.equal(1);
+    text.SEARCH('', 'string').should.equal(1);
+    text.SEARCH('nop', 'string').should.equal(error.value);
+    text.SEARCH('s', 'string', -1).should.equal(error.value);
+    text.SEARCH('s', 'string', 10).should.equal(error.value);
+    text.SEARCH(error.na, 'string', 10).should.equal(error.na);
+    text.SEARCH('s', error.na, 10).should.equal(error.na);
+    text.SEARCH('s', 'string', error.na).should.equal(error.na);
   });
 
   test("SUBSTITUTE", function() {
