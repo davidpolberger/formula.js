@@ -35,6 +35,8 @@ suite('Text', function() {
     text.CONCATENATE(1, 'one').should.equal('1one');
     text.CONCATENATE(true, 'yes').should.equal('TRUEyes');
     text.CONCATENATE(false, 'no').should.equal('FALSEno');
+    text.CONCATENATE(false, 'no').should.equal('FALSEno');
+    text.CONCATENATE(false, error.na).should.equal(error.na);
   });
 
   test('DBCS', function() {
