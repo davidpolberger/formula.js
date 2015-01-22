@@ -87,7 +87,10 @@ suite('Text', function() {
   test('LEFT', function() {
     text.LEFT('Sale Price', 4).should.equal('Sale');
     text.LEFT('Sweeden').should.equal('S');
-    text.LEFT(3).should.equal(error.value);
+    text.LEFT(3).should.equal('3');
+    text.LEFT('string', -1).should.equal(error.value);
+    text.LEFT(error.na).should.equal(error.na);
+    text.LEFT('string', error.na).should.equal(error.na);
   });
 
   test('LEN', function() {
