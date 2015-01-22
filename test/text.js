@@ -154,7 +154,11 @@ suite('Text', function() {
 
   test('REPT', function() {
     text.REPT('multiple ', 3).should.equal('multiple multiple multiple ');
-    text.REPT('m').should.equal('');
+    text.REPT('m', 0).should.equal('');
+    text.REPT('m', 2.5).should.equal('mm');
+    text.REPT('m', -1).should.equal(error.value);
+    text.REPT(error.na, 1).should.equal(error.na);
+    text.REPT('m', error.na).should.equal(error.na);
   });
 
   test('RIGHT', function() {
