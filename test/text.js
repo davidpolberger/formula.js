@@ -12,19 +12,21 @@ suite('Text', function() {
   });
 
   test("CHAR", function() {
-    text.CHAR(65).should.equal("A");
-    text.CHAR(255).should.equal("ÿ");
+    text.CHAR(65).should.equal('A');
+    text.CHAR(255).should.equal('ÿ');
     text.CHAR(0).should.equal(error.value);
     text.CHAR('invalid').should.equal(error.value);
   });
 
   test('CLEAN', function() {
     text.CLEAN('Monthly Report').should.equal('Monthly Report');
+    text.CLEAN(text.CHAR(1)).should.equal('');
+    text.CLEAN([1]).should.equal(error.value);
   });
 
   test('CODE', function() {
     text.CODE('A').should.equal(65);
-    text.CODE("Ϩ").should.equal(1000);
+    text.CODE('Ϩ').should.equal(1000);
   });
 
   test('CONCATENATE', function() {
