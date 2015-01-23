@@ -49,6 +49,7 @@ suite('Information', function() {
     information.ISEVEN(2.5).should.equal(true);
     information.ISEVEN(5).should.equal(false);
     information.ISEVEN(0).should.equal(true);
+    information.ISEVEN(error.na).should.equal(error.na);
   });
 
   // TODO
@@ -84,6 +85,7 @@ suite('Information', function() {
     information.ISODD(-1).should.equal(true);
     information.ISODD(5).should.equal(true);
     information.ISODD(2.5).should.equal(false);
+    information.ISODD(error.na).should.equal(error.na);
   });
 
   // TODO
@@ -99,7 +101,7 @@ suite('Information', function() {
 
   test('N', function() {
     information.N(1).should.equal(1);
-    information.N(new Date(0)).should.equal((new Date(0)).getTime());
+    information.N(new Date(0)).should.equal(25569);
     information.N(true).should.equal(1);
     information.N(false).should.equal(0);
     information.N(error.na).should.equal(error.na);
