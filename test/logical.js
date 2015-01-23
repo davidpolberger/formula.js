@@ -43,6 +43,9 @@ suite('Logical', function() {
     logical.OR(true).should.equal(true);
     logical.OR(false).should.equal(false);
     logical.OR(true, false).should.equal(true);
+    logical.OR(0, 0).should.equal(false);
+    logical.OR(0, 1).should.equal(true);
+    logical.OR(true, error.na).should.equal(error.na);
   });
 
   test('TRUE', function() {
