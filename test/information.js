@@ -101,7 +101,7 @@ suite('Information', function() {
 
   test('N', function() {
     information.N(1).should.equal(1);
-    information.N(new Date(0)).should.equal((new Date(0)).getTime());
+    information.N(new Date(0)).should.equal(25569);
     information.N(true).should.equal(1);
     information.N(false).should.equal(0);
     information.N(error.na).should.equal(error.na);
