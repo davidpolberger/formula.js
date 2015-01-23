@@ -36,6 +36,7 @@ suite('Logical', function() {
   test('NOT', function() {
     logical.NOT(true).should.equal(false);
     logical.NOT(false).should.equal(true);
+    logical.NOT(error.na).should.equal(error.na);
   });
 
   test('OR', function() {
