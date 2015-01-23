@@ -49,6 +49,7 @@ suite('Information', function() {
     information.ISEVEN(2.5).should.equal(true);
     information.ISEVEN(5).should.equal(false);
     information.ISEVEN(0).should.equal(true);
+    information.ISEVEN(error.na).should.equal(error.na);
   });
 
   // TODO
