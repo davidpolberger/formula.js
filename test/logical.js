@@ -57,5 +57,6 @@ suite('Logical', function() {
     logical.XOR(false, true).should.equal(true);
     logical.XOR(true, false).should.equal(true);
     logical.XOR(true, true).should.equal(false);
+    logical.XOR(true, error.na).should.equal(error.na);
   });
 });
