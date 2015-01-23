@@ -85,6 +85,7 @@ suite('Information', function() {
     information.ISODD(-1).should.equal(true);
     information.ISODD(5).should.equal(true);
     information.ISODD(2.5).should.equal(false);
+    information.ISODD(error.na).should.equal(error.na);
   });
 
   // TODO
