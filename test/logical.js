@@ -6,6 +6,9 @@ suite('Logical', function() {
   test('AND', function() {
     logical.AND(true, true).should.equal(true);
     logical.AND(true, false).should.equal(false);
+    logical.AND(1, 1).should.equal(true);
+    logical.AND(1, 0).should.equal(false);
+    logical.AND(false, error.na).should.equal(error.na);
   });
 
   test('FALSE', function() {
