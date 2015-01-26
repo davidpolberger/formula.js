@@ -803,11 +803,15 @@ suite('Statistical', function() {
   test('SKEW', function() {
     statistical.SKEW([3, 4, 5, 2, 3, 4, 5, 6, 4, 7]).should.approximately(0.3595430714067974, 1e-9);
     statistical.SKEW([3, 4, 5, 2, 3, 4, 5, 6, 'invalid', 7]).should.approximately(0.271052370871576, 1e-9);
+    statistical.SKEW([1, 2]).should.equal(error.div0);
+    statistical.SKEW(error.na).should.equal(error.na);
   });
 
   test('SKEW.P', function() {
     statistical.SKEW.P([3, 4, 5, 2, 3, 4, 5, 6, 4, 7]).should.approximately(0.303193339354144, 1e-9);
     statistical.SKEW.P([3, 4, 5, 'invalid', 3, 4, 5, 6, 4, 7]).should.approximately(0.545521833141966, 1e-9);
+    statistical.SKEW.P([1, 2]).should.equal(error.div0);
+    statistical.SKEW.P(error.na).should.equal(error.na);
   });
 
   test('SLOPE', function() {
@@ -821,22 +825,31 @@ suite('Statistical', function() {
   test('SMALL', function() {
     statistical.SMALL([3, 4, 5, 2, 3, 4, 6, 4, 7], 4).should.equal(4);
     statistical.SMALL([3, 4, 5, 2, 'invalid', 4, 6, 4, 7], 4).should.equal(4);
+    statistical.SMALL([], 1).should.equal(error.num);
+    statistical.SMALL([1], 10).should.equal(error.num);
+    statistical.SMALL([error.na], 1).should.equal(error.na);
+    statistical.SMALL([1], 'invalid').should.equal(error.value);
   });
 
   test('STANDARDIZE', function() {
     statistical.STANDARDIZE(42, 40, 1.5).should.approximately(1.3333333333333333, 1e-9);
     statistical.STANDARDIZE(10, 10, 10).should.equal(0);
+    statistical.STANDARDIZE(10, 10, 0).should.equal(error.num);
+    statistical.STANDARDIZE('invalid', 10, 10).should.equal(error.value);
+    statistical.STANDARDIZE(10, 'invalid', 10).should.equal(error.value);
     statistical.STANDARDIZE(10, 10, 'invalid').should.equal(error.value);
   });
 
   test('STDEV.P', function() {
     var data = [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299];
     statistical.STDEV.P(data).should.approximately(26.054558142482477, 1e-9);
+    statistical.STDEV.P(error.na).should.equal(error.na);
   });
 
   test('STDEV.S', function() {
     var data = [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299, true, false, 'nope'];
     statistical.STDEV.S(data).should.approximately(27.46391571984349, 1e-9);
+    statistical.STDEV.S(error.na).should.equal(error.na);
   });
 
   test('STDEVA', function() {
@@ -844,6 +857,7 @@ suite('Statistical', function() {
     statistical.STDEVA(data).should.approximately(27.46391571984349, 1e-9);
     var data2 = [2, 1, true, false, 'nope'];
     statistical.STDEVA(data2).should.approximately(0.8366600265340756, 1e-9);
+    statistical.STDEVA(error.na).should.equal(error.na);
   });
 
   test('STDEVPA', function() {
@@ -851,6 +865,7 @@ suite('Statistical', function() {
     statistical.STDEVPA(data).should.approximately(26.054558142482477, 1e-9);
     var data2 = [2, 1, true, false, 'nope'];
     statistical.STDEVPA(data2).should.approximately(0.7483314773547883, 1e-9);
+    statistical.STDEVPA(error.na).should.equal(error.na);
   });
 
   test('STEYX', function() {
@@ -864,7 +879,10 @@ suite('Statistical', function() {
   test('T.DIST', function() {
     statistical.T.DIST(60, 1, true).should.approximately(0.9946953263673741, 1e-9);
     statistical.T.DIST(8, 3, false).should.approximately(0.0007369065188787021, 1e-9);
-    statistical.T.DIST(8, 'invalid', false).should.equal(error.value);
+    statistical.T.DIST(60, 0, true).should.equal(error.num);
+    statistical.T.DIST('invalid', 1, true).should.equal(error.value);
+    statistical.T.DIST(60, 'invalid', true).should.equal(error.value);
+    statistical.T.DIST(60, 1, 'invalid').should.equal(error.value);
   });
 
   // TODO: implement
@@ -879,6 +897,10 @@ suite('Statistical', function() {
 
   test('T.INV', function() {
     statistical.T.INV(0.9, 60).should.approximately(1.2958210933417948, 1e-9);
+    statistical.T.INV(0.75, 2.5).should.approximately(0.8164965809277775, 1e-9);
+    statistical.T.INV(0.75, 0).should.equal(error.num);
+    statistical.T.INV(0, 2.5).should.equal(error.num);
+    statistical.T.INV('invalid', 60).should.equal(error.value);
     statistical.T.INV(0.9, 'invalid').should.equal(error.value);
   });
 
@@ -900,36 +922,46 @@ suite('Statistical', function() {
   test("TRIMMEAN", function() {
     statistical.TRIMMEAN([4, 5, 6, 7, 2, 3, 4, 5, 1, 2, 3], 0.2).should.approximately(3.7777777777777777, 1e-9);
     statistical.TRIMMEAN([4, 5, 6, 'invalid', 1, 2, 3], 0.2).should.equal(3.5);
+    statistical.TRIMMEAN([4, 5, 6, 7, 2, 3, 4, 5, 1, 2, 3], -1).should.equal(error.num);
   });
 
   test('VAR.P', function() {
     statistical.VAR.P(1, 2, 3, 4, 10, 10).should.approximately(13.333333333333334, 1e-9);
     statistical.VAR.P(1, 2, 3, 4, false, true).should.approximately(1.25, 1e-9);
     statistical.VAR.P(1, 2, 3, 4, 'count as zero', false, true).should.approximately(1.25, 1e-9);
+    statistical.VAR.P(1, error.na).should.equal(error.na);
   });
 
   test('VAR.S', function() {
     statistical.VAR.S(1, 2, 3, 4, 10, 10).should.equal(16);
     statistical.VAR.S(1, 2, 3, 4, false, true).should.approximately(1.6666666666666667, 1e-9);
     statistical.VAR.S(1, 2, 3, 4, 'count as zero', false, true).should.approximately(1.6666666666666667, 1e-9);
+    statistical.VAR.S(1, error.na).should.equal(error.na);
   });
 
   test('VARA', function() {
     statistical.VARA(1, 2, 3, 4, 10, 10).should.equal(16);
     statistical.VARA(1, 2, 3, 4, false, true).should.approximately(2.166666666666667, 1e-9);
     statistical.VARA(1, 2, 3, 4, 'count as zero', false, true).should.approximately(2.285714285714286, 1e-9);
+    statistical.VARA(1, error.na).should.equal(error.na);
   });
 
   test('VARPA', function() {
     statistical.VARPA(1, 2, 3, 4, 10, 10).should.approximately(13.333333333333334, 1e-9);
     statistical.VARPA(1, 2, 3, 4, false, true).should.approximately(1.8055555555555556, 1e-9);
     statistical.VARPA(1, 2, 3, 4, 'count as zero', false, true).should.approximately(1.959183673469388, 1e-9);
+    statistical.VARPA(1, error.na).should.equal(error.na);
   });
 
   test('WEIBULL.DIST', function() {
     statistical.WEIBULL.DIST(105, 20, 100, true).should.approximately(0.9295813900692769, 1e-9);
     statistical.WEIBULL.DIST(105, 20, 100, false).should.approximately(0.03558886402450435, 1e-9);
-    statistical.WEIBULL.DIST(105, 20, 'invalid', false).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 0, 100, true).should.equal(error.num);
+    statistical.WEIBULL.DIST(105, 20, 0, true).should.equal(error.num);
+    statistical.WEIBULL.DIST('invalid', 20, 100, true).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 'invalid', 100, true).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 20, 'invalid', true).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 20, 100, 'invalid').should.equal(error.value);
   });
 
 
@@ -937,6 +969,8 @@ suite('Statistical', function() {
     var data = [3, 6, 7, 8, 6, 5, 4, 2, 1, 9];
     statistical.Z.TEST(data, 4).should.approximately(0.09057419685136381, 1e-9);
     statistical.Z.TEST(data, 6).should.approximately(0.86304338912953, 1e-9);
+    statistical.Z.TEST(data, 4, 1).should.approximately(0.000252109, 1e-9);
+    statistical.Z.TEST([], 4).should.equal(error.na);
     statistical.Z.TEST(data, 'invalid').should.equal(error.value);
   });
 });
