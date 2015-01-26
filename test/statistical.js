@@ -584,19 +584,24 @@ suite('Statistical', function() {
     modes.should.containEql(1);
     modes.should.containEql(2);
     modes.should.containEql(3);
-    // statistical.MODE.MULT([1, 2, 'invalid']).should.equal(error.value);
+    statistical.MODE.MULT([1,2,3]).should.eql(error.na);
+    statistical.MODE.MULT([1, 1, 'invalid']).should.eql([1]);
   });
 
   test('MODE.SNGL', function() {
     var data = [5.6, 4, 4, 3, 2, 4];
     statistical.MODE.SNGL(data).should.equal(4);
-    // statistical.MODE.SNGL([1, 2, 'invalid']).should.equal(error.na);
+    statistical.MODE.SNGL([1, 2]).should.equal(error.na);
+    statistical.MODE.SNGL([1, 1, 'invalid']).should.equal(1);
   });
 
   test('NEGBINOM.DIST', function() {
     statistical.NEGBINOM.DIST(10, 5, 0.25, false).should.approximately(0.05504866037517786, 1e-9);
     statistical.NEGBINOM.DIST(10, 5, 0.25, true).should.approximately(0.3135140584781766, 1e-9);
     statistical.NEGBINOM.DIST(10, 'invalid', 0.25, true).should.equal(error.value);
+    statistical.NEGBINOM.DIST(10, 5, 1.25, true).should.equal(error.num);
+    statistical.NEGBINOM.DIST(-1, 5, 0.25, true).should.equal(error.num);
+    statistical.NEGBINOM.DIST(10, 0.4, 0.25, true).should.equal(error.num);
   });
 
   test("NORM.DIST", function() {
@@ -611,6 +616,8 @@ suite('Statistical', function() {
   test('NORM.INV', function() {
     statistical.NORM.INV(0.908789, 40, 1.5).should.approximately(42.00000200956616, 1e-9);
     statistical.NORM.INV(0.908789, 'invalid', 1.5).should.equal(error.value);
+    statistical.NORM.INV(1.908789, 40, 1.5).should.equal(error.num);
+    statistical.NORM.INV(0.908789, 40, -1.5).should.equal(error.num);
   });
 
   test('NORM.S.DIST', function() {
@@ -622,12 +629,15 @@ suite('Statistical', function() {
   test('NORM.S.INV', function() {
     statistical.NORM.S.INV(0.908789).should.approximately(1.3333346730441074, 1e-9);
     statistical.NORM.S.INV('invalid').should.equal(error.value);
+    statistical.NORM.S.INV(1.908789).should.equal(error.num);
   });
 
   test('PEARSON', function() {
     var independentValues = [9, 7, 5, 3, 1];
     var depentendValues = [10, 6, 1, 5, 3];
     statistical.PEARSON(independentValues, depentendValues).should.approximately(0.6993786061802354, 1e-9);
+    statistical.PEARSON([], []).should.equal(error.na);
+    statistical.PEARSON([1, 2], [1]).should.equal(error.na);
   });
 
   test("PERCENTILE.EXC", function() {
@@ -648,7 +658,6 @@ suite('Statistical', function() {
   });
 
   test("PERCENTILE.INC", function() {
-    statistical.PERCENTILE.INC([1, 2, 3, 4], 0).should.equal(1);
     statistical.PERCENTILE.INC([1, 2, 3, 4], 0.1).should.approximately(1.3, 1e-9);
     statistical.PERCENTILE.INC([1, 2, 3, 4], 0.2).should.approximately(1.6, 1e-9);
     statistical.PERCENTILE.INC([1, 2, 3, 4], 0.25).should.approximately(1.75, 1e-9);
@@ -660,8 +669,9 @@ suite('Statistical', function() {
     statistical.PERCENTILE.INC([1, 2, 3, 4], 0.75).should.approximately(3.25, 1e-9);
     statistical.PERCENTILE.INC([1, 2, 3, 4], 0.8).should.approximately(3.4, 1e-9);
     statistical.PERCENTILE.INC([1, 2, 3, 4], 0.9).should.approximately(3.7, 1e-9);
-    statistical.PERCENTILE.INC([1, 2, 3, 4], 1).should.equal(4);
-    statistical.PERCENTILE.INC([1, 2, 'invalid', 4], 1).should.equal(4);
+    statistical.PERCENTILE.INC([1, 2, 3, 4], 1).should.equal(error.num);
+    statistical.PERCENTILE.INC([1, 2, 3, 4], 0).should.equal(error.num);
+    statistical.PERCENTILE.INC([], 1).should.equal(error.num);
   });
 
   test("PERCENTRANK.EXC", function() {
