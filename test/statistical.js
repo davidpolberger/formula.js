@@ -892,6 +892,7 @@ suite('Statistical', function() {
     statistical.VARPA(1, 2, 3, 4, 10, 10).should.approximately(13.333333333333334, 1e-9);
     statistical.VARPA(1, 2, 3, 4, false, true).should.approximately(1.8055555555555556, 1e-9);
     statistical.VARPA(1, 2, 3, 4, 'count as zero', false, true).should.approximately(1.959183673469388, 1e-9);
+    statistical.VARPA(1, error.na).should.equal(error.na);
   });
 
   test('WEIBULL.DIST', function() {
