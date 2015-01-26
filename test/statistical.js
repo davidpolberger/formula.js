@@ -775,6 +775,8 @@ suite('Statistical', function() {
   test('SKEW', function() {
     statistical.SKEW([3, 4, 5, 2, 3, 4, 5, 6, 4, 7]).should.approximately(0.3595430714067974, 1e-9);
     statistical.SKEW([3, 4, 5, 2, 3, 4, 5, 6, 'invalid', 7]).should.approximately(0.271052370871576, 1e-9);
+    statistical.SKEW([1, 2]).should.equal(error.div0);
+    statistical.SKEW(error.na).should.equal(error.na);
   });
 
   test('SKEW.P', function() {
