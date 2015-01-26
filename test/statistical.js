@@ -886,6 +886,7 @@ suite('Statistical', function() {
     statistical.VARA(1, 2, 3, 4, 10, 10).should.equal(16);
     statistical.VARA(1, 2, 3, 4, false, true).should.approximately(2.166666666666667, 1e-9);
     statistical.VARA(1, 2, 3, 4, 'count as zero', false, true).should.approximately(2.285714285714286, 1e-9);
+    statistical.VARA(1, error.na).should.equal(error.na);
   });
 
   test('VARPA', function() {
