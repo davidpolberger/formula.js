@@ -814,6 +814,7 @@ suite('Statistical', function() {
     statistical.STDEVA(data).should.approximately(27.46391571984349, 1e-9);
     var data2 = [2, 1, true, false, 'nope'];
     statistical.STDEVA(data2).should.approximately(0.8366600265340756, 1e-9);
+    statistical.STDEVA(error.na).should.equal(error.na);
   });
 
   test('STDEVPA', function() {
