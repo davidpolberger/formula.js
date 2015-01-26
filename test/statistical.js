@@ -796,6 +796,9 @@ suite('Statistical', function() {
   test('STANDARDIZE', function() {
     statistical.STANDARDIZE(42, 40, 1.5).should.approximately(1.3333333333333333, 1e-9);
     statistical.STANDARDIZE(10, 10, 10).should.equal(0);
+    statistical.STANDARDIZE(10, 10, 0).should.equal(error.num);
+    statistical.STANDARDIZE('invalid', 10, 10).should.equal(error.value);
+    statistical.STANDARDIZE(10, 'invalid', 10).should.equal(error.value);
     statistical.STANDARDIZE(10, 10, 'invalid').should.equal(error.value);
   });
 
