@@ -832,7 +832,10 @@ suite('Statistical', function() {
   test('T.DIST', function() {
     statistical.T.DIST(60, 1, true).should.approximately(0.9946953263673741, 1e-9);
     statistical.T.DIST(8, 3, false).should.approximately(0.0007369065188787021, 1e-9);
-    statistical.T.DIST(8, 'invalid', false).should.equal(error.value);
+    statistical.T.DIST(60, 0, true).should.equal(error.num);
+    statistical.T.DIST('invalid', 1, true).should.equal(error.value);
+    statistical.T.DIST(60, 'invalid', true).should.equal(error.value);
+    statistical.T.DIST(60, 1, 'invalid').should.equal(error.value);
   });
 
   // TODO: implement
