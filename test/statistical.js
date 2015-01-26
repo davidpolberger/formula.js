@@ -847,6 +847,10 @@ suite('Statistical', function() {
 
   test('T.INV', function() {
     statistical.T.INV(0.9, 60).should.approximately(1.2958210933417948, 1e-9);
+    statistical.T.INV(0.75, 2.5).should.approximately(0.8164965809277775, 1e-9);
+    statistical.T.INV(0.75, 0).should.equal(error.num);
+    statistical.T.INV(0, 2.5).should.equal(error.num);
+    statistical.T.INV('invalid', 60).should.equal(error.value);
     statistical.T.INV(0.9, 'invalid').should.equal(error.value);
   });
 
