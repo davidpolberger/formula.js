@@ -50,7 +50,7 @@ suite('Statistical', function() {
       [1, 2],
       [3, 4]
     ]).should.approximately(3.5, 1e-9);
-    statistical.AVERAGEIF(['invalid'], '>5').should.throw(error.div0);
+    statistical.AVERAGEIF(['invalid'], '>5').should.equal(error.div0);
   });
 
   test("AVERAGEIFS", function() {
