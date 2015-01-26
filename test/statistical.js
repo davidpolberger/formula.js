@@ -654,6 +654,7 @@ suite('Statistical', function() {
     statistical.PERCENTILE.EXC([1, 2, 3, 4], 0.8).should.equal(4);
     statistical.PERCENTILE.EXC([1, 2, 3, 4], 0.9).should.equal(error.num);
     statistical.PERCENTILE.EXC([1, 2, 3, 4], 1).should.equal(error.num);
+    statistical.PERCENTILE.EXC([], 1).should.equal(error.num);
     statistical.PERCENTILE.EXC([1, 'invalid', 3, 4], 1).should.equal(error.num);
   });
 
@@ -687,6 +688,8 @@ suite('Statistical', function() {
     statistical.PERCENTRANK.EXC([1, 2, 3, 4], 3, 2).should.approximately(0.6, 1e-9);
     statistical.PERCENTRANK.EXC([1, 2, 3, 4], 4, 2).should.approximately(0.8, 1e-9);
     statistical.PERCENTRANK.EXC([1, 2, 'invalid', 4], 4, 2).should.equal(0.75, 1e-9);
+    statistical.PERCENTRANK.EXC([], 4, 2).should.equal(error.num);
+    statistical.PERCENTRANK.EXC([1, 2, 3, 4], 4, 0.9).should.equal(error.num);
   });
 
   test("PERCENTRANK.INC", function() {
@@ -707,15 +710,23 @@ suite('Statistical', function() {
   test('PERMUT', function() {
     statistical.PERMUT(100, 3).should.equal(970200);
     statistical.PERMUT(100, 'invalid').should.equal(error.value);
+    statistical.PERMUT(100.4, 3.2).should.equal(970200);
+    statistical.PERMUT(100, 3).should.equal(970200);
+    statistical.PERMUT(0, 3).should.equal(error.num);
+    statistical.PERMUT(3, -1).should.equal(error.num);
+    statistical.PERMUT(1, 3).should.equal(error.num);
   });
 
   test('PERMUTATIONA', function() {
     statistical.PERMUTATIONA(3, 2).should.equal(9);
     statistical.PERMUTATIONA('invalid', 2).should.equal(error.value);
+    statistical.PERMUTATIONA(-3, 2).should.equal(error.num);
+    statistical.PERMUTATIONA(3, -2).should.equal(error.num);
   });
 
   test('PHI', function() {
     statistical.PHI(0.75).should.approximately(0.30113743215480443, 1e-9);
+    statistical.PHI(1000).should.equal(0);
     statistical.PHI('invalid').should.equal(error.value);
   });
 
@@ -723,6 +734,8 @@ suite('Statistical', function() {
     statistical.POISSON.DIST(2, 5, true).should.approximately(0.12465201948308113, 1e-9);
     statistical.POISSON.DIST(2, 5, false).should.approximately(0.08422433748856833, 1e-9);
     statistical.POISSON.DIST(2, 'invalid', false).should.equal(error.value);
+    statistical.POISSON.DIST(-1, 5, false).should.equal(error.num);
+    statistical.POISSON.DIST(2, -1, false).should.equal(error.num);
   });
 
   test('PROB', function() {
@@ -730,7 +743,11 @@ suite('Statistical', function() {
     var prob = [0.2, 0.3, 0.1, 0.4];
     statistical.PROB(x, prob, 2).should.approximately(0.1, 1e-9);
     statistical.PROB(x, prob, 1, 3).should.approximately(0.8, 1e-9);
-    statistical.PROB(x, prob).should.equal(0);
+    statistical.PROB(x, prob).should.equal(0.2);
+    statistical.PROB(x, prob, 3, 1).should.equal(0);
+    statistical.PROB(x, [0.5, 0.5], 1, 3).should.equal(error.na);
+    statistical.PROB([0, 1, 2, 3, 4], [0.2, 0.3, -0.3, 0.1, 0.4], 1, 3).should.equal(error.num);
+    statistical.PROB(x, [0.2, 0.3, 0.02, 0.4], 1, 3).should.equal(error.num);
   });
 
   test('QUARTILE.EXC', function() {
@@ -738,7 +755,9 @@ suite('Statistical', function() {
     statistical.QUARTILE.EXC(data, 1).should.equal(15);
     statistical.QUARTILE.EXC(data, 2).should.equal(40);
     statistical.QUARTILE.EXC(data, 3).should.equal(43);
+    statistical.QUARTILE.EXC(data, 3.3).should.equal(43);
     statistical.QUARTILE.EXC(data, 4).should.equal(error.num);
+    statistical.QUARTILE.EXC([], 4).should.equal(error.num);
     statistical.QUARTILE.EXC(data, 'invalid').should.equal(error.value);
   });
 
@@ -747,7 +766,9 @@ suite('Statistical', function() {
     statistical.QUARTILE.INC(data, 1).should.approximately(3.5, 1e-9);
     statistical.QUARTILE.INC(data, 2).should.approximately(7.5, 1e-9);
     statistical.QUARTILE.INC(data, 3).should.approximately(9.25, 1e-9);
+    statistical.QUARTILE.INC(data, 3.4).should.approximately(9.25, 1e-9);
     statistical.QUARTILE.INC(data, 4).should.equal(error.num);
+    statistical.QUARTILE.INC([], 4).should.equal(error.num);
     statistical.QUARTILE.INC(data, 'invalid').should.equal(error.value);
   });
 
@@ -755,6 +776,8 @@ suite('Statistical', function() {
     var data = [89, 88, 92, 101, 94, 97, 95];
     statistical.RANK.AVG(94, data).should.equal(4);
     statistical.RANK.AVG(88, data, 1).should.equal(1);
+    statistical.RANK.AVG(96, data, 1).should.equal(error.na);
+    statistical.RANK.AVG(96, [], 1).should.equal(error.na);
     statistical.RANK.AVG('invalid', data, 1).should.equal(error.value);
   });
 
@@ -763,6 +786,8 @@ suite('Statistical', function() {
     statistical.RANK.EQ(data[0], data, 1).should.equal(5);
     statistical.RANK.EQ(data[4], data).should.equal(4);
     statistical.RANK.EQ(data[1], data, 1).should.equal(3);
+    statistical.RANK.EQ(data[1], [], 1).should.equal(error.na);
+    statistical.RANK.EQ(4, data, 1).should.equal(error.na);
     statistical.RANK.EQ('invalid', data, true).should.equal(error.value);
   });
 
@@ -770,6 +795,9 @@ suite('Statistical', function() {
     var y = [2, 3, 9, 1, 8, 7, 5];
     var x = [6, 5, 11, 7, 5, 4, 4];
     statistical.RSQ(y, x).should.approximately(0.05795019157088122, 1e-9);
+    statistical.RSQ([], []).should.equal(error.na);
+    statistical.RSQ([1], [1, 1]).should.equal(error.na);
+    statistical.RSQ([1], [1]).should.equal(error.div0);
   });
 
   test('SKEW', function() {
@@ -786,6 +814,8 @@ suite('Statistical', function() {
     var data_y = [2, 3, 9, 1, 8, 7, 5];
     var data_x = [6, 5, 11, 7, 5, 4, 4];
     statistical.SLOPE(data_y, data_x).should.approximately(0.3055555555555556, 1e-9);
+    statistical.SLOPE(data_y, [1]).should.equal(error.na);
+    statistical.SLOPE([], []).should.equal(error.na);
   });
 
   test('SMALL', function() {
@@ -827,6 +857,8 @@ suite('Statistical', function() {
     var data_y = [2, 3, 9, 1, 8, 7, 5];
     var data_x = [6, 5, 11, 7, 5, 4, 4];
     statistical.STEYX(data_y, data_x).should.approximately(3.305718950210041, 1e-9);
+    statistical.STEYX(data_y, [1]).should.equal(error.na);
+    statistical.STEYX([], []).should.equal(error.na);
   });
 
   test('T.DIST', function() {
