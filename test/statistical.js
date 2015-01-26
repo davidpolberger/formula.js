@@ -897,7 +897,12 @@ suite('Statistical', function() {
   test('WEIBULL.DIST', function() {
     statistical.WEIBULL.DIST(105, 20, 100, true).should.approximately(0.9295813900692769, 1e-9);
     statistical.WEIBULL.DIST(105, 20, 100, false).should.approximately(0.03558886402450435, 1e-9);
-    statistical.WEIBULL.DIST(105, 20, 'invalid', false).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 0, 100, true).should.equal(error.num);
+    statistical.WEIBULL.DIST(105, 20, 0, true).should.equal(error.num);
+    statistical.WEIBULL.DIST('invalid', 20, 100, true).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 'invalid', 100, true).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 20, 'invalid', true).should.equal(error.value);
+    statistical.WEIBULL.DIST(105, 20, 100, 'invalid').should.equal(error.value);
   });
 
 
