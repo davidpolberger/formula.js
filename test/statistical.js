@@ -905,6 +905,8 @@ suite('Statistical', function() {
     var data = [3, 6, 7, 8, 6, 5, 4, 2, 1, 9];
     statistical.Z.TEST(data, 4).should.approximately(0.09057419685136381, 1e-9);
     statistical.Z.TEST(data, 6).should.approximately(0.86304338912953, 1e-9);
+    statistical.Z.TEST(data, 4, 1).should.approximately(0.000252109, 1e-9);
+    statistical.Z.TEST([], 4).should.equal(error.na);
     statistical.Z.TEST(data, 'invalid').should.equal(error.value);
   });
 });
