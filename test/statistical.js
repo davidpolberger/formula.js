@@ -782,6 +782,8 @@ suite('Statistical', function() {
   test('SKEW.P', function() {
     statistical.SKEW.P([3, 4, 5, 2, 3, 4, 5, 6, 4, 7]).should.approximately(0.303193339354144, 1e-9);
     statistical.SKEW.P([3, 4, 5, 'invalid', 3, 4, 5, 6, 4, 7]).should.approximately(0.545521833141966, 1e-9);
+    statistical.SKEW.P([1, 2]).should.equal(error.div0);
+    statistical.SKEW.P(error.na).should.equal(error.na);
   });
 
   test('SLOPE', function() {
