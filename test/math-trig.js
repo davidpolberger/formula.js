@@ -42,7 +42,8 @@ suite('Math & Trig', function() {
     mathTrig.AGGREGATE(10, 4, [1, 2, 3]).should.equal(1);
     mathTrig.AGGREGATE(11, 4, [1, 2, 3]).should.approximately(0.6666666666666666, 1e-9);
     mathTrig.AGGREGATE(12, 4, [1, 2, 3]).should.equal(2);
-    mathTrig.AGGREGATE(13, 4, [1, 2, 3]).should.equal(1);
+    mathTrig.AGGREGATE(13, 4, [1, 2, 3]).should.equal(error.na);
+    mathTrig.AGGREGATE(13, 4, [1, 1, 3]).should.equal(1);
     mathTrig.AGGREGATE(14, 4, [1, 2, 3], 2).should.equal(2);
     mathTrig.AGGREGATE(15, 4, [1, 2, 3], 2).should.equal(2);
     mathTrig.AGGREGATE(16, 4, [1, 2, 3], 0.4).should.approximately(1.8, 1e-9);
