@@ -868,6 +868,7 @@ suite('Statistical', function() {
   test("TRIMMEAN", function() {
     statistical.TRIMMEAN([4, 5, 6, 7, 2, 3, 4, 5, 1, 2, 3], 0.2).should.approximately(3.7777777777777777, 1e-9);
     statistical.TRIMMEAN([4, 5, 6, 'invalid', 1, 2, 3], 0.2).should.equal(3.5);
+    statistical.TRIMMEAN([4, 5, 6, 7, 2, 3, 4, 5, 1, 2, 3], -1).should.equal(error.num);
   });
 
   test('VAR.P', function() {
