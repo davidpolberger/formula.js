@@ -821,6 +821,7 @@ suite('Statistical', function() {
     statistical.STDEVPA(data).should.approximately(26.054558142482477, 1e-9);
     var data2 = [2, 1, true, false, 'nope'];
     statistical.STDEVPA(data2).should.approximately(0.7483314773547883, 1e-9);
+    statistical.STDEVPA(error.na).should.equal(error.na);
   });
 
   test('STEYX', function() {
