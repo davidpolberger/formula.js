@@ -881,6 +881,7 @@ suite('Statistical', function() {
     statistical.VAR.S(1, 2, 3, 4, 10, 10).should.equal(16);
     statistical.VAR.S(1, 2, 3, 4, false, true).should.approximately(1.6666666666666667, 1e-9);
     statistical.VAR.S(1, 2, 3, 4, 'count as zero', false, true).should.approximately(1.6666666666666667, 1e-9);
+    statistical.VAR.S(1, error.na).should.equal(error.na);
   });
 
   test('VARA', function() {
