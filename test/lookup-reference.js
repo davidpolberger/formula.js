@@ -15,6 +15,7 @@ suite('Lookup & Reference', function() {
       ['apples', 'lemmons'],
       ['bananas', 'pears']
     ]
+    lookupAndReference.INDEX(1, 0, 0).should.eql(1);
     lookupAndReference.INDEX(array, 0, 0).should.eql(array);
     lookupAndReference.INDEX(array, 0, 1).should.eql(array[0]);
     lookupAndReference.INDEX(array, 1, 0).should.eql([['apples'], ['bananas']]);
@@ -24,6 +25,14 @@ suite('Lookup & Reference', function() {
     lookupAndReference.INDEX(array, 1, 2).should.eql('bananas');
     lookupAndReference.INDEX(array, 3, 1).should.eql(error.ref);
     lookupAndReference.INDEX(array, 1, 3).should.eql(error.ref);
+    lookupAndReference.INDEX([1, 2], 0, 1).should.eql([1, 2]);
+    lookupAndReference.INDEX([1, 2], 0, 2).should.eql(error.ref);
+    lookupAndReference.INDEX([[1], [2]], 1, 0).should.eql([[1], [2]]);
+    lookupAndReference.INDEX([[1], [2]], 2, 0).should.eql(error.ref);
+    lookupAndReference.INDEX([[1], [2]], 1, 1).should.eql(1);
+    lookupAndReference.INDEX([[1], [2]], 1, 2).should.eql(2);
+    lookupAndReference.INDEX([1, 2], 1, 1).should.eql(1);
+    lookupAndReference.INDEX([1, 2], 1, 0).should.eql(1);
   });
 
 
