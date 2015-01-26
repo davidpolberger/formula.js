@@ -807,6 +807,7 @@ suite('Statistical', function() {
   test('STDEV.S', function() {
     var data = [1345, 1301, 1368, 1322, 1310, 1370, 1318, 1350, 1303, 1299, true, false, 'nope'];
     statistical.STDEV.S(data).should.approximately(27.46391571984349, 1e-9);
+    statistical.STDEV.S(error.na).should.equal(error.na);
   });
 
   test('STDEVA', function() {
