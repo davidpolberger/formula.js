@@ -791,6 +791,10 @@ suite('Statistical', function() {
   test('SMALL', function() {
     statistical.SMALL([3, 4, 5, 2, 3, 4, 6, 4, 7], 4).should.equal(4);
     statistical.SMALL([3, 4, 5, 2, 'invalid', 4, 6, 4, 7], 4).should.equal(4);
+    statistical.SMALL([], 1).should.equal(error.num);
+    statistical.SMALL([1], 10).should.equal(error.num);
+    statistical.SMALL([error.na], 1).should.equal(error.na);
+    statistical.SMALL([1], 'invalid').should.equal(error.value);
   });
 
   test('STANDARDIZE', function() {
