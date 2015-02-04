@@ -14,7 +14,7 @@ suite('Lookup & Reference', function() {
     var array = [
       ['apples', 'lemmons'],
       ['bananas', 'pears']
-    ]
+    ];
     lookupAndReference.INDEX(1, 0, 0).should.eql(1);
     lookupAndReference.INDEX(array, 0, 0).should.eql(array);
     lookupAndReference.INDEX(array, 0, 1).should.eql(array[0]);
@@ -35,7 +35,26 @@ suite('Lookup & Reference', function() {
     lookupAndReference.INDEX([1, 2], 1, 0).should.eql(1);
   });
 
-
+  test('MATCH', function() {
+    lookupAndReference.MATCH(1, [0, 1, 2, 3, 4, 100, 7]).should.equal(2);
+    lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], 1).should.equal(5);
+    lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], 0).should.equal(5);
+    lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], -1).should.equal(error.na);
+    lookupAndReference.MATCH(5, [0, 1, 2, 3, 4, 100, 7], 1).should.equal(5);
+    lookupAndReference.MATCH(5, [0, 1, 2, 3, 4, 100, 7], 0).should.equal(error.na);
+    lookupAndReference.MATCH(5, [0, 1, 2, 3, 4, 100, 7], -1).should.equal(error.na);
+    lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], 2).should.equal(5);
+    lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], -2).should.equal(error.na);
+    lookupAndReference.MATCH('jima', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(1);
+    lookupAndReference.MATCH('j*b', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(2);
+    lookupAndReference.MATCH('j?b', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(error.na);
+    lookupAndReference.MATCH('j??b', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(2);
+    lookupAndReference.MATCH('j???b', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(error.na);
+    lookupAndReference.MATCH('j???', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(1);
+    lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(3);
+    lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimc', 'bernie'], -1).should.equal(error.na);
+    lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimd', 'bernie'], 1).should.equal(2);
+  });
 
   test('TRANSPOSE', function() {
     lookupAndReference.TRANSPOSE([[1,2],[3,4]]).should.eql([[1,3],[2,4]]);
