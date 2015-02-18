@@ -594,6 +594,8 @@ suite('Math & Trig', function() {
     mathTrig.SUMIF(['"A"', '"B"'], '="A"', [1, 2]).should.equal(1);
     mathTrig.SUMIF(['"A"', '"A"'], '"A"', [1, null]).should.equal(1);
     mathTrig.SUMIF("A", null).should.equal(0);
+    mathTrig.SUMIF([2, 2, 3], '2', ['z', 2, 3]).should.equal(2);
+    mathTrig.SUMIF([1, 2, 3], '2', [error.na, 2, 3]).should.equal(error.na);
   });
 
   test("SUMIFS", function() {
