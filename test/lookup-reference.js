@@ -51,6 +51,7 @@ suite('Lookup & Reference', function() {
     lookupAndReference.MATCH('j??b', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(2);
     lookupAndReference.MATCH('j???b', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(error.na);
     lookupAndReference.MATCH('j???', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(1);
+    lookupAndReference.MATCH('j*', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(1);
     lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimc', 'bernie'], 0).should.equal(3);
     lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimc', 'bernie'], -1).should.equal(error.na);
     lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimd', 'bernie'], 1).should.equal(2);
