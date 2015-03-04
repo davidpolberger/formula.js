@@ -78,4 +78,20 @@ suite('Lookup & Reference', function() {
     lookupAndReference.TRANSPOSE([1,2,3]).should.eql([[1],[2],[3]]);
     lookupAndReference.TRANSPOSE([[1],[2],[3]]).should.eql([1,2,3]);
   });
+
+  test('VLOOKUP', function() {
+    lookupAndReference.VLOOKUP(1, [1], 1).should.equal(1);
+    lookupAndReference.VLOOKUP(1, [[1, 2]], 1).should.equal(1);
+    lookupAndReference.VLOOKUP(2, [[1, 2]], 1).should.equal(2);
+    lookupAndReference.VLOOKUP(1, [[1, 2],['A', 'B']], 2).should.equal('A');
+    lookupAndReference.VLOOKUP(1, [[1, 2]], 2).should.equal(error.ref);
+    lookupAndReference.VLOOKUP(1, [[0, 3]], 1, true).should.equal(0);
+    lookupAndReference.VLOOKUP(1, [[2, 3]], 1, true).should.equal(error.na);
+    lookupAndReference.VLOOKUP(1, [[2, 3]], 1, false).should.equal(error.na);
+    lookupAndReference.VLOOKUP(2, [[2, 3]], 1, false).should.equal(2);
+
+    lookupAndReference.VLOOKUP('A', [['a', 'b']], 1, false).should.equal('a');
+    lookupAndReference.VLOOKUP('A?', [['a1', 'b1']], 1, false).should.equal('a1');
+    lookupAndReference.VLOOKUP('A*', [['a123', 'b123']], 1, false).should.equal('a123');
+  });
 });
