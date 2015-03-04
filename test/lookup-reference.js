@@ -10,6 +10,22 @@ suite('Lookup & Reference', function() {
     lookupAndReference.CHOOSE(-1, [1,3], [2,4], [3,5]).should.eql(error.value);
   });
 
+  test('HLOOKUP', function() {
+    lookupAndReference.HLOOKUP(1, [1], 1).should.equal(1);
+    lookupAndReference.HLOOKUP(1, [[1],[2]], 1).should.equal(1);
+    lookupAndReference.HLOOKUP(2, [[1],[2]], 1).should.equal(2);
+    lookupAndReference.HLOOKUP(1, [[1, 'A'],[2, 'B']], 2).should.equal('A');
+    lookupAndReference.HLOOKUP(1, [[1],[2]], 2).should.equal(error.ref);
+    lookupAndReference.HLOOKUP(1, [[0],[3]], 1, true).should.equal(0);
+    lookupAndReference.HLOOKUP(1, [[2],[3]], 1, true).should.equal(error.na);
+    lookupAndReference.HLOOKUP(1, [[2],[3]], 1, false).should.equal(error.na);
+    lookupAndReference.HLOOKUP(2, [[2],[3]], 1, false).should.equal(2);
+
+    lookupAndReference.HLOOKUP('A', [['a'],['b']], 1, false).should.equal('a');
+    lookupAndReference.HLOOKUP('A?', [['a1'],['b1']], 1, false).should.equal('a1');
+    lookupAndReference.HLOOKUP('A*', [['a123'],['b123']], 1, false).should.equal('a123');
+  });
+
   test('INDEX', function () {
     var array = [
       ['apples', 'lemmons'],
