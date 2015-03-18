@@ -230,19 +230,24 @@ exports.parseNumbersX = function(array_x, array_y) {
     return [parsed_x, parsed_y];
 };
 
-exports.parseMatrix = function(matrix, strict) {
-  var colSize;
-  if (!matrix || (colSize = matrix.length) === 0) {
-    return error.value;
+// TODO: return copy of matrix
+exports.parseMatrix = function(matrix) {
+  if (!(matrix instanceof Array)) {
+    matrix = [matrix];
   }
-  var rowSize = matrix[0].length;
-  for (var i = 0; i < colSize; i++) {
-    for (var j = 0; j < rowSize; j++) {
+  if (!(matrix[0] instanceof Array)) {
+    matrix = [matrix];
+  }
+  for (var i = 0; i < matrix.length; i++) {
+    for (var j = 0; j < matrix[0].length; j++) {
       matrix[i][j] = exports.parseNumber(matrix[i][j]);
       if (matrix[i][j] instanceof Error) {
         return matrix[i][j];
       }
     }
+  }
+  if (matrix.length === 0 || matrix[0].length === 0) {
+    return error.value;
   }
   return matrix;
 };

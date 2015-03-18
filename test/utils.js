@@ -89,7 +89,7 @@ suite('Utils', function() {
   });
 
   test('parseMatrix', function() {
-    utils.parseMatrix().should.equal(error.value);
+    utils.parseMatrix(1).should.eql([[1]]);
   });
 
   test('parseText', function() {
