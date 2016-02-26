@@ -2,10 +2,10 @@
   "author": "Ismael Ghalimi <ismael@stoic.com>",
   "name": "formulajs",
   "description": "JavaScript implementation of Microsoft Excel formula functions",
-  "version": "0.1.1",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "git@github.com:CrowdProcess/formulajs.git"
+    "url": "git@github.com:davidpolberger/formulajs.git"
   },
   "main": "index.js",
   "bin": {
@@ -13,22 +13,21 @@
   },
   "dependencies": {
     "bessel": "0.2.0",
-    "jStat": "0.0.6",
+    "jStat": "1.0.6",
     "jsep": "^0.2.9",
     "numeral": "1.5.3"
   },
   "devDependencies": {
-    "blanket": "^1.1.6",
-    "browserify": "^5.9.1",
-    "cli-table": "^0.3.0",
+    "istanbul": "*",
+    "mocha": "*",
+    "should": "*",
     "coveralls": "^2.11.1",
     "jshint": "^2.5.2",
-    "mocha": "*",
     "mocha-lcov-reporter": "0.0.1",
+    "blanket": "^1.1.6",
+    "cli-table": "^0.3.0",
     "mocha-spec-cov": "0.0.3",
-    "rewire": "*",
-    "should": "*",
-    "uglify-js": "^2.4.15"
+    "webpack": "^1.4.0"
   },
   "config": {
     "blanket": {
