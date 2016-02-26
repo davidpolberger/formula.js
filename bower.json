@@ -1,0 +1,38 @@
+{
+  "name": "formulajs",
+  "description": "JavaScript implementation of Microsoft Excel formula functions",
+  "main": "index.js",
+  "authors": [
+    "Ismael Ghalimi <ismael@stoic.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/davidpolberger/formulajs",
+  "dependencies": {
+    "bessel": "0.2.0",
+    "jStat": "1.0.6",
+    "jsep": "^0.2.9",
+    "numeral": "1.5.3"
+  },
+  "devDependencies": {
+    "istanbul": "*",
+    "mocha": "*",
+    "should": "*",
+    "coveralls": "^2.11.1",
+    "jshint": "^2.5.2",
+    "mocha-lcov-reporter": "0.0.1",
+    "blanket": "^1.1.6",
+    "cli-table": "^0.3.0",
+    "mocha-spec-cov": "0.0.3",
+    "webpack": "^1.4.0"
+  },
+  "moduleType": [
+    "globals"
+  ],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
