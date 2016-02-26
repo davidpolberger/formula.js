@@ -9,7 +9,7 @@
   "homepage": "https://github.com/davidpolberger/formulajs",
   "dependencies": {
     "bessel": "0.2.0",
-    "jStat": "1.0.6",
+    "jstat": "1.0.6",
     "jsep": "^0.2.9",
     "numeral": "1.5.3"
   },
