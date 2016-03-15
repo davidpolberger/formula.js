@@ -95,18 +95,18 @@ suite('Date & Time', function() {
   });
 
   test('NETWORKDAYS', function() {
-    dateTime.NETWORKDAYS('1/1/1900', '1/2/1900').should.equal(1);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900').should.equal(23);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', '1/2/1900').should.equal(22);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', ['1/2/1900', '1/3/1900']).should.equal(21);
+    dateTime.NETWORKDAYS('1/1/1900', '1/2/1900').should.equal(2);
+    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900').should.equal(24);
+    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', '1/2/1900').should.equal(23);
+    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', ['1/2/1900', '1/3/1900']).should.equal(22);
     dateTime.NETWORKDAYS('a', '1/2/1900').should.equal(error.value);
     dateTime.NETWORKDAYS('1/1/1900', 'a').should.equal(error.value);
     dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', 'a').should.equal(error.value);
   });
 
   test('NETWORKDAYS.INTL', function() {
-    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900').should.equal(1);
-    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', 2).should.equal(0);
+    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900').should.equal(2);
+    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', 2).should.equal(1);
     dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', -1).should.equal(error.value);
   });
 

@@ -82,16 +82,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	  __webpack_require__(14),
 	  __webpack_require__(15),
 	  __webpack_require__(17),
-	  __webpack_require__(2),
-	  __webpack_require__(7),
+	  __webpack_require__(3),
+	  __webpack_require__(11),
 	  __webpack_require__(18),
 	  __webpack_require__(19),
 	  __webpack_require__(20),
-	  __webpack_require__(12),
+	  __webpack_require__(7),
 	  __webpack_require__(21),
-	  __webpack_require__(6),
+	  __webpack_require__(2),
 	  __webpack_require__(22),
-	  __webpack_require__(4),
+	  __webpack_require__(5),
 	];
 
 	for (var c in categories) {
@@ -106,8 +106,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var mathTrig = __webpack_require__(2);
-	var statistical = __webpack_require__(6);
+	var statistical = __webpack_require__(2);
 
 	function set(fn, root) {
 	  if (root) {
@@ -121,7 +120,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.BETADIST = statistical.BETA.DIST;
 	exports.BETAINV = statistical.BETA.INV;
 	exports.BINOMDIST = statistical.BINOM.DIST;
-	exports.CEILING = set(mathTrig.CEILING.MATH, mathTrig.CEILING);
 	exports.CHIDIST = statistical.CHISQ.DIST;
 	exports.CHIINV = statistical.CHISQ.INV;
 	exports.CHITEST = statistical.CHISQ.TEST;
@@ -131,7 +129,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.EXPONDIST = statistical.EXPON.DIST;
 	exports.FDIST = statistical.F.DIST;
 	exports.FINV = statistical.F.INV;
-	exports.FLOOR = set(mathTrig.FLOOR.MATH, mathTrig.FLOOR);
 	exports.FTEST = statistical.F.TEST;
 	exports.GAMMADIST = statistical.GAMMA.DIST;
 	exports.GAMMAINV = statistical.GAMMA.INV;
@@ -164,1698 +161,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var utils = __webpack_require__(3);
-	var error = __webpack_require__(4);
-	var statistical = __webpack_require__(6);
-	var information = __webpack_require__(12);
-	var evalExpr = __webpack_require__(10);
-	var matrix = __webpack_require__(13);
-	var _ = __webpack_require__(5);
-
-	exports.ABS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.abs(utils.parseNumber(number));
-	};
-
-	exports.ACOS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.acos(number);
-	};
-
-	exports.ACOSH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.log(number + Math.sqrt(number * number - 1));
-	};
-
-	exports.ACOT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.atan(1 / number);
-	};
-
-	exports.ACOTH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 0.5 * Math.log((number + 1) / (number - 1));
-	};
-
-	//TODO: use options
-	exports.AGGREGATE = function(function_num, options, ref1, ref2) {
-	  function_num = utils.parseNumber(function_num);
-	  if (function_num instanceof Error) {
-	    return function_num;
-	  }
-	  options = utils.parseNumber(function_num);
-	  if (options instanceof Error) {
-	    return options;
-	  }
-	  switch (function_num) {
-	    case 1:
-	      return statistical.AVERAGE(ref1);
-	    case 2:
-	      return statistical.COUNT(ref1);
-	    case 3:
-	      return statistical.COUNTA(ref1);
-	    case 4:
-	      return statistical.MAX(ref1);
-	    case 5:
-	      return statistical.MIN(ref1);
-	    case 6:
-	      return exports.PRODUCT(ref1);
-	    case 7:
-	      return statistical.STDEV.S(ref1);
-	    case 8:
-	      return statistical.STDEV.P(ref1);
-	    case 9:
-	      return exports.SUM(ref1);
-	    case 10:
-	      return statistical.VAR.S(ref1);
-	    case 11:
-	      return statistical.VAR.P(ref1);
-	    case 12:
-	      return statistical.MEDIAN(ref1);
-	    case 13:
-	      return statistical.MODE.SNGL(ref1);
-	    case 14:
-	      return statistical.LARGE(ref1, ref2);
-	    case 15:
-	      return statistical.SMALL(ref1, ref2);
-	    case 16:
-	      return statistical.PERCENTILE.INC(ref1, ref2);
-	    case 17:
-	      return statistical.QUARTILE.INC(ref1, ref2);
-	    case 18:
-	      return statistical.PERCENTILE.EXC(ref1, ref2);
-	    case 19:
-	      return statistical.QUARTILE.EXC(ref1, ref2);
-	  }
-	};
-
-	exports.ARABIC = function(text) {
-	  text = text.trim().toUpperCase();
-
-	  // Credits: Rafa? Kukawski
-	  if (!/^-?M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/.test(text)) {
-	    return error.value;
-	  }
-	  var result = 0;
-	  text.replace(/[MDLV]|C[MD]?|X[CL]?|I[XV]?/g, function(i) {
-	    result += {
-	      M: 1000,
-	      CM: 900,
-	      D: 500,
-	      CD: 400,
-	      C: 100,
-	      XC: 90,
-	      L: 50,
-	      XL: 40,
-	      X: 10,
-	      IX: 9,
-	      V: 5,
-	      IV: 4,
-	      I: 1
-	    }[i];
-	  });
-	  if (text[0] === '-') {
-	    result *= -1;
-	  }
-	  return result;
-	};
-
-	exports.ASIN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.asin(number);
-	};
-
-	exports.ASINH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.log(number + Math.sqrt(number * number + 1));
-	};
-
-	exports.ATAN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.atan(number);
-	};
-
-	exports.ATAN2 = function(number_x, number_y) {
-	  number_x = utils.parseNumber(number_x);
-	  if (number_x instanceof Error) {
-	    return number_x;
-	  }
-	  number_y = utils.parseNumber(number_y);
-	  if (number_y instanceof Error) {
-	    return number_y;
-	  }
-	  return Math.atan2(number_x, number_y);
-	};
-
-	exports.ATANH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.log((1 + number) / (1 - number)) / 2;
-	};
-
-	exports.BASE = function(number, radix, min_length) {
-	  if (min_length === undefined || min_length === null) {
-	    min_length = 0;
-	  }
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0 || number >= 2e53) {
-	    return error.num;
-	  }
-	  radix = utils.parseNumber(radix);
-	  if (radix instanceof Error) {
-	    return radix;
-	  }
-	  if (radix < 2 || radix > 36) {
-	    return error.num;
-	  }
-	  min_length = utils.parseNumber(min_length);
-	  if (min_length instanceof Error) {
-	    return min_length;
-	  }
-	  if (min_length < 0) {
-	    return error.num;
-	  }
-	  var result = number.toString(radix);
-	  return new Array(Math.max(min_length + 1 - result.length, 0)).join('0') + result;
-	};
-
-	exports.CEILING = function(number, significance, mode) {
-	  significance = (significance === undefined) ? 1 : Math.abs(significance);
-	  mode = mode || 0;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  significance = utils.parseNumber(significance);
-	  if (significance instanceof Error) {
-	    return significance;
-	  }
-	  mode = utils.parseNumber(mode);
-	  if (mode instanceof Error) {
-	    return mode;
-	  }
-	  if (significance === 0) {
-	    return 0;
-	  }
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
-	  if (number >= 0) {
-	    return exports.ROUND(Math.ceil(number / significance) * significance, precision);
-	  } else {
-	    if (mode === 0) {
-	      return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
-	    } else {
-	      return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
-	    }
-	  }
-	};
-
-	exports.CEILING.MATH = exports.CEILING;
-
-	exports.CEILING.PRECISE = exports.CEILING;
-
-	exports.COMBIN = function(number, number_chosen) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  number_chosen = utils.parseNumber(number_chosen);
-	  if (number_chosen instanceof Error) {
-	    return number_chosen;
-	  }
-	  return exports.FACT(number) / (exports.FACT(number_chosen) * exports.FACT(number - number_chosen));
-	};
-
-	exports.COMBINA = function(number, number_chosen) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  number_chosen = utils.parseNumber(number_chosen);
-	  if (number_chosen instanceof Error) {
-	    return number_chosen;
-	  }
-	  return (number === 0 && number_chosen === 0) ? 1 : exports.COMBIN(number + number_chosen - 1, number - 1);
-	};
-
-	exports.COS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.cos(number);
-	};
-
-	exports.COSH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.exp(number) + Math.exp(-number)) / 2;
-	};
-
-	exports.COT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 1 / Math.tan(number);
-	};
-
-	exports.COTH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  var e2 = Math.exp(2 * number);
-	  return (e2 + 1) / (e2 - 1);
-	};
-
-	exports.CSC = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 1 / Math.sin(number);
-	};
-
-	exports.CSCH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 2 / (Math.exp(number) - Math.exp(-number));
-	};
-
-	exports.DECIMAL = function(number, radix) {
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  radix = utils.parseNumber(radix);
-	  if (radix instanceof Error) {
-	    return radix;
-	  }
-	  if (radix < 2 || radix > 36) {
-	    return error.num;
-	  }
-	  number = parseInt(number, radix);
-	  if (isNaN(number)) {
-	    return error.num;
-	  }
-	  return number;
-	};
-
-	exports.DEGREES = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return number * 180 / Math.PI;
-	};
-
-	exports.EVEN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return exports.CEILING(number, -2, -1);
-	};
-
-	exports.EXP = Math.exp;
-
-	var MEMOIZED_FACT = [];
-	exports.FACT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  var n = Math.floor(number);
-	  if (n === 0 || n === 1) {
-	    return 1;
-	  } else if (MEMOIZED_FACT[n] > 0) {
-	    return MEMOIZED_FACT[n];
-	  } else {
-	    MEMOIZED_FACT[n] = exports.FACT(n - 1) * n;
-	    return MEMOIZED_FACT[n];
-	  }
-	};
-
-	exports.FACTDOUBLE = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  var n = Math.floor(number);
-	  if (n <= 1) {
-	    return 1;
-	  } else {
-	    return n * exports.FACTDOUBLE(n - 2);
-	  }
-	};
-
-	exports.FLOOR = function(number, significance) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  significance = utils.parseNumber(significance);
-	  if (significance instanceof Error) {
-	    return significance;
-	  }
-	  if (significance === 0) {
-	    return 0;
-	  }
-
-	  if (!(number > 0 && significance > 0) && !(number < 0 && significance < 0)) {
-	    return error.num;
-	  }
-
-	  significance = Math.abs(significance);
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
-	  if (number >= 0) {
-	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
-	  } else {
-	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance), precision);
-	  }
-	};
-
-	//TODO: Verify
-	exports.FLOOR.MATH = function(number, significance, mode) {
-	  significance = (significance === undefined) ? 1 : significance;
-	  mode = (mode === undefined) ? 0 : mode;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  significance = utils.parseNumber(significance);
-	  if (significance instanceof Error) {
-	    return significance;
-	  }
-	  mode = utils.parseNumber(mode);
-	  if (mode instanceof Error) {
-	    return mode;
-	  }
-	  if (significance === 0) {
-	    return 0;
-	  }
-
-	  significance = significance ? Math.abs(significance) : 1;
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
-	  if (number >= 0) {
-	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
-	  } else if (mode === 0 || mode === undefined) {
-	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
-	  }
-	  return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
-	};
-
-	// Deprecated
-	exports.FLOOR.PRECISE = exports.FLOOR.MATH;
-
-	// adapted http://rosettacode.org/wiki/Greatest_common_divisor#JavaScript
-	exports.GCD = function() {
-	  var range = utils.parseNumbersConvert(_.flatten(arguments));
-	  if (range instanceof Error) {
-	    return range;
-	  }
-	  if (range.length === 0) {
-	    return error.value;
-	  }
-	  var r0 = range[0];
-	  var x = r0 < 0 ? -r0 : r0;
-	  for (var i = 1; i < range.length; i++) {
-	    var ri = range[i];
-	    var y = ri < 0 ? -ri : ri;
-	    while (x && y) {
-	      if (x > y) {
-	        x %= y;
-	      } else {
-	        y %= x;
-	      }
-	    }
-	    x += y;
-	  }
-	  return x;
-	};
-
-
-	exports.INT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.floor(number);
-	};
-
-	//TODO: verify
-	exports.ISO = {
-	  CEILING: exports.CEILING
-	};
-
-	exports.LCM = function() {
-	  var o = _.flatten(arguments);
-	  var n = o.length;
-	  while (n--) {
-	    o[n] = utils.parseNumber(o[n]);
-	    if (o[n] instanceof Error) {
-	      return o[n];
-	    }
-	    if (o[n] === 0) {
-	      return 0;
-	    }
-	    if (o[n] < 0) {
-	      return error.num;
-	    }
-	  }
-
-	  function lcm(numbers) {
-	    return numbers.reduce(function(a, b) {
-	      return Math.abs(a * b) / exports.GCD(a, b);
-	    });
-	  }
-	  return lcm(o);
-	};
-
-	exports.LN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number <= 0) {
-	    return error.num;
-	  }
-	  return Math.log(number);
-	};
-
-	exports.LOG = function(number, base) {
-	  base = (base === undefined) ? 10 : base;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number <= 0) {
-	    return error.num;
-	  }
-	  base = utils.parseNumber(base);
-	  if (base instanceof Error) {
-	    return base;
-	  }
-	  if (base <= 0) {
-	    return error.num;
-	  }
-	  var b = Math.log(base);
-	  if (b === 0) {
-	    return error.div0;
-	  }
-	  return Math.log(number) / b;
-	};
-
-	exports.LOG10 = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number <= 0) {
-	    return error.num;
-	  }
-	  return Math.log(number) / Math.log(10);
-	};
-
-	exports.MDETERM = function(x) {
-	  x = utils.parseMatrix(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-
-	  var s = matrix.dim(x);
-	  if(s.length !== 2 || s[0] !== s[1]) {
-	    throw new Error('can only calculate determinant on square matrices');
-	  }
-	  var n = s[0], ret = 1,i,j,k,A = x,Aj,Ai,alpha,temp,k1,k2,k3;
-	  for(j=0;j<n-1;j++) {
-	    k=j;
-	    for(i=j+1;i<n;i++) {
-	      if(Math.abs(A[i][j]) > Math.abs(A[k][j])) {
-	        k = i;
-	      }
-	    }
-	    if(k !== j) {
-	      temp = A[k]; A[k] = A[j]; A[j] = temp;
-	      ret *= -1;
-	    }
-	    Aj = A[j];
-	    for(i=j+1;i<n;i++) {
-	      Ai = A[i];
-	      alpha = Ai[j]/Aj[j];
-	      for(k=j+1;k<n-1;k+=2) {
-	        k1 = k+1;
-	        Ai[k] -= Aj[k]*alpha;
-	        Ai[k1] -= Aj[k1]*alpha;
-	      }
-	      if(k!==n) {
-	        Ai[k] -= Aj[k]*alpha;
-	      }
-	    }
-	    if(Aj[j] === 0) {
-	      return 0;
-	    }
-	    ret *= Aj[j];
-	  }
-	  return ret*A[j][j];
-
-	};
-
-	exports.MINVERSE = function(x) {
-	  x = utils.parseMatrix(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-	  var s = matrix.dim(x), m = s[0], n = s[1];
-	  var A = x, Ai, Aj;
-	  var I = matrix.identity(m), Ii, Ij;
-	  var i,j,k;
-	  for(j=0;j<n;++j) {
-	    var i0 = -1;
-	    var v0 = -1;
-	    for(i=j;i!==m;++i) {
-	      k = Math.abs(A[i][j]);
-	      if(k>v0) {
-	        i0 = i; v0 = k;
-	      }
-	    }
-	    Aj = A[i0]; A[i0] = A[j]; A[j] = Aj;
-	    Ij = I[i0]; I[i0] = I[j]; I[j] = Ij;
-	    x = Aj[j];
-	    for(k=j;k!==n;++k) {
-	      Aj[k] /= x;
-	    }
-	    for(k=n-1;k!==-1;--k) {
-	      Ij[k] /= x;
-	    }
-	    for(i=m-1;i!==-1;--i) {
-	      if(i!==j) {
-	        Ai = A[i];
-	        Ii = I[i];
-	        x = Ai[j];
-	        for(k=j+1;k!==n;++k) {
-	          Ai[k] -= Aj[k]*x;
-	        }
-	        for(k=n-1;k>0;--k) {
-	          Ii[k] -= Ij[k]*x; --k; Ii[k] -= Ij[k]*x;
-	        }
-	        if(k===0) {
-	          Ii[0] -= Ij[0]*x;
-	        }
-	      }
-	    }
-	  }
-	  return I;
-	};
-
-	exports.MMULT = function(x, y) {
-	  x = utils.parseMatrix(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-	  y = utils.parseMatrix(y);
-	  if (y instanceof Error) {
-	    return y;
-	  }
-	  var matrix = [];
-
-	  for (var col = 0; col < y.length; col++) {
-	    matrix[col] = [];
-
-	    for (var row = 0; row < x[0].length; row++) {
-	      var sum = 0;
-	      for (var i = 0; i < x.length; i++) {
-	          sum += x[i][row] * y[col][i];
-	      }
-	      matrix[col][row] = sum;
-	    }
-	  }
-	  return matrix;
-	};
-
-	exports.MOD = function(dividend, divisor) {
-	  dividend = utils.parseNumber(dividend);
-	  if (dividend instanceof Error) {
-	    return dividend;
-	  }
-	  divisor = utils.parseNumber(divisor);
-	  if (divisor instanceof Error) {
-	    return divisor;
-	  }
-	  if (divisor === 0) {
-	    return error.div0;
-	  }
-	  var modulus = Math.abs(dividend % divisor);
-	  return (divisor > 0) ? modulus : -modulus;
-	};
-
-	exports.MROUND = function(number, multiple) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  multiple = utils.parseNumber(multiple);
-	  if (multiple instanceof Error) {
-	    return multiple;
-	  }
-	  if (number * multiple < 0) {
-	    return error.num;
-	  }
-
-	  return Math.round(number / multiple) * multiple;
-	};
-
-	exports.MULTINOMIAL = function() {
-	  var args = _.flatten(arguments);
-	  var n = args.length;
-	  for (var i = 0; i < n; i++) {
-	    args[i] = utils.parseNumber(args[i]);
-	    if (args[i] instanceof Error) {
-	      return args[i];
-	    } 
-	  }
-	  var sum = 0;
-	  var divisor = 1;
-	  for (var i = 0; i < args.length; i++) {
-	    sum += args[i];
-	    divisor *= exports.FACT(args[i]);
-	  }
-	  return exports.FACT(sum) / divisor;
-	};
-
-	exports.MUNIT = function(dimension) {
-	  dimension = utils.parseNumber(dimension);
-	  if (dimension instanceof Error) {
-	    return dimension;
-	  }
-	  return matrix.identity(dimension);
-	};
-
-	exports.ODD = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  var temp = Math.ceil(Math.abs(number));
-	  temp = (temp & 1) ? temp : temp + 1;
-	  return (number > 0) ? temp : -temp;
-	};
-
-	exports.PI = function() {
-	  return Math.PI;
-	};
-
-	exports.POWER = function(number, power) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  power = utils.parseNumber(power);
-	  if (power instanceof Error) {
-	    return power;
-	  }
-	  var result = Math.pow(number, power);
-	  if (isNaN(result)) {
-	    return error.num;
-	  }
-
-	  return result;
-	};
-
-	exports.PRODUCT = function() {
-	  var args = utils.parseNumbers(_.flatten(arguments));
-	  if (args instanceof Error) {
-	    return args;
-	  }
-	  var result = 1;
-	  for (var i = 0; i < args.length; i++) {
-	    result *= args[i];
-	  }
-	  return result;
-	};
-
-	exports.QUOTIENT = function(numerator, denominator) {
-	  numerator = utils.parseNumber(numerator);
-	  if (numerator instanceof Error) {
-	    return numerator;
-	  }
-	  denominator = utils.parseNumber(denominator);
-	  if (denominator instanceof Error) {
-	    return denominator;
-	  }
-	  if (denominator === 0) {
-	    return error.div0;
-	  }
-	  return parseInt(numerator / denominator, 10);
-	};
-
-	exports.RADIANS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return number * Math.PI / 180;
-	};
-
-	exports.RAND = function() {
-	  return Math.random();
-	};
-
-	exports.RANDBETWEEN = function(bottom, top) {
-	  bottom = utils.parseNumber(bottom);
-	  if (bottom instanceof Error) {
-	    return bottom;
-	  }
-	  top = utils.parseNumber(top);
-	  if (top instanceof Error) {
-	    return top;
-	  }
-	  // Creative Commons Attribution 3.0 License
-	  // Copyright (c) 2012 eqcode
-	  return bottom + Math.ceil((top - bottom + 1) * Math.random()) - 1;
-	};
-
-	// TODO
-	exports.ROMAN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  // The MIT License
-	  // Copyright (c) 2008 Steven Levithan
-	  var digits = String(number).split('');
-	  var key = ['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM', '', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC', '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
-	  var roman = '';
-	  var i = 3;
-	  while (i--) {
-	    roman = (key[+digits.pop() + (i * 10)] || '') + roman;
-	  }
-	  return new Array(+digits.join('') + 1).join('M') + roman;
-	};
-
-	exports.ROUND = function(number, digits) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.round(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-	exports.ROUNDDOWN = function(number, digits) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-	exports.ROUNDUP = function(number, digits) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-	exports.SEC = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 1 / Math.cos(number);
-	};
-
-	exports.SECH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 2 / (Math.exp(number) + Math.exp(-number));
-	};
-
-	exports.SERIESSUM = function(x, n, m, coefficients) {
-	  x = utils.parseNumber(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-	  n = utils.parseNumber(n);
-	  if (n instanceof Error) {
-	    return n;
-	  }
-	  m = utils.parseNumber(m);
-	  if (m instanceof Error) {
-	    return m;
-	  }
-	  coefficients = utils.parseNumbers(coefficients);
-	  if (coefficients instanceof Error) {
-	    return coefficients;
-	  }
-	  var result = coefficients[0] * Math.pow(x, n);
-	  for (var i = 1; i < coefficients.length; i++) {
-	    result += coefficients[i] * Math.pow(x, n + i * m);
-	  }
-	  return result;
-	};
-
-	exports.SIGN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return -1;
-	  } else if (number === 0) {
-	    return 0;
-	  } else {
-	    return 1;
-	  }
-	};
-
-	exports.SIN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.sin(number);
-	};
-
-	exports.SINH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.exp(number) - Math.exp(-number)) / 2;
-	};
-
-	exports.SQRT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  return Math.sqrt(number);
-	};
-
-	exports.SQRTPI = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  return Math.sqrt(number * Math.PI);
-	};
-
-	exports.SUBTOTAL = function() {
-	  var args = utils.argsToArray(arguments);
-	  var function_code = utils.parseNumber(args.shift());
-	  if (function_code instanceof Error) {
-	    return function_code;
-	  }
-	  switch (function_code) {
-	    case 1:
-	      return statistical.AVERAGE(args);
-	    case 2:
-	      return statistical.COUNT(args);
-	    case 3:
-	      return statistical.COUNTA(args);
-	    case 4:
-	      return statistical.MAX(args);
-	    case 5:
-	      return statistical.MIN(args);
-	    case 6:
-	      return exports.PRODUCT(args);
-	    case 7:
-	      return statistical.STDEV.S(args);
-	    case 8:
-	      return statistical.STDEV.P(args);
-	    case 9:
-	      return exports.SUM(args);
-	    case 10:
-	      return statistical.VAR.S(args);
-	    case 11:
-	      return statistical.VAR.P(args);
-	      // no hidden values for us
-	    case 101:
-	      return statistical.AVERAGE(args);
-	    case 102:
-	      return statistical.COUNT(args);
-	    case 103:
-	      return statistical.COUNTA(args);
-	    case 104:
-	      return statistical.MAX(args);
-	    case 105:
-	      return statistical.MIN(args);
-	    case 106:
-	      return exports.PRODUCT(args);
-	    case 107:
-	      return statistical.STDEV.S(args);
-	    case 108:
-	      return statistical.STDEV.P(args);
-	    case 109:
-	      return exports.SUM(args);
-	    case 110:
-	      return statistical.VAR.S(args);
-	    case 111:
-	      return statistical.VAR.P(args);
-
-	  }
-	};
-
-	exports.SUM = function() {
-	  var numbers = utils.parseNumbers(_.flatten(arguments));
-	  var result = 0;
-	  var i = numbers.length;
-	  while (i--) {
-	    result += numbers[i];
-	  }
-
-	  return result;
-	};
-
-	exports.SUMIF = function(range, criteria, sum_range) {
-	  range = _.flatten(range);
-	  sum_range = sum_range !== undefined ? _.flatten(sum_range) : range;
-	  if (sum_range instanceof Error) {
-	    return sum_range;
-	  }
-	  if (!/[><=!]/.test(criteria)) {
-	    criteria = '=' + JSON.stringify(criteria);
-	  } else {
-	    criteria = criteria[0] + JSON.stringify(criteria.slice(1));
-	  }
-	  var result = 0;
-	  for (var i = 0; i < sum_range.length; i++) {
-	    if (sum_range[i] instanceof Error) {
-	      return sum_range[i];
-	    }
-	    if (typeof(sum_range[i]) !== 'number') {
-	      continue;
-	    }
-	    if (evalExpr(JSON.stringify(range[i]) + criteria)) {
-	      result += sum_range[i];
-	    }
-	  }
-	  return result;
-	};
-
-	exports.SUMIFS = function() {
-	  var criterias = utils.argsToArray(arguments);
-	  var range = _.flatten(criterias.shift());
-	  var result = 0;
-
-	  for (var i = 0; i < range.length; i++) {
-	    if (typeof(range[i]) !== 'number') {
-	      continue;
-	    }
-	    var valid = true;
-	    for (var c = 0; c < criterias.length; c += 2) {
-	      if (criterias[c].length !== range.length) {
-	        return error.value;
-	      }
-
-	      var criteria = criterias[c + 1];
-	      if (!/[><=!]/.test(criteria)) {
-	        if (!isNaN(parseFloat(criteria))) {
-	          criteria = '=' + criteria;
-	        } else {
-	          criteria = '=' + JSON.stringify(criteria);
-	        }
-	      } else {
-	        var sl = criteria.slice(1);
-	        if (!isNaN(parseFloat(sl))) {
-	          criteria = criteria[0] + sl;
-	        } else {
-	          criteria = criteria[0] + JSON.stringify(sl);
-	        }
-	      }
-	      if (!evalExpr(JSON.stringify(criterias[c][i]) + criteria)) {
-	        valid = false;
-	        break;
-	      }
-	    }
-	    if (valid) {
-	        result += range[i];
-	    }
-	  }
-
-	  return result;
-	};
-
-	exports.SUMPRODUCT = function() {
-	  if (!arguments || arguments.length === 0) {
-	    return error.value;
-	  }
-	  var arrays = arguments.length + 1;
-	  var result = 0;
-	  var product;
-	  var i;
-	  if (!(arguments[0] instanceof Array)) {
-	    product = 1;
-	    for (i = 0; i < arguments.length; i++) {
-	      if (typeof arguments[i] === 'number') {
-	        product *= arguments[i];
-	      } else {
-	        return error.value;
-	      }
-	    }
-	    return product;
-	  }
-	  var k;
-	  var _i;
-	  var _ij;
-	  for (i = 0; i < arguments[0].length; i++) {
-	    if (!(arguments[0][i] instanceof Array)) {
-	      product = 1;
-	      for (k = 1; k < arrays; k++) {
-	        _i = utils.parseNumber(arguments[k - 1][i]);
-	        if (_i instanceof Error) {
-	          return _i;
-	        }
-	        product *= _i;
-	      }
-	      result += product;
-	    } else {
-	      for (var j = 0; j < arguments[0][i].length; j++) {
-	        product = 1;
-	        for (k = 1; k < arrays; k++) {
-	          _ij = utils.parseNumber(arguments[k - 1][i][j]);
-	          if (_ij instanceof Error) {
-	            return _ij;
-	          }
-	          product *= _ij;
-	        }
-	        result += product;
-	      }
-	    }
-	  }
-	  return result;
-	};
-
-	exports.SUMSQ = function() {
-	  var numbers = utils.parseNumbers(_.flatten(arguments));
-	  if (numbers instanceof Error) {
-	    return numbers;
-	  }
-	  var result = 0;
-	  var length = numbers.length;
-	  for (var i = 0; i < length; i++) {
-	    result += (information.ISNUMBER(numbers[i])) ? numbers[i] * numbers[i] : 0;
-	  }
-	  return result;
-	};
-
-	exports.SUMX2MY2 = function(array_x, array_y) {
-	  var parsed = utils.parseNumbersX(array_x, array_y);
-	  if (parsed instanceof Error) {
-	    return parsed;
-	  }
-	  var parsed_x = parsed[0];
-	  var parsed_y = parsed[1];
-	  var result = 0;
-	  for (var i = 0; i < parsed_x.length; i++) {
-	    result += parsed_x[i] * parsed_x[i] - parsed_y[i] * parsed_y[i];
-	  }
-	  return result;
-	};
-
-	exports.SUMX2PY2 = function(array_x, array_y) {
-	  var parsed = utils.parseNumbersX(array_x, array_y);
-	  if (parsed instanceof Error) {
-	    return parsed;
-	  }
-	  var parsed_x = parsed[0];
-	  var parsed_y = parsed[1];
-	  var result = 0;
-	  for (var i = 0; i < parsed_x.length; i++) {
-	    result += parsed_x[i] * parsed_x[i] + parsed_y[i] * parsed_y[i];
-	  }
-	  return result;
-	};
-
-	exports.SUMXMY2 = function(array_x, array_y) {
-	  var parsed = utils.parseNumbersX(array_x, array_y);
-	  if (parsed instanceof Error) {
-	    return parsed;
-	  }
-	  var parsed_x = parsed[0];
-	  var parsed_y = parsed[1];
-	  var result = 0;
-	  for (var i = 0; i < parsed_x.length; i++) {
-	    result += Math.pow(parsed_x[i] - parsed_y[i], 2);
-	  }
-	  return result;
-	};
-
-	exports.TAN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.tan(number);
-	};
-
-	exports.TANH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  var e2 = Math.exp(2 * number);
-	  return (e2 - 1) / (e2 + 1);
-	};
-
-	exports.TRUNC = function(number, digits) {
-	  digits = (digits === undefined) ? 0 : digits;
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var error = __webpack_require__(4);
-	var _ = __webpack_require__(5);
-
-	exports.argsToArray = function(args) {
-	  return Array.prototype.slice.call(args, 0);
-	};
-
-	exports.cleanFloat = function(number) {
-	  var power = 1e14;
-	  return Math.round(number * power) / power;
-	};
-
-	exports.parseBool = function(bool) {
-	  if (typeof bool === 'boolean') {
-	    return bool;
-	  }
-
-	  if (bool instanceof Error) {
-	    return bool;
-	  }
-
-	  if (typeof bool === 'number') {
-	    if (bool === 0) {
-	      return false;
-	    } else {
-	      return true;
-	    }
-	  }
-
-	  if (typeof bool === 'string') {
-	    var up = bool.toUpperCase();
-	    if (up === 'TRUE') {
-	      return true;
-	    }
-
-	    if (up === 'FALSE') {
-	      return false;
-	    }
-	  }
-
-	  if (bool instanceof Date && !isNaN(bool)) {
-	    return true;
-	  }
-
-	  return error.value;
-	};
-
-	/*
-	 * 2 -> 2
-	 * '2' -> 2
-	 * 'invalid' -> #value!
-	 * true -> 1
-	 * false -> 0
-	 * undefined -> 0
-	 * null -> 0
-	 * error -> error
-	 */
-	exports.parseNumber = function(num) {
-	  if (num instanceof Error) {
-	    return num;
-	  }
-	  if (num === undefined || num === null) {
-	    return 0;
-	  }
-	  if (num === false) {
-	    return 0;
-	  }
-	  if (num === true) {
-	    return 1;
-	  }
-	  if (!isNaN(num)) {
-	    var value = parseFloat(num);
-	    if (!isNaN(value)) {
-	      return value;
-	    }
-	  }
-	  return error.value;
-	};
-
-	/*
-	 * 2 -> #value!
-	 * error -> error
-	 * [2] -> [2]
-	 * ['2'] -> []
-	 * ['invalid'] -> []
-	 * [true] -> []
-	 * [false] -> []
-	 * [undefined] -> []
-	 * [null] -> []
-	 * [error] -> error
-	 */
-	exports.parseNumbers = function(array) {
-	  if (array instanceof Error) {
-	    return array;
-	  }
-	  if (!(array instanceof Array)) {
-	    return error.value;
-	  }
-	  var result = [];
-	  for (var i = 0; i < array.length; i++) {
-	    if (array[i] instanceof Error) {
-	      return array[i];
-	    }
-	    if (typeof(array[i]) !== 'number') {
-	      continue;
-	    }
-	    result.push(array[i]);
-	  }
-	  return result;
-	};
-
-	/*
-	 * 2 -> #value!
-	 * error -> error
-	 * [2] -> [2]
-	 * ['2'] -> [0]
-	 * ['invalid'] -> [0]
-	 * [true] -> [1]
-	 * [false] -> [0]
-	 * [undefined] -> []
-	 * [null] -> []
-	 * [error] -> error
-	 */
-	exports.parseNumbersA = function(array) {
-	  if (array instanceof Error) {
-	    return array;
-	  }
-	  if (!(array instanceof Array)) {
-	    return error.value;
-	  }
-	  var result = [];
-	  for (var i = 0; i < array.length; i++) {
-	    if (array[i] instanceof Error) {
-	      return array[i];
-	    }
-	    if (array[i] === undefined || array[i] === null) {
-	      continue;
-	    }
-	    if (array[i] === false) {
-	      result.push(0);
-	    } else if (array[i] === true) {
-	      result.push(1);
-	    } else if (typeof(array[i]) !== 'number') {
-	      result.push(0);
-	    } else {
-	      result.push(array[i]);
-	    }
-	  }
-	  return result;
-	};
-
-	/*
-	 * 2 -> #value!
-	 * error -> error
-	 * [2] -> [2]
-	 * ['2'] -> [2]
-	 * ['invalid'] -> #value!
-	 * [true] -> #value!
-	 * [false] -> #value!
-	 * [undefined] -> [0]
-	 * [null] -> [0]
-	 * [error] -> error
-	 */
-	exports.parseNumbersConvert = function(array) {
-	  if (array instanceof Error) {
-	    return array;
-	  }
-	  if (!(array instanceof Array)) {
-	    return error.value;
-	  }
-	  var result = [];
-	  for (var i = 0; i < array.length; i++) {
-	    if (array[i] instanceof Error) {
-	      return array[i];
-	    }
-	    if (array[i] === undefined || array[i] === null) {
-	      result.push(0);
-	    } else {
-	      var value = parseFloat(array[i]);
-	      if (!isNaN(value)) {
-	        result.push(value);
-	      } else {
-	        return error.value;
-	      }
-	    }
-	  }
-	  return result;
-	};
-
-	/*
-	 * 2, 2 -> #value!
-	 * error, error -> error
-	 * [2], [2] -> [[2], [2]]
-	 * ['2'], ['2'] -> [[2], [2]]
-	 * ['invalid'], ['invalid] -> [[], []]
-	 * [true], [true] -> [[], []]
-	 * [false], [false] -> [[], []]
-	 * [undefined], [undefined] -> [[], []]
-	 * [null], [null] -> [[], []]
-	 * [error], [error] -> error
-	 */
-	exports.parseNumbersX = function(array_x, array_y) {
-	    if (array_x instanceof Error) {
-	      return array_x;
-	    }
-	    if (array_y instanceof Error) {
-	      return array_y;
-	    }
-	    if (!(array_x instanceof Array) || !(array_y instanceof Array)) {
-	      return error.value;
-	    }
-	    if (array_x.length !== array_y.length) {
-	      return error.na;
-	    }
-	    var parsed_x = [];
-	    var parsed_y = [];
-	    for (var i = 0; i < array_x.length; i++) {
-	      if (array_x[i] instanceof Error) {
-	        return array_x[i];
-	      }
-	      if (array_y[i] instanceof Error) {
-	        return array_y[i];
-	      }
-	      if (typeof(array_x[i]) !== 'number' || typeof(array_y[i]) !== 'number') {
-	        continue;
-	      }
-	      parsed_x.push(array_x[i]);
-	      parsed_y.push(array_y[i]);
-	    }
-	    return [parsed_x, parsed_y];
-	};
-
-	// TODO: return copy of matrix
-	exports.parseMatrix = function(matrix) {
-	  if (!(matrix instanceof Array)) {
-	    matrix = [matrix];
-	  }
-	  if (!(matrix[0] instanceof Array)) {
-	    matrix = [matrix];
-	  }
-	  for (var i = 0; i < matrix.length; i++) {
-	    for (var j = 0; j < matrix[0].length; j++) {
-	      matrix[i][j] = exports.parseNumber(matrix[i][j]);
-	      if (matrix[i][j] instanceof Error) {
-	        return matrix[i][j];
-	      }
-	    }
-	  }
-	  if (matrix.length === 0 || matrix[0].length === 0) {
-	    return error.value;
-	  }
-	  return matrix;
-	};
-
-	// Parse dates
-	exports.excelToJsTimestamp = function(timestamp) {
-	  if (timestamp < 60) {
-	    timestamp++;
-	  }
-	  return (timestamp - 25569) * 86400000;
-	};
-
-	exports.jsToExcelTimestamp = function(timestamp) {
-	  timestamp = (timestamp / 86400000) + 25569;
-	  if (timestamp <= 60) {
-	    timestamp--;
-	  }
-	  return timestamp;
-	};
-
-	exports.parseDate = function(date) {
-	  if (!isNaN(date)) {
-	    if (date instanceof Date) {
-	      return new Date(date);
-	    }
-	    var d = parseInt(date, 10);
-	    if (d < 0) {
-	      return error.num;
-	    }
-	    return new Date(exports.excelToJsTimestamp(d));
-	  }
-	  if (typeof date === 'string') {
-	    date = new Date(date);
-	    if (!isNaN(date)) {
-	      return date;
-	    }
-	  }
-	  return error.value;
-	};
-
-	exports.parseDates = function(array) {
-	  if (!(array instanceof Array)) {
-	    return error.value;
-	  }
-	  var result = [];
-	  for (var i = 0; i < array.length; i++) {
-	    if (array[i] instanceof Error) {
-	      return array[i];
-	    }
-	    if (array[i] === null || array[i] === undefined) {
-	      continue;
-	    }
-	    var value = exports.parseDate(array[i]);
-	    if (value instanceof Error) {
-	      return value;
-	    }
-	    result[result.length] = value;
-	  }
-	  return result;
-	};
-
-	exports.parseText = function(text) {
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  if (text === undefined || text === null) {
-	    return '';
-	  }
-	  if (typeof(text) === 'string') {
-	    return text;
-	  }
-	  if (typeof(text) === 'number') {
-	    return text.toString();
-	  }
-	  if (typeof(text) === 'boolean') {
-	    return text.toString().toUpperCase();
-	  }
-	  return error.value;
-	};
-
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	exports.nil = new Error('#NULL!');
-	exports.div0 = new Error('#DIV/0!');
-	exports.value = new Error('#VALUE?');
-	exports.ref = new Error('#REF!');
-	exports.name = new Error('#NAME?');
-	exports.num = new Error('#NUM!');
-	exports.na = new Error('#N/A');
-	exports.data = new Error('#GETTING_DATA');
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	exports.flatten = function(array, shallow) {
-	  return _flatten(array, shallow, false, []);
-	};
-
-	exports.initial = function (array) {
-	  var length = array ? array.length : 0;
-	  return slice(array, 0, length ? length - 1 : 0);
-	};
-
-	exports.rest = function (array) {
-	  return slice(array, 1);
-	};
-
-
-	function every (obj, predicate, context) {
-	  if (obj === null) {
-	    return true;
-	  }
-	  predicate = _.iteratee(predicate, context);
-	  var keys = obj.length !== +obj.length && _.keys(obj);
-	  var length = (keys || obj).length;
-	  var index, currentKey;
-	  for (index = 0; index < length; index++) {
-	    currentKey = keys ? keys[index] : index;
-	    if (!predicate(obj[currentKey], currentKey, obj)) return false;
-	  }
-	  return true;
-	}
-
-	function isArguments (args) {
-	  return args && args.toString() === '[object Arguments]';
-	}
-
-	var _flatten = function _flatten (input, shallow, strict, output) {
-	  if (shallow && every(input, Array.isArray)) {
-	    return concat.apply(output, input);
-	  }
-	  for (var i = 0, length = input.length; i < length; i++) {
-	    var value = input[i];
-	    if (!Array.isArray(value) && !isArguments(value)) {
-	      if (!strict) output.push(value);
-	    } else if (shallow) {
-	      push.apply(output, value);
-	    } else {
-	      _flatten(value, shallow, strict, output);
-	    }
-	  }
-	  return output;
-	};
-
-	function isBoolean (bool) {
-	  return bool === true || bool === false;
-	}
-
-	exports.uniq = function uniq (array) {
-	  if (array === null) {
-	    return [];
-	  }
-	  var result = [];
-	  var seen = [];
-	  for (var i = 0, length = array.length; i < length; i++) {
-	    var value = array[i];
-	    if (result.indexOf(value) < 0) {
-	      result.push(value);
-	    }
-	  }
-	  return result;
-	};
-
-	function slice(array, start, end) {
-	  var index = -1;
-	  var length = array ? array.length : 0;
-
-	  start = start === null ? 0 : (+start || 0);
-	  if (start < 0) {
-	    start = -start > length ? 0 : (length + start);
-	  }
-	  end = (end === undefined || end > length) ? length : (+end || 0);
-	  if (end < 0) {
-	    end += length;
-	  }
-	  if (end && end == length && !start) {
-	    return baseSlice(array);
-	  }
-	  length = start > end ? 0 : (end - start);
-
-	  var result = Array(length);
-	  while (++index < length) {
-	    result[index] = array[index + start];
-	  }
-	  return result;
-	}
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var mathTrig = __webpack_require__(2);
-	var text = __webpack_require__(7);
-	var jStat = __webpack_require__(9).jStat;
-	var utils = __webpack_require__(3);
-	var error = __webpack_require__(4);
-	var evalExpr = __webpack_require__(10);
-	var _ = __webpack_require__(5);
+	var mathTrig = __webpack_require__(3);
+	var text = __webpack_require__(11);
+	var jStat = __webpack_require__(13).jStat;
+	var utils = __webpack_require__(4);
+	var error = __webpack_require__(5);
+	var evalExpr = __webpack_require__(8);
+	var _ = __webpack_require__(6);
 
 	var SQRT2PI = 2.5066282746310002;
 
@@ -3962,13 +2274,2779 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var utils = __webpack_require__(4);
+	var error = __webpack_require__(5);
+	var statistical = __webpack_require__(2);
+	var information = __webpack_require__(7);
+	var evalExpr = __webpack_require__(8);
+	var matrix = __webpack_require__(10);
+	var _ = __webpack_require__(6);
+
+	exports.ABS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.abs(utils.parseNumber(number));
+	};
+
+	exports.ACOS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.acos(number);
+	};
+
+	exports.ACOSH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.log(number + Math.sqrt(number * number - 1));
+	};
+
+	exports.ACOT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.atan(1 / number);
+	};
+
+	exports.ACOTH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 0.5 * Math.log((number + 1) / (number - 1));
+	};
+
+	//TODO: use options
+	exports.AGGREGATE = function(function_num, options, ref1, ref2) {
+	  function_num = utils.parseNumber(function_num);
+	  if (function_num instanceof Error) {
+	    return function_num;
+	  }
+	  options = utils.parseNumber(function_num);
+	  if (options instanceof Error) {
+	    return options;
+	  }
+	  switch (function_num) {
+	    case 1:
+	      return statistical.AVERAGE(ref1);
+	    case 2:
+	      return statistical.COUNT(ref1);
+	    case 3:
+	      return statistical.COUNTA(ref1);
+	    case 4:
+	      return statistical.MAX(ref1);
+	    case 5:
+	      return statistical.MIN(ref1);
+	    case 6:
+	      return exports.PRODUCT(ref1);
+	    case 7:
+	      return statistical.STDEV.S(ref1);
+	    case 8:
+	      return statistical.STDEV.P(ref1);
+	    case 9:
+	      return exports.SUM(ref1);
+	    case 10:
+	      return statistical.VAR.S(ref1);
+	    case 11:
+	      return statistical.VAR.P(ref1);
+	    case 12:
+	      return statistical.MEDIAN(ref1);
+	    case 13:
+	      return statistical.MODE.SNGL(ref1);
+	    case 14:
+	      return statistical.LARGE(ref1, ref2);
+	    case 15:
+	      return statistical.SMALL(ref1, ref2);
+	    case 16:
+	      return statistical.PERCENTILE.INC(ref1, ref2);
+	    case 17:
+	      return statistical.QUARTILE.INC(ref1, ref2);
+	    case 18:
+	      return statistical.PERCENTILE.EXC(ref1, ref2);
+	    case 19:
+	      return statistical.QUARTILE.EXC(ref1, ref2);
+	  }
+	};
+
+	exports.ARABIC = function(text) {
+	  text = text.trim().toUpperCase();
+
+	  // Credits: Rafa? Kukawski
+	  if (!/^-?M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/.test(text)) {
+	    return error.value;
+	  }
+	  var result = 0;
+	  text.replace(/[MDLV]|C[MD]?|X[CL]?|I[XV]?/g, function(i) {
+	    result += {
+	      M: 1000,
+	      CM: 900,
+	      D: 500,
+	      CD: 400,
+	      C: 100,
+	      XC: 90,
+	      L: 50,
+	      XL: 40,
+	      X: 10,
+	      IX: 9,
+	      V: 5,
+	      IV: 4,
+	      I: 1
+	    }[i];
+	  });
+	  if (text[0] === '-') {
+	    result *= -1;
+	  }
+	  return result;
+	};
+
+	exports.ASIN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.asin(number);
+	};
+
+	exports.ASINH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.log(number + Math.sqrt(number * number + 1));
+	};
+
+	exports.ATAN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.atan(number);
+	};
+
+	exports.ATAN2 = function(number_x, number_y) {
+	  number_x = utils.parseNumber(number_x);
+	  if (number_x instanceof Error) {
+	    return number_x;
+	  }
+	  number_y = utils.parseNumber(number_y);
+	  if (number_y instanceof Error) {
+	    return number_y;
+	  }
+	  return Math.atan2(number_x, number_y);
+	};
+
+	exports.ATANH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.log((1 + number) / (1 - number)) / 2;
+	};
+
+	exports.BASE = function(number, radix, min_length) {
+	  if (min_length === undefined || min_length === null) {
+	    min_length = 0;
+	  }
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0 || number >= 2e53) {
+	    return error.num;
+	  }
+	  radix = utils.parseNumber(radix);
+	  if (radix instanceof Error) {
+	    return radix;
+	  }
+	  if (radix < 2 || radix > 36) {
+	    return error.num;
+	  }
+	  min_length = utils.parseNumber(min_length);
+	  if (min_length instanceof Error) {
+	    return min_length;
+	  }
+	  if (min_length < 0) {
+	    return error.num;
+	  }
+	  var result = number.toString(radix);
+	  return new Array(Math.max(min_length + 1 - result.length, 0)).join('0') + result;
+	};
+
+	exports.CEILING = function(number, significance) {
+	  return exports.CEILING.MATH(number,
+	                              Math.abs(significance),
+	                              significance >= 0 ? 0 : -1);
+	};
+
+	exports.CEILING.MATH = function(number, significance, mode) {
+	  significance = (significance === undefined) ? 1 : Math.abs(significance);
+	  mode = mode || 0;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  significance = utils.parseNumber(significance);
+	  if (significance instanceof Error) {
+	    return significance;
+	  }
+	  mode = utils.parseNumber(mode);
+	  if (mode instanceof Error) {
+	    return mode;
+	  }
+	  if (significance === 0) {
+	    return 0;
+	  }
+	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+	  if (number >= 0) {
+	    return exports.ROUND(Math.ceil(number / significance) * significance, precision);
+	  } else {
+	    if (mode === 0) {
+	      return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	    } else {
+	      return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	    }
+	  }
+	};
+
+	exports.CEILING.PRECISE = exports.CEILING;
+
+	exports.COMBIN = function(number, number_chosen) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  number_chosen = utils.parseNumber(number_chosen);
+	  if (number_chosen instanceof Error) {
+	    return number_chosen;
+	  }
+	  return exports.FACT(number) / (exports.FACT(number_chosen) * exports.FACT(number - number_chosen));
+	};
+
+	exports.COMBINA = function(number, number_chosen) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  number_chosen = utils.parseNumber(number_chosen);
+	  if (number_chosen instanceof Error) {
+	    return number_chosen;
+	  }
+	  return (number === 0 && number_chosen === 0) ? 1 : exports.COMBIN(number + number_chosen - 1, number - 1);
+	};
+
+	exports.COS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.cos(number);
+	};
+
+	exports.COSH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.exp(number) + Math.exp(-number)) / 2;
+	};
+
+	exports.COT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 1 / Math.tan(number);
+	};
+
+	exports.COTH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  var e2 = Math.exp(2 * number);
+	  return (e2 + 1) / (e2 - 1);
+	};
+
+	exports.CSC = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 1 / Math.sin(number);
+	};
+
+	exports.CSCH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 2 / (Math.exp(number) - Math.exp(-number));
+	};
+
+	exports.DECIMAL = function(number, radix) {
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  radix = utils.parseNumber(radix);
+	  if (radix instanceof Error) {
+	    return radix;
+	  }
+	  if (radix < 2 || radix > 36) {
+	    return error.num;
+	  }
+	  number = parseInt(number, radix);
+	  if (isNaN(number)) {
+	    return error.num;
+	  }
+	  return number;
+	};
+
+	exports.DEGREES = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return number * 180 / Math.PI;
+	};
+
+	exports.EVEN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return exports.CEILING(number, -2, -1);
+	};
+
+	exports.EXP = Math.exp;
+
+	var MEMOIZED_FACT = [];
+	exports.FACT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  var n = Math.floor(number);
+	  if (n === 0 || n === 1) {
+	    return 1;
+	  } else if (MEMOIZED_FACT[n] > 0) {
+	    return MEMOIZED_FACT[n];
+	  } else {
+	    MEMOIZED_FACT[n] = exports.FACT(n - 1) * n;
+	    return MEMOIZED_FACT[n];
+	  }
+	};
+
+	exports.FACTDOUBLE = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  var n = Math.floor(number);
+	  if (n <= 1) {
+	    return 1;
+	  } else {
+	    return n * exports.FACTDOUBLE(n - 2);
+	  }
+	};
+
+	exports.FLOOR = function(number, significance) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  significance = utils.parseNumber(significance);
+	  if (significance instanceof Error) {
+	    return significance;
+	  }
+	  if (significance === 0) {
+	    return 0;
+	  }
+
+	  if (!(number > 0 && significance > 0) && !(number < 0 && significance < 0)) {
+	    return error.num;
+	  }
+
+	  significance = Math.abs(significance);
+	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+	  if (number >= 0) {
+	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
+	  } else {
+	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance), precision);
+	  }
+	};
+
+	//TODO: Verify
+	exports.FLOOR.MATH = function(number, significance, mode) {
+	  significance = (significance === undefined) ? 1 : significance;
+	  mode = (mode === undefined) ? 0 : mode;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  significance = utils.parseNumber(significance);
+	  if (significance instanceof Error) {
+	    return significance;
+	  }
+	  mode = utils.parseNumber(mode);
+	  if (mode instanceof Error) {
+	    return mode;
+	  }
+	  if (significance === 0) {
+	    return 0;
+	  }
+
+	  significance = significance ? Math.abs(significance) : 1;
+	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+	  if (number >= 0) {
+	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
+	  } else if (mode === 0 || mode === undefined) {
+	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	  }
+	  return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	};
+
+	// Deprecated
+	exports.FLOOR.PRECISE = exports.FLOOR.MATH;
+
+	// adapted http://rosettacode.org/wiki/Greatest_common_divisor#JavaScript
+	exports.GCD = function() {
+	  var range = utils.parseNumbersConvert(_.flatten(arguments));
+	  if (range instanceof Error) {
+	    return range;
+	  }
+	  if (range.length === 0) {
+	    return error.value;
+	  }
+	  var r0 = range[0];
+	  var x = r0 < 0 ? -r0 : r0;
+	  for (var i = 1; i < range.length; i++) {
+	    var ri = range[i];
+	    var y = ri < 0 ? -ri : ri;
+	    while (x && y) {
+	      if (x > y) {
+	        x %= y;
+	      } else {
+	        y %= x;
+	      }
+	    }
+	    x += y;
+	  }
+	  return x;
+	};
+
+
+	exports.INT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.floor(number);
+	};
+
+	//TODO: verify
+	exports.ISO = {
+	  CEILING: exports.CEILING
+	};
+
+	exports.LCM = function() {
+	  var o = _.flatten(arguments);
+	  var n = o.length;
+	  while (n--) {
+	    o[n] = utils.parseNumber(o[n]);
+	    if (o[n] instanceof Error) {
+	      return o[n];
+	    }
+	    if (o[n] === 0) {
+	      return 0;
+	    }
+	    if (o[n] < 0) {
+	      return error.num;
+	    }
+	  }
+
+	  function lcm(numbers) {
+	    return numbers.reduce(function(a, b) {
+	      return Math.abs(a * b) / exports.GCD(a, b);
+	    });
+	  }
+	  return lcm(o);
+	};
+
+	exports.LN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number <= 0) {
+	    return error.num;
+	  }
+	  return Math.log(number);
+	};
+
+	exports.LOG = function(number, base) {
+	  base = (base === undefined) ? 10 : base;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number <= 0) {
+	    return error.num;
+	  }
+	  base = utils.parseNumber(base);
+	  if (base instanceof Error) {
+	    return base;
+	  }
+	  if (base <= 0) {
+	    return error.num;
+	  }
+	  var b = Math.log(base);
+	  if (b === 0) {
+	    return error.div0;
+	  }
+	  return Math.log(number) / b;
+	};
+
+	exports.LOG10 = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number <= 0) {
+	    return error.num;
+	  }
+	  return Math.log(number) / Math.log(10);
+	};
+
+	exports.MDETERM = function(x) {
+	  x = utils.parseMatrix(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+
+	  var s = matrix.dim(x);
+	  if(s.length !== 2 || s[0] !== s[1]) {
+	    throw new Error('can only calculate determinant on square matrices');
+	  }
+	  var n = s[0], ret = 1,i,j,k,A = x,Aj,Ai,alpha,temp,k1,k2,k3;
+	  for(j=0;j<n-1;j++) {
+	    k=j;
+	    for(i=j+1;i<n;i++) {
+	      if(Math.abs(A[i][j]) > Math.abs(A[k][j])) {
+	        k = i;
+	      }
+	    }
+	    if(k !== j) {
+	      temp = A[k]; A[k] = A[j]; A[j] = temp;
+	      ret *= -1;
+	    }
+	    Aj = A[j];
+	    for(i=j+1;i<n;i++) {
+	      Ai = A[i];
+	      alpha = Ai[j]/Aj[j];
+	      for(k=j+1;k<n-1;k+=2) {
+	        k1 = k+1;
+	        Ai[k] -= Aj[k]*alpha;
+	        Ai[k1] -= Aj[k1]*alpha;
+	      }
+	      if(k!==n) {
+	        Ai[k] -= Aj[k]*alpha;
+	      }
+	    }
+	    if(Aj[j] === 0) {
+	      return 0;
+	    }
+	    ret *= Aj[j];
+	  }
+	  return ret*A[j][j];
+
+	};
+
+	exports.MINVERSE = function(x) {
+	  x = utils.parseMatrix(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+	  var s = matrix.dim(x), m = s[0], n = s[1];
+	  var A = x, Ai, Aj;
+	  var I = matrix.identity(m), Ii, Ij;
+	  var i,j,k;
+	  for(j=0;j<n;++j) {
+	    var i0 = -1;
+	    var v0 = -1;
+	    for(i=j;i!==m;++i) {
+	      k = Math.abs(A[i][j]);
+	      if(k>v0) {
+	        i0 = i; v0 = k;
+	      }
+	    }
+	    Aj = A[i0]; A[i0] = A[j]; A[j] = Aj;
+	    Ij = I[i0]; I[i0] = I[j]; I[j] = Ij;
+	    x = Aj[j];
+	    for(k=j;k!==n;++k) {
+	      Aj[k] /= x;
+	    }
+	    for(k=n-1;k!==-1;--k) {
+	      Ij[k] /= x;
+	    }
+	    for(i=m-1;i!==-1;--i) {
+	      if(i!==j) {
+	        Ai = A[i];
+	        Ii = I[i];
+	        x = Ai[j];
+	        for(k=j+1;k!==n;++k) {
+	          Ai[k] -= Aj[k]*x;
+	        }
+	        for(k=n-1;k>0;--k) {
+	          Ii[k] -= Ij[k]*x; --k; Ii[k] -= Ij[k]*x;
+	        }
+	        if(k===0) {
+	          Ii[0] -= Ij[0]*x;
+	        }
+	      }
+	    }
+	  }
+	  return I;
+	};
+
+	exports.MMULT = function(x, y) {
+	  x = utils.parseMatrix(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+	  y = utils.parseMatrix(y);
+	  if (y instanceof Error) {
+	    return y;
+	  }
+	  var matrix = [];
+
+	  for (var col = 0; col < y.length; col++) {
+	    matrix[col] = [];
+
+	    for (var row = 0; row < x[0].length; row++) {
+	      var sum = 0;
+	      for (var i = 0; i < x.length; i++) {
+	          sum += x[i][row] * y[col][i];
+	      }
+	      matrix[col][row] = sum;
+	    }
+	  }
+	  return matrix;
+	};
+
+	exports.MOD = function(dividend, divisor) {
+	  dividend = utils.parseNumber(dividend);
+	  if (dividend instanceof Error) {
+	    return dividend;
+	  }
+	  divisor = utils.parseNumber(divisor);
+	  if (divisor instanceof Error) {
+	    return divisor;
+	  }
+	  if (divisor === 0) {
+	    return error.div0;
+	  }
+	  var modulus = Math.abs(dividend % divisor);
+	  return (divisor > 0) ? modulus : -modulus;
+	};
+
+	exports.MROUND = function(number, multiple) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  multiple = utils.parseNumber(multiple);
+	  if (multiple instanceof Error) {
+	    return multiple;
+	  }
+	  if (number * multiple < 0) {
+	    return error.num;
+	  }
+
+	  return Math.round(number / multiple) * multiple;
+	};
+
+	exports.MULTINOMIAL = function() {
+	  var args = _.flatten(arguments);
+	  var n = args.length;
+	  for (var i = 0; i < n; i++) {
+	    args[i] = utils.parseNumber(args[i]);
+	    if (args[i] instanceof Error) {
+	      return args[i];
+	    }
+	  }
+	  var sum = 0;
+	  var divisor = 1;
+	  for (var i = 0; i < args.length; i++) {
+	    sum += args[i];
+	    divisor *= exports.FACT(args[i]);
+	  }
+	  return exports.FACT(sum) / divisor;
+	};
+
+	exports.MUNIT = function(dimension) {
+	  dimension = utils.parseNumber(dimension);
+	  if (dimension instanceof Error) {
+	    return dimension;
+	  }
+	  return matrix.identity(dimension);
+	};
+
+	exports.ODD = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  var temp = Math.ceil(Math.abs(number));
+	  temp = (temp & 1) ? temp : temp + 1;
+	  return (number > 0) ? temp : -temp;
+	};
+
+	exports.PI = function() {
+	  return Math.PI;
+	};
+
+	exports.POWER = function(number, power) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  power = utils.parseNumber(power);
+	  if (power instanceof Error) {
+	    return power;
+	  }
+	  var result = Math.pow(number, power);
+	  if (isNaN(result)) {
+	    return error.num;
+	  }
+
+	  return result;
+	};
+
+	exports.PRODUCT = function() {
+	  var args = utils.parseNumbers(_.flatten(arguments));
+	  if (args instanceof Error) {
+	    return args;
+	  }
+	  var result = 1;
+	  for (var i = 0; i < args.length; i++) {
+	    result *= args[i];
+	  }
+	  return result;
+	};
+
+	exports.QUOTIENT = function(numerator, denominator) {
+	  numerator = utils.parseNumber(numerator);
+	  if (numerator instanceof Error) {
+	    return numerator;
+	  }
+	  denominator = utils.parseNumber(denominator);
+	  if (denominator instanceof Error) {
+	    return denominator;
+	  }
+	  if (denominator === 0) {
+	    return error.div0;
+	  }
+	  return parseInt(numerator / denominator, 10);
+	};
+
+	exports.RADIANS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return number * Math.PI / 180;
+	};
+
+	exports.RAND = function() {
+	  return Math.random();
+	};
+
+	exports.RANDBETWEEN = function(bottom, top) {
+	  bottom = utils.parseNumber(bottom);
+	  if (bottom instanceof Error) {
+	    return bottom;
+	  }
+	  top = utils.parseNumber(top);
+	  if (top instanceof Error) {
+	    return top;
+	  }
+	  // Creative Commons Attribution 3.0 License
+	  // Copyright (c) 2012 eqcode
+	  return bottom + Math.ceil((top - bottom + 1) * Math.random()) - 1;
+	};
+
+	// TODO
+	exports.ROMAN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  // The MIT License
+	  // Copyright (c) 2008 Steven Levithan
+	  var digits = String(number).split('');
+	  var key = ['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM', '', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC', '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+	  var roman = '';
+	  var i = 3;
+	  while (i--) {
+	    roman = (key[+digits.pop() + (i * 10)] || '') + roman;
+	  }
+	  return new Array(+digits.join('') + 1).join('M') + roman;
+	};
+
+	exports.ROUND = function(number, digits) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.round(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+	exports.ROUNDDOWN = function(number, digits) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+	exports.ROUNDUP = function(number, digits) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+	exports.SEC = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 1 / Math.cos(number);
+	};
+
+	exports.SECH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 2 / (Math.exp(number) + Math.exp(-number));
+	};
+
+	exports.SERIESSUM = function(x, n, m, coefficients) {
+	  x = utils.parseNumber(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+	  n = utils.parseNumber(n);
+	  if (n instanceof Error) {
+	    return n;
+	  }
+	  m = utils.parseNumber(m);
+	  if (m instanceof Error) {
+	    return m;
+	  }
+	  coefficients = utils.parseNumbers(coefficients);
+	  if (coefficients instanceof Error) {
+	    return coefficients;
+	  }
+	  var result = coefficients[0] * Math.pow(x, n);
+	  for (var i = 1; i < coefficients.length; i++) {
+	    result += coefficients[i] * Math.pow(x, n + i * m);
+	  }
+	  return result;
+	};
+
+	exports.SIGN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return -1;
+	  } else if (number === 0) {
+	    return 0;
+	  } else {
+	    return 1;
+	  }
+	};
+
+	exports.SIN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.sin(number);
+	};
+
+	exports.SINH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.exp(number) - Math.exp(-number)) / 2;
+	};
+
+	exports.SQRT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  return Math.sqrt(number);
+	};
+
+	exports.SQRTPI = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  return Math.sqrt(number * Math.PI);
+	};
+
+	exports.SUBTOTAL = function() {
+	  var args = utils.argsToArray(arguments);
+	  var function_code = utils.parseNumber(args.shift());
+	  if (function_code instanceof Error) {
+	    return function_code;
+	  }
+	  switch (function_code) {
+	    case 1:
+	      return statistical.AVERAGE(args);
+	    case 2:
+	      return statistical.COUNT(args);
+	    case 3:
+	      return statistical.COUNTA(args);
+	    case 4:
+	      return statistical.MAX(args);
+	    case 5:
+	      return statistical.MIN(args);
+	    case 6:
+	      return exports.PRODUCT(args);
+	    case 7:
+	      return statistical.STDEV.S(args);
+	    case 8:
+	      return statistical.STDEV.P(args);
+	    case 9:
+	      return exports.SUM(args);
+	    case 10:
+	      return statistical.VAR.S(args);
+	    case 11:
+	      return statistical.VAR.P(args);
+	      // no hidden values for us
+	    case 101:
+	      return statistical.AVERAGE(args);
+	    case 102:
+	      return statistical.COUNT(args);
+	    case 103:
+	      return statistical.COUNTA(args);
+	    case 104:
+	      return statistical.MAX(args);
+	    case 105:
+	      return statistical.MIN(args);
+	    case 106:
+	      return exports.PRODUCT(args);
+	    case 107:
+	      return statistical.STDEV.S(args);
+	    case 108:
+	      return statistical.STDEV.P(args);
+	    case 109:
+	      return exports.SUM(args);
+	    case 110:
+	      return statistical.VAR.S(args);
+	    case 111:
+	      return statistical.VAR.P(args);
+
+	  }
+	};
+
+	exports.SUM = function() {
+	  var numbers = utils.parseNumbers(_.flatten(arguments));
+	  var result = 0;
+	  var i = numbers.length;
+	  while (i--) {
+	    result += numbers[i];
+	  }
+
+	  return result;
+	};
+
+	exports.SUMIF = function(range, criteria, sum_range) {
+	  range = _.flatten(range);
+	  sum_range = sum_range !== undefined ? _.flatten(sum_range) : range;
+	  if (sum_range instanceof Error) {
+	    return sum_range;
+	  }
+	  if (!/[><=!]/.test(criteria)) {
+	    criteria = '=' + JSON.stringify(criteria);
+	  } else {
+	    criteria = criteria[0] + JSON.stringify(criteria.slice(1));
+	  }
+	  var result = 0;
+	  for (var i = 0; i < sum_range.length; i++) {
+	    if (sum_range[i] instanceof Error) {
+	      return sum_range[i];
+	    }
+	    if (typeof(sum_range[i]) !== 'number') {
+	      continue;
+	    }
+	    if (evalExpr(JSON.stringify(range[i]) + criteria)) {
+	      result += sum_range[i];
+	    }
+	  }
+	  return result;
+	};
+
+	exports.SUMIFS = function() {
+	  var criterias = utils.argsToArray(arguments);
+	  var range = _.flatten(criterias.shift());
+	  var result = 0;
+
+	  for (var i = 0; i < range.length; i++) {
+	    if (typeof(range[i]) !== 'number') {
+	      continue;
+	    }
+	    var valid = true;
+	    for (var c = 0; c < criterias.length; c += 2) {
+	      if (criterias[c].length !== range.length) {
+	        return error.value;
+	      }
+
+	      var criteria = criterias[c + 1];
+	      if (!/[><=!]/.test(criteria)) {
+	        if (!isNaN(parseFloat(criteria))) {
+	          criteria = '=' + criteria;
+	        } else {
+	          criteria = '=' + JSON.stringify(criteria);
+	        }
+	      } else {
+	        var sl = criteria.slice(1);
+	        if (!isNaN(parseFloat(sl))) {
+	          criteria = criteria[0] + sl;
+	        } else {
+	          criteria = criteria[0] + JSON.stringify(sl);
+	        }
+	      }
+	      if (!evalExpr(JSON.stringify(criterias[c][i]) + criteria)) {
+	        valid = false;
+	        break;
+	      }
+	    }
+	    if (valid) {
+	        result += range[i];
+	    }
+	  }
+
+	  return result;
+	};
+
+	exports.SUMPRODUCT = function() {
+	  if (!arguments || arguments.length === 0) {
+	    return error.value;
+	  }
+	  var arrays = arguments.length + 1;
+	  var result = 0;
+	  var product;
+	  var i;
+	  if (!(arguments[0] instanceof Array)) {
+	    product = 1;
+	    for (i = 0; i < arguments.length; i++) {
+	      if (typeof arguments[i] === 'number') {
+	        product *= arguments[i];
+	      } else {
+	        return error.value;
+	      }
+	    }
+	    return product;
+	  }
+	  var k;
+	  var _i;
+	  var _ij;
+	  for (i = 0; i < arguments[0].length; i++) {
+	    if (!(arguments[0][i] instanceof Array)) {
+	      product = 1;
+	      for (k = 1; k < arrays; k++) {
+	        _i = utils.parseNumber(arguments[k - 1][i]);
+	        if (_i instanceof Error) {
+	          return _i;
+	        }
+	        product *= _i;
+	      }
+	      result += product;
+	    } else {
+	      for (var j = 0; j < arguments[0][i].length; j++) {
+	        product = 1;
+	        for (k = 1; k < arrays; k++) {
+	          _ij = utils.parseNumber(arguments[k - 1][i][j]);
+	          if (_ij instanceof Error) {
+	            return _ij;
+	          }
+	          product *= _ij;
+	        }
+	        result += product;
+	      }
+	    }
+	  }
+	  return result;
+	};
+
+	exports.SUMSQ = function() {
+	  var numbers = utils.parseNumbers(_.flatten(arguments));
+	  if (numbers instanceof Error) {
+	    return numbers;
+	  }
+	  var result = 0;
+	  var length = numbers.length;
+	  for (var i = 0; i < length; i++) {
+	    result += (information.ISNUMBER(numbers[i])) ? numbers[i] * numbers[i] : 0;
+	  }
+	  return result;
+	};
+
+	exports.SUMX2MY2 = function(array_x, array_y) {
+	  var parsed = utils.parseNumbersX(array_x, array_y);
+	  if (parsed instanceof Error) {
+	    return parsed;
+	  }
+	  var parsed_x = parsed[0];
+	  var parsed_y = parsed[1];
+	  var result = 0;
+	  for (var i = 0; i < parsed_x.length; i++) {
+	    result += parsed_x[i] * parsed_x[i] - parsed_y[i] * parsed_y[i];
+	  }
+	  return result;
+	};
+
+	exports.SUMX2PY2 = function(array_x, array_y) {
+	  var parsed = utils.parseNumbersX(array_x, array_y);
+	  if (parsed instanceof Error) {
+	    return parsed;
+	  }
+	  var parsed_x = parsed[0];
+	  var parsed_y = parsed[1];
+	  var result = 0;
+	  for (var i = 0; i < parsed_x.length; i++) {
+	    result += parsed_x[i] * parsed_x[i] + parsed_y[i] * parsed_y[i];
+	  }
+	  return result;
+	};
+
+	exports.SUMXMY2 = function(array_x, array_y) {
+	  var parsed = utils.parseNumbersX(array_x, array_y);
+	  if (parsed instanceof Error) {
+	    return parsed;
+	  }
+	  var parsed_x = parsed[0];
+	  var parsed_y = parsed[1];
+	  var result = 0;
+	  for (var i = 0; i < parsed_x.length; i++) {
+	    result += Math.pow(parsed_x[i] - parsed_y[i], 2);
+	  }
+	  return result;
+	};
+
+	exports.TAN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.tan(number);
+	};
+
+	exports.TANH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  var e2 = Math.exp(2 * number);
+	  return (e2 - 1) / (e2 + 1);
+	};
+
+	exports.TRUNC = function(number, digits) {
+	  digits = (digits === undefined) ? 0 : digits;
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var error = __webpack_require__(5);
+	var _ = __webpack_require__(6);
+
+	exports.argsToArray = function(args) {
+	  return Array.prototype.slice.call(args, 0);
+	};
+
+	exports.cleanFloat = function(number) {
+	  var power = 1e14;
+	  return Math.round(number * power) / power;
+	};
+
+	exports.parseBool = function(bool) {
+	  if (typeof bool === 'boolean') {
+	    return bool;
+	  }
+
+	  if (bool instanceof Error) {
+	    return bool;
+	  }
+
+	  if (typeof bool === 'number') {
+	    if (bool === 0) {
+	      return false;
+	    } else {
+	      return true;
+	    }
+	  }
+
+	  if (typeof bool === 'string') {
+	    var up = bool.toUpperCase();
+	    if (up === 'TRUE') {
+	      return true;
+	    }
+
+	    if (up === 'FALSE') {
+	      return false;
+	    }
+	  }
+
+	  if (bool instanceof Date && !isNaN(bool)) {
+	    return true;
+	  }
+
+	  return error.value;
+	};
+
+	/*
+	 * 2 -> 2
+	 * '2' -> 2
+	 * 'invalid' -> #value!
+	 * true -> 1
+	 * false -> 0
+	 * undefined -> 0
+	 * null -> 0
+	 * error -> error
+	 */
+	exports.parseNumber = function(num) {
+	  if (num instanceof Error) {
+	    return num;
+	  }
+	  if (num === undefined || num === null) {
+	    return 0;
+	  }
+	  if (num === false) {
+	    return 0;
+	  }
+	  if (num === true) {
+	    return 1;
+	  }
+	  if (!isNaN(num)) {
+	    var value = parseFloat(num);
+	    if (!isNaN(value)) {
+	      return value;
+	    }
+	  }
+	  return error.value;
+	};
+
+	/*
+	 * 2 -> #value!
+	 * error -> error
+	 * [2] -> [2]
+	 * ['2'] -> []
+	 * ['invalid'] -> []
+	 * [true] -> []
+	 * [false] -> []
+	 * [undefined] -> []
+	 * [null] -> []
+	 * [error] -> error
+	 */
+	exports.parseNumbers = function(array) {
+	  if (array instanceof Error) {
+	    return array;
+	  }
+	  if (!(array instanceof Array)) {
+	    return error.value;
+	  }
+	  var result = [];
+	  for (var i = 0; i < array.length; i++) {
+	    if (array[i] instanceof Error) {
+	      return array[i];
+	    }
+	    if (typeof(array[i]) !== 'number') {
+	      continue;
+	    }
+	    result.push(array[i]);
+	  }
+	  return result;
+	};
+
+	/*
+	 * 2 -> #value!
+	 * error -> error
+	 * [2] -> [2]
+	 * ['2'] -> [0]
+	 * ['invalid'] -> [0]
+	 * [true] -> [1]
+	 * [false] -> [0]
+	 * [undefined] -> []
+	 * [null] -> []
+	 * [error] -> error
+	 */
+	exports.parseNumbersA = function(array) {
+	  if (array instanceof Error) {
+	    return array;
+	  }
+	  if (!(array instanceof Array)) {
+	    return error.value;
+	  }
+	  var result = [];
+	  for (var i = 0; i < array.length; i++) {
+	    if (array[i] instanceof Error) {
+	      return array[i];
+	    }
+	    if (array[i] === undefined || array[i] === null) {
+	      continue;
+	    }
+	    if (array[i] === false) {
+	      result.push(0);
+	    } else if (array[i] === true) {
+	      result.push(1);
+	    } else if (typeof(array[i]) !== 'number') {
+	      result.push(0);
+	    } else {
+	      result.push(array[i]);
+	    }
+	  }
+	  return result;
+	};
+
+	/*
+	 * 2 -> #value!
+	 * error -> error
+	 * [2] -> [2]
+	 * ['2'] -> [2]
+	 * ['invalid'] -> #value!
+	 * [true] -> #value!
+	 * [false] -> #value!
+	 * [undefined] -> [0]
+	 * [null] -> [0]
+	 * [error] -> error
+	 */
+	exports.parseNumbersConvert = function(array) {
+	  if (array instanceof Error) {
+	    return array;
+	  }
+	  if (!(array instanceof Array)) {
+	    return error.value;
+	  }
+	  var result = [];
+	  for (var i = 0; i < array.length; i++) {
+	    if (array[i] instanceof Error) {
+	      return array[i];
+	    }
+	    if (array[i] === undefined || array[i] === null) {
+	      result.push(0);
+	    } else {
+	      var value = parseFloat(array[i]);
+	      if (!isNaN(value)) {
+	        result.push(value);
+	      } else {
+	        return error.value;
+	      }
+	    }
+	  }
+	  return result;
+	};
+
+	/*
+	 * 2, 2 -> #value!
+	 * error, error -> error
+	 * [2], [2] -> [[2], [2]]
+	 * ['2'], ['2'] -> [[2], [2]]
+	 * ['invalid'], ['invalid] -> [[], []]
+	 * [true], [true] -> [[], []]
+	 * [false], [false] -> [[], []]
+	 * [undefined], [undefined] -> [[], []]
+	 * [null], [null] -> [[], []]
+	 * [error], [error] -> error
+	 */
+	exports.parseNumbersX = function(array_x, array_y) {
+	    if (array_x instanceof Error) {
+	      return array_x;
+	    }
+	    if (array_y instanceof Error) {
+	      return array_y;
+	    }
+	    if (!(array_x instanceof Array) || !(array_y instanceof Array)) {
+	      return error.value;
+	    }
+	    if (array_x.length !== array_y.length) {
+	      return error.na;
+	    }
+	    var parsed_x = [];
+	    var parsed_y = [];
+	    for (var i = 0; i < array_x.length; i++) {
+	      if (array_x[i] instanceof Error) {
+	        return array_x[i];
+	      }
+	      if (array_y[i] instanceof Error) {
+	        return array_y[i];
+	      }
+	      if (typeof(array_x[i]) !== 'number' || typeof(array_y[i]) !== 'number') {
+	        continue;
+	      }
+	      parsed_x.push(array_x[i]);
+	      parsed_y.push(array_y[i]);
+	    }
+	    return [parsed_x, parsed_y];
+	};
+
+	// TODO: return copy of matrix
+	exports.parseMatrix = function(matrix) {
+	  if (!(matrix instanceof Array)) {
+	    matrix = [matrix];
+	  }
+	  if (!(matrix[0] instanceof Array)) {
+	    matrix = [matrix];
+	  }
+	  for (var i = 0; i < matrix.length; i++) {
+	    for (var j = 0; j < matrix[0].length; j++) {
+	      matrix[i][j] = exports.parseNumber(matrix[i][j]);
+	      if (matrix[i][j] instanceof Error) {
+	        return matrix[i][j];
+	      }
+	    }
+	  }
+	  if (matrix.length === 0 || matrix[0].length === 0) {
+	    return error.value;
+	  }
+	  return matrix;
+	};
+
+	// Parse dates
+	exports.excelToJsTimestamp = function(timestamp) {
+	  if (timestamp < 60) {
+	    timestamp++;
+	  }
+	  return Math.round((timestamp - 25569) * 86400000);
+	};
+
+	exports.jsToExcelTimestamp = function(timestamp) {
+	  timestamp = (timestamp / 86400000) + 25569;
+	  if (timestamp <= 60) {
+	    timestamp--;
+	  }
+	  return timestamp;
+	};
+
+	/**
+	 * Creates a new Date instance using the same parameters supplied to the Date
+	 * class. If a single parameter
+
+	 * The constructor of Date may automatically make use of the local time zone. As
+	 * this is not desirable, this function ensures that the returned date uses the
+	 * UTC time zone.
+	 */
+	exports.createUTCDate = function(valueOrDateStringOrYear,
+	                                 month,
+	                                 day,
+	                                 hour,
+	                                 minute,
+	                                 second,
+	                                 millisecond) {
+	  if ((arguments.length === 1) &&
+	      (typeof valueOrDateStringOrYear !== "string")) {
+	    return new Date(valueOrDateStringOrYear);
+	  }
+
+	  var date = null;
+
+	  if (arguments.length === 0) {
+	    date = new Date();
+	  } else if (arguments.length === 1) {
+	    date = new Date(valueOrDateStringOrYear);
+	  } else if (arguments.length === 2) {
+	    date = new Date(valueOrDateStringOrYear, month);
+	  } else if (arguments.length === 3) {
+	    date = new Date(valueOrDateStringOrYear, month, day);
+	  } else if (arguments.length === 4) {
+	    date = new Date(valueOrDateStringOrYear, month, day, hour);
+	  } else if (arguments.length === 5) {
+	    date = new Date(valueOrDateStringOrYear, month, day, hour, minute);
+	  } else if (arguments.length === 6) {
+	    date = new Date(valueOrDateStringOrYear,
+	                    month,
+	                    day,
+	                    hour,
+	                    minute,
+	                    second);
+	  } else if (arguments.length === 7) {
+	    date = new Date(valueOrDateStringOrYear, month,
+	                    day,
+	                    hour,
+	                    minute,
+	                    second,
+	                    millisecond);
+	  }
+
+	  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+	};
+
+	exports.parseDate = function(date) {
+	  if (!isNaN(date)) {
+	    if (date instanceof Date) {
+	      return exports.createUTCDate(date);
+	    }
+
+	    var d = parseFloat(date);
+
+	    if (d < 0) {
+	      return error.num;
+	    }
+
+	    return exports.createUTCDate(exports.excelToJsTimestamp(d));
+	  }
+
+	  if (typeof date === 'string') {
+	    date = exports.createUTCDate(date);
+
+	    if (!isNaN(date)) {
+	      return date;
+	    }
+	  }
+
+	  return error.value;
+	};
+
+	exports.parseDates = function(array) {
+	  if (!(array instanceof Array)) {
+	    return error.value;
+	  }
+	  var result = [];
+	  for (var i = 0; i < array.length; i++) {
+	    if (array[i] instanceof Error) {
+	      return array[i];
+	    }
+	    if (array[i] === null || array[i] === undefined) {
+	      continue;
+	    }
+	    var value = exports.parseDate(array[i]);
+	    if (value instanceof Error) {
+	      return value;
+	    }
+	    result[result.length] = value;
+	  }
+	  return result;
+	};
+
+	exports.parseText = function(text) {
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  if (text === undefined || text === null) {
+	    return '';
+	  }
+	  if (typeof(text) === 'string') {
+	    return text;
+	  }
+	  if (typeof(text) === 'number') {
+	    return text.toString();
+	  }
+	  if (typeof(text) === 'boolean') {
+	    return text.toString().toUpperCase();
+	  }
+	  return error.value;
+	};
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	exports.nil = new Error('#NULL!');
+	exports.div0 = new Error('#DIV/0!');
+	exports.value = new Error('#VALUE?');
+	exports.ref = new Error('#REF!');
+	exports.name = new Error('#NAME?');
+	exports.num = new Error('#NUM!');
+	exports.na = new Error('#N/A');
+	exports.data = new Error('#GETTING_DATA');
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	exports.flatten = function(array, shallow) {
+	  return _flatten(array, shallow, false, []);
+	};
+
+	exports.initial = function (array) {
+	  var length = array ? array.length : 0;
+	  return slice(array, 0, length ? length - 1 : 0);
+	};
+
+	exports.rest = function (array) {
+	  return slice(array, 1);
+	};
+
+
+	function every (obj, predicate, context) {
+	  if (obj === null) {
+	    return true;
+	  }
+	  predicate = _.iteratee(predicate, context);
+	  var keys = obj.length !== +obj.length && _.keys(obj);
+	  var length = (keys || obj).length;
+	  var index, currentKey;
+	  for (index = 0; index < length; index++) {
+	    currentKey = keys ? keys[index] : index;
+	    if (!predicate(obj[currentKey], currentKey, obj)) return false;
+	  }
+	  return true;
+	}
+
+	function isArguments (args) {
+	  return args && args.toString() === '[object Arguments]';
+	}
+
+	var _flatten = function _flatten (input, shallow, strict, output) {
+	  if (shallow && every(input, Array.isArray)) {
+	    return concat.apply(output, input);
+	  }
+	  for (var i = 0, length = input.length; i < length; i++) {
+	    var value = input[i];
+	    if (!Array.isArray(value) && !isArguments(value)) {
+	      if (!strict) output.push(value);
+	    } else if (shallow) {
+	      push.apply(output, value);
+	    } else {
+	      _flatten(value, shallow, strict, output);
+	    }
+	  }
+	  return output;
+	};
+
+	function isBoolean (bool) {
+	  return bool === true || bool === false;
+	}
+
+	exports.uniq = function uniq (array) {
+	  if (array === null) {
+	    return [];
+	  }
+	  var result = [];
+	  var seen = [];
+	  for (var i = 0, length = array.length; i < length; i++) {
+	    var value = array[i];
+	    if (result.indexOf(value) < 0) {
+	      result.push(value);
+	    }
+	  }
+	  return result;
+	};
+
+	function slice(array, start, end) {
+	  var index = -1;
+	  var length = array ? array.length : 0;
+
+	  start = start === null ? 0 : (+start || 0);
+	  if (start < 0) {
+	    start = -start > length ? 0 : (length + start);
+	  }
+	  end = (end === undefined || end > length) ? length : (+end || 0);
+	  if (end < 0) {
+	    end += length;
+	  }
+	  if (end && end == length && !start) {
+	    return baseSlice(array);
+	  }
+	  length = start > end ? 0 : (end - start);
+
+	  var result = Array(length);
+	  while (++index < length) {
+	    result[index] = array[index + start];
+	  }
+	  return result;
+	}
+
+/***/ },
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var utils = __webpack_require__(3);
-	var error = __webpack_require__(4);
-	var numeral = __webpack_require__(8);
-	var _ = __webpack_require__(5);
+	var utils = __webpack_require__(4);
+	var error = __webpack_require__(5);
+
+	// TODO
+	exports.CELL = function() {
+	 throw new Error('CELL is not implemented');
+	};
+
+	exports.ERROR = {};
+	exports.ERROR.TYPE = function(error_val) {
+	  switch (error_val) {
+	    case error.nil: return 1;
+	    case error.div0: return 2;
+	    case error.value: return 3;
+	    case error.ref: return 4;
+	    case error.name: return 5;
+	    case error.num: return 6;
+	    case error.na: return 7;
+	    case error.data: return 8;
+	  }
+	  return error.na;
+	};
+
+	// TODO
+	exports.INFO = function() {
+	 throw new Error('INFO is not implemented');
+	};
+
+	exports.ISBLANK = function(value) {
+	  return value === null;
+	};
+
+	exports.ISERR = function(value) {
+	  return ([error.value, error.ref, error.div0, error.num, error.name, error.nil]).indexOf(value) >= 0 ||
+	    (typeof value === 'number' && (isNaN(value) || !isFinite(value)));
+	};
+
+	exports.ISERROR = function(value) {
+	  return exports.ISERR(value) || value === error.na;
+	};
+
+	exports.ISEVEN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.floor(Math.abs(number)) & 1) ? false : true;
+	};
+
+	// TODO
+	exports.ISFORMULA = function() {
+	  throw new Error('ISFORMULA is not implemented');
+	};
+
+	exports.ISLOGICAL = function(value) {
+	  return value === true || value === false;
+	};
+
+	exports.ISNA = function(value) {
+	  return value === error.na;
+	};
+
+	exports.ISNONTEXT = function(value) {
+	  return typeof(value) !== 'string';
+	};
+
+	exports.ISNUMBER = function(value) {
+	  return typeof(value) === 'number' && !isNaN(value) && isFinite(value);
+	};
+
+	exports.ISODD = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.floor(Math.abs(number)) & 1) ? true : false;
+	};
+
+	// TODO
+	exports.ISREF = function() {
+	  throw new Error('ISREF is not implemented');
+	};
+
+	exports.ISTEXT = function(value) {
+	  return typeof(value) === 'string';
+	};
+
+	exports.N = function(value) {
+	  if (exports.ISNUMBER(value)) {
+	    return value;
+	  }
+	  if (value instanceof Date) {
+	    return utils.jsToExcelTimestamp(value.getTime());
+	  }
+	  if (value === true) {
+	    return 1;
+	  }
+	  if (value === false) {
+	    return 0;
+	  }
+	  if (exports.ISERROR(value)) {
+	    return value;
+	  }
+	  return 0;
+	};
+
+	exports.NA = function() {
+	  return error.na;
+	};
+
+	// TODO
+	exports.SHEET = function() {
+	  throw new Error('SHEET is not implemented');
+	};
+
+	// TODO
+	exports.SHEETS = function() {
+	  throw new Error('SHEETS is not implemented');
+	};
+
+	exports.TYPE = function(value) {
+	  if (exports.ISNUMBER(value)) {
+	    return 1;
+	  }
+	  if (exports.ISTEXT(value)) {
+	    return 2;
+	  }
+	  if (exports.ISLOGICAL(value)) {
+	    return 4;
+	  }
+	  if (exports.ISERROR(value)) {
+	    return 16;
+	  }
+	  if (Array.isArray(value)) {
+	    return 64;
+	  }
+	};
+
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var jsep = __webpack_require__(9);
+
+	jsep.addBinaryOp('=', 6);
+
+	var binops = {
+	  '+' : function(a, b) { return a + b; },
+	  '-' : function(a, b) { return a - b; },
+	  '*' : function(a, b) { return a * b; },
+	  '/' : function(a, b) { return a / b; },
+	  '%' : function(a, b) { return a % b; },
+	  '>' : function(a, b) { return a > b; },
+	  '>=' : function(a, b) { return a >= b; },
+	  '<' : function(a, b) { return a < b; },
+	  '<=' : function(a, b) { return a <= b; },
+	  '=' : function(a, b) { return a == b; },
+	  '==' : function(a, b) { return a == b; },
+	  '!=' : function(a, b) { return a !== b; }
+	};
+	var unops = {
+	  '-' : function(a) { return -a; },
+	  '!' : function(a) { return !a; }
+	};
+	var logops = {
+	  '&&' : function(a, b) { return a && b; },
+	  '||' : function(a, b) { return a || b; }
+	};
+
+	function do_eval(node, variables) {
+	  if (node.type === 'BinaryExpression') {
+	    var binop = binops[node.operator];
+	    if (!binop) {
+	      throw new Error('Unknown binary operator ' + node.operator);
+	    }
+	    return binop(do_eval(node.left), do_eval(node.right));
+	  } else if (node.type === 'UnaryExpression') {
+	    var unop = unops[node.operator];
+	    if (!unop) {
+	      throw new Error('Unknown unary operator ' + node.operator);
+	    }
+	    return unop(do_eval(node.argument));
+	  } else if (node.type === 'LogicalExpression') {
+	    var logop = logops[node.operator];
+	    if (!logop) {
+	      throw new Error('Unknown logical operator ' + node.operator);
+	    }
+	    return logop(do_eval(node.left), do_eval(node.right));
+	  } else if (node.type === 'Literal') {
+	    return node.value;
+	  } else if (node.type === 'Identifier') {
+	    return variables ? variables[node.name] : undefined;
+	  } else {
+	    throw new Error('Unsupported expr node', node);
+	  }
+	}
+
+	module.exports = function evalExpr(expr, variables) {
+	  var ast = jsep(expr);
+	  return do_eval(ast, variables);
+	};
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//     JavaScript Expression Parser (JSEP) 0.2.9
+	//     JSEP may be freely distributed under the MIT License
+	//     http://jsep.from.so/
+
+	/*global module: true, exports: true, console: true */
+	(function (root) {
+		'use strict';
+		// Node Types
+		// ----------
+		
+		// This is the full set of types that any JSEP node can be.
+		// Store them here to save space when minified
+		var COMPOUND = 'Compound',
+			IDENTIFIER = 'Identifier',
+			MEMBER_EXP = 'MemberExpression',
+			LITERAL = 'Literal',
+			THIS_EXP = 'ThisExpression',
+			CALL_EXP = 'CallExpression',
+			UNARY_EXP = 'UnaryExpression',
+			BINARY_EXP = 'BinaryExpression',
+			LOGICAL_EXP = 'LogicalExpression',
+			CONDITIONAL_EXP = 'ConditionalExpression',
+			ARRAY_EXP = 'Array',
+
+			PERIOD_CODE = 46, // '.'
+			COMMA_CODE  = 44, // ','
+			SQUOTE_CODE = 39, // single quote
+			DQUOTE_CODE = 34, // double quotes
+			OPAREN_CODE = 40, // (
+			CPAREN_CODE = 41, // )
+			OBRACK_CODE = 91, // [
+			CBRACK_CODE = 93, // ]
+			QUMARK_CODE = 63, // ?
+			SEMCOL_CODE = 59, // ;
+			COLON_CODE  = 58, // :
+
+			throwError = function(message, index) {
+				var error = new Error(message + ' at character ' + index);
+				error.index = index;
+				error.dedscription = message;
+				throw error;
+			},
+
+		// Operations
+		// ----------
+		
+		// Set `t` to `true` to save space (when minified, not gzipped)
+			t = true,
+		// Use a quickly-accessible map to store all of the unary operators
+		// Values are set to `true` (it really doesn't matter)
+			unary_ops = {'-': t, '!': t, '~': t, '+': t},
+		// Also use a map for the binary operations but set their values to their
+		// binary precedence for quick reference:
+		// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
+			binary_ops = {
+				'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
+				'==': 6, '!=': 6, '===': 6, '!==': 6,
+				'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
+				'<<':8,  '>>': 8, '>>>': 8,
+				'+': 9, '-': 9,
+				'*': 10, '/': 10, '%': 10
+			},
+		// Get return the longest key length of any object
+			getMaxKeyLen = function(obj) {
+				var max_len = 0, len;
+				for(var key in obj) {
+					if((len = key.length) > max_len && obj.hasOwnProperty(key)) {
+						max_len = len;
+					}
+				}
+				return max_len;
+			},
+			max_unop_len = getMaxKeyLen(unary_ops),
+			max_binop_len = getMaxKeyLen(binary_ops),
+		// Literals
+		// ----------
+		// Store the values to return for the various literals we may encounter
+			literals = {
+				'true': true,
+				'false': false,
+				'null': null
+			},
+		// Except for `this`, which is special. This could be changed to something like `'self'` as well
+			this_str = 'this',
+		// Returns the precedence of a binary operator or `0` if it isn't a binary operator
+			binaryPrecedence = function(op_val) {
+				return binary_ops[op_val] || 0;
+			},
+		// Utility function (gets called from multiple places)
+		// Also note that `a && b` and `a || b` are *logical* expressions, not binary expressions
+			createBinaryExpression = function (operator, left, right) {
+				var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
+				return {
+					type: type,
+					operator: operator,
+					left: left,
+					right: right
+				};
+			},
+			// `ch` is a character code in the next three functions
+			isDecimalDigit = function(ch) {
+				return (ch >= 48 && ch <= 57); // 0...9
+			},
+			isIdentifierStart = function(ch) {
+				return (ch === 36) || (ch === 95) || // `$` and `_`
+						(ch >= 65 && ch <= 90) || // A...Z
+						(ch >= 97 && ch <= 122); // a...z
+			},
+			isIdentifierPart = function(ch) {
+				return (ch === 36) || (ch === 95) || // `$` and `_`
+						(ch >= 65 && ch <= 90) || // A...Z
+						(ch >= 97 && ch <= 122) || // a...z
+						(ch >= 48 && ch <= 57); // 0...9
+			},
+
+			// Parsing
+			// -------
+			// `expr` is a string with the passed in expression
+			jsep = function(expr) {
+				// `index` stores the character number we are currently at while `length` is a constant
+				// All of the gobbles below will modify `index` as we move along
+				var index = 0,
+					charAtFunc = expr.charAt,
+					charCodeAtFunc = expr.charCodeAt,
+					exprI = function(i) { return charAtFunc.call(expr, i); },
+					exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
+					length = expr.length,
+
+					// Push `index` up to the next non-space character
+					gobbleSpaces = function() {
+						var ch = exprICode(index);
+						// space or tab
+						while(ch === 32 || ch === 9) {
+							ch = exprICode(++index);
+						}
+					},
+					
+					// The main parsing function. Much of this code is dedicated to ternary expressions
+					gobbleExpression = function() {
+						var test = gobbleBinaryExpression(),
+							consequent, alternate;
+						
+						gobbleSpaces();
+						// Ternary expression: test ? consequent : alternate
+						if(exprICode(index) === QUMARK_CODE) {
+							index++;
+							consequent = gobbleExpression();
+							if(!consequent) {
+								throwError('Expected expression', index);
+							}
+							gobbleSpaces();
+							if(exprICode(index) === COLON_CODE) {
+								index++;
+								alternate = gobbleExpression();
+								if(!alternate) {
+									throwError('Expected expression', index);
+								}
+								return {
+									type: CONDITIONAL_EXP,
+									test: test,
+									consequent: consequent,
+									alternate: alternate
+								};
+							} else {
+								throwError('Expected :', index);
+							}
+						} else {
+							return test;
+						}
+					},
+
+					// Search for the operation portion of the string (e.g. `+`, `===`)
+					// Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `>>>`)
+					// and move down from 3 to 2 to 1 character until a matching binary operation is found
+					// then, return that binary operation
+					gobbleBinaryOp = function() {
+						gobbleSpaces();
+						var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
+						while(tc_len > 0) {
+							if(binary_ops.hasOwnProperty(to_check)) {
+								index += tc_len;
+								return to_check;
+							}
+							to_check = to_check.substr(0, --tc_len);
+						}
+						return false;
+					},
+
+					// This function is responsible for gobbling an individual expression,
+					// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
+					gobbleBinaryExpression = function() {
+						var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+
+						// First, try to get the leftmost thing
+						// Then, check to see if there's a binary operator operating on that leftmost thing
+						left = gobbleToken();
+						biop = gobbleBinaryOp();
+
+						// If there wasn't a binary operator, just return the leftmost node
+						if(!biop) {
+							return left;
+						}
+
+						// Otherwise, we need to start a stack to properly place the binary operations in their
+						// precedence structure
+						biop_info = { value: biop, prec: binaryPrecedence(biop)};
+
+						right = gobbleToken();
+						if(!right) {
+							throwError("Expected expression after " + biop, index);
+						}
+						stack = [left, biop_info, right];
+
+						// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
+						while((biop = gobbleBinaryOp())) {
+							prec = binaryPrecedence(biop);
+
+							if(prec === 0) {
+								break;
+							}
+							biop_info = { value: biop, prec: prec };
+
+							// Reduce: make a binary expression from the three topmost entries.
+							while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
+								right = stack.pop();
+								biop = stack.pop().value;
+								left = stack.pop();
+								node = createBinaryExpression(biop, left, right);
+								stack.push(node);
+							}
+
+							node = gobbleToken();
+							if(!node) {
+								throwError("Expected expression after " + biop, index);
+							}
+							stack.push(biop_info, node);
+						}
+
+						i = stack.length - 1;
+						node = stack[i];
+						while(i > 1) {
+							node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+							i -= 2;
+						}
+						return node;
+					},
+
+					// An individual part of a binary expression:
+					// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
+					gobbleToken = function() {
+						var ch, curr_node, unop, to_check, tc_len;
+						
+						gobbleSpaces();
+						ch = exprICode(index);
+
+						if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
+							// Char code 46 is a dot `.` which can start off a numeric literal
+							return gobbleNumericLiteral();
+						} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
+							// Single or double quotes
+							return gobbleStringLiteral();
+						} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
+							// `foo`, `bar.baz`
+							return gobbleVariable();
+						} else {
+							to_check = expr.substr(index, max_unop_len);
+							tc_len = to_check.length;
+							while(tc_len > 0) {
+								if(unary_ops.hasOwnProperty(to_check)) {
+									index += tc_len;
+									return {
+										type: UNARY_EXP,
+										operator: to_check,
+										argument: gobbleToken(),
+										prefix: true
+									};
+								}
+								to_check = to_check.substr(0, --tc_len);
+							}
+							
+							return false;
+						}
+					},
+					// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
+					// keep track of everything in the numeric literal and then calling `parseFloat` on that string
+					gobbleNumericLiteral = function() {
+						var number = '', ch;
+						while(isDecimalDigit(exprICode(index))) {
+							number += exprI(index++);
+						}
+
+						if(exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
+							number += exprI(index++);
+
+							while(isDecimalDigit(exprICode(index))) {
+								number += exprI(index++);
+							}
+						}
+						
+						ch = exprI(index);
+						if(ch === 'e' || ch === 'E') { // exponent marker
+							number += exprI(index++);
+							ch = exprI(index);
+							if(ch === '+' || ch === '-') { // exponent sign
+								number += exprI(index++);
+							}
+							while(isDecimalDigit(exprICode(index))) { //exponent itself
+								number += exprI(index++);
+							}
+							if(!isDecimalDigit(exprICode(index-1)) ) {
+								throwError('Expected exponent (' + number + exprI(index) + ')', index);
+							}
+						}
+						
+
+						// Check to make sure this isn't a variable name that start with a number (123abc)
+						if(isIdentifierStart(exprICode(index))) {
+							throwError( 'Variable names cannot start with a number (' +
+										number + exprI(index) + ')', index);
+						}
+
+						return {
+							type: LITERAL,
+							value: parseFloat(number),
+							raw: number
+						};
+					},
+
+					// Parses a string literal, staring with single or double quotes with basic support for escape codes
+					// e.g. `"hello world"`, `'this is\nJSEP'`
+					gobbleStringLiteral = function() {
+						var str = '', quote = exprI(index++), closed = false, ch;
+
+						while(index < length) {
+							ch = exprI(index++);
+							if(ch === quote) {
+								closed = true;
+								break;
+							} else if(ch === '\\') {
+								// Check for all of the common escape codes
+								ch = exprI(index++);
+								switch(ch) {
+									case 'n': str += '\n'; break;
+									case 'r': str += '\r'; break;
+									case 't': str += '\t'; break;
+									case 'b': str += '\b'; break;
+									case 'f': str += '\f'; break;
+									case 'v': str += '\x0B'; break;
+								}
+							} else {
+								str += ch;
+							}
+						}
+
+						if(!closed) {
+							throwError('Unclosed quote after "'+str+'"', index);
+						}
+
+						return {
+							type: LITERAL,
+							value: str,
+							raw: quote + str + quote
+						};
+					},
+					
+					// Gobbles only identifiers
+					// e.g.: `foo`, `_value`, `$x1`
+					// Also, this function checks if that identifier is a literal:
+					// (e.g. `true`, `false`, `null`) or `this`
+					gobbleIdentifier = function() {
+						var ch = exprICode(index), start = index, identifier;
+
+						if(isIdentifierStart(ch)) {
+							index++;
+						} else {
+							throwError('Unexpected ' + exprI(index), index);
+						}
+
+						while(index < length) {
+							ch = exprICode(index);
+							if(isIdentifierPart(ch)) {
+								index++;
+							} else {
+								break;
+							}
+						}
+						identifier = expr.slice(start, index);
+
+						if(literals.hasOwnProperty(identifier)) {
+							return {
+								type: LITERAL,
+								value: literals[identifier],
+								raw: identifier
+							};
+						} else if(identifier === this_str) {
+							return { type: THIS_EXP };
+						} else {
+							return {
+								type: IDENTIFIER,
+								name: identifier
+							};
+						}
+					},
+
+					// Gobbles a list of arguments within the context of a function call
+					// or array literal. This function also assumes that the opening character
+					// `(` or `[` has already been gobbled, and gobbles expressions and commas
+					// until the terminator character `)` or `]` is encountered.
+					// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
+					gobbleArguments = function(termination) {
+						var ch_i, args = [], node;
+						while(index < length) {
+							gobbleSpaces();
+							ch_i = exprICode(index);
+							if(ch_i === termination) { // done parsing
+								index++;
+								break;
+							} else if (ch_i === COMMA_CODE) { // between expressions
+								index++;
+							} else {
+								node = gobbleExpression();
+								if(!node || node.type === COMPOUND) {
+									throwError('Expected comma', index);
+								}
+								args.push(node);
+							}
+						}
+						return args;
+					},
+
+					// Gobble a non-literal variable name. This variable name may include properties
+					// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
+					// It also gobbles function calls:
+					// e.g. `Math.acos(obj.angle)`
+					gobbleVariable = function() {
+						var ch_i, node;
+						ch_i = exprICode(index);
+							
+						if(ch_i === OPAREN_CODE) {
+							node = gobbleGroup();
+						} else {
+							node = gobbleIdentifier();
+						}
+						gobbleSpaces();
+						ch_i = exprICode(index);
+						while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
+							index++;
+							if(ch_i === PERIOD_CODE) {
+								gobbleSpaces();
+								node = {
+									type: MEMBER_EXP,
+									computed: false,
+									object: node,
+									property: gobbleIdentifier()
+								};
+							} else if(ch_i === OBRACK_CODE) {
+								node = {
+									type: MEMBER_EXP,
+									computed: true,
+									object: node,
+									property: gobbleExpression()
+								};
+								gobbleSpaces();
+								ch_i = exprICode(index);
+								if(ch_i !== CBRACK_CODE) {
+									throwError('Unclosed [', index);
+								}
+								index++;
+							} else if(ch_i === OPAREN_CODE) {
+								// A function call is being made; gobble all the arguments
+								node = {
+									type: CALL_EXP,
+									'arguments': gobbleArguments(CPAREN_CODE),
+									callee: node
+								};
+							}
+							gobbleSpaces();
+							ch_i = exprICode(index);
+						}
+						return node;
+					},
+
+					// Responsible for parsing a group of things within parentheses `()`
+					// This function assumes that it needs to gobble the opening parenthesis
+					// and then tries to gobble everything within that parenthesis, assuming
+					// that the next thing it should see is the close parenthesis. If not,
+					// then the expression probably doesn't have a `)`
+					gobbleGroup = function() {
+						index++;
+						var node = gobbleExpression();
+						gobbleSpaces();
+						if(exprICode(index) === CPAREN_CODE) {
+							index++;
+							return node;
+						} else {
+							throwError('Unclosed (', index);
+						}
+					},
+
+					// Responsible for parsing Array literals `[1, 2, 3]`
+					// This function assumes that it needs to gobble the opening bracket
+					// and then tries to gobble the expressions as arguments.
+					gobbleArray = function() {
+						index++;
+						return {
+							type: ARRAY_EXP,
+							body: gobbleArguments(CBRACK_CODE)
+						};
+					},
+
+					nodes = [], ch_i, node;
+					
+				while(index < length) {
+					ch_i = exprICode(index);
+
+					// Expressions can be separated by semicolons, commas, or just inferred without any
+					// separators
+					if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+						index++; // ignore separators
+					} else if (ch_i === OBRACK_CODE && (node = gobbleArray())) {
+						nodes.push(node);
+					} else {
+						// Try to gobble each expression individually
+						if((node = gobbleExpression())) {
+							nodes.push(node);
+						// If we weren't able to find a binary expression and are out of room, then
+						// the expression passed in probably has too much
+						} else if(index < length) {
+							throwError('Unexpected "' + exprI(index) + '"', index);
+						}
+					}
+				}
+
+				// If there's only one expression just try returning the expression
+				if(nodes.length === 1) {
+					return nodes[0];
+				} else {
+					return {
+						type: COMPOUND,
+						body: nodes
+					};
+				}
+			};
+
+		// To be filled in by the template
+		jsep.version = '0.2.9';
+		jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
+
+		/**
+		 * @method jsep.addUnaryOp
+		 * @param {string} op_name The name of the unary op to add
+		 * @return jsep
+		 */
+		jsep.addUnaryOp = function(op_name) {
+			unary_ops[op_name] = t; return this;
+		};
+
+		/**
+		 * @method jsep.addBinaryOp
+		 * @param {string} op_name The name of the binary op to add
+		 * @param {number} precedence The precedence of the binary op (can be a float)
+		 * @return jsep
+		 */
+		jsep.addBinaryOp = function(op_name, precedence) {
+			max_binop_len = Math.max(op_name.length, max_binop_len);
+			binary_ops[op_name] = precedence;
+			return this;
+		};
+
+		/**
+		 * @method jsep.removeUnaryOp
+		 * @param {string} op_name The name of the unary op to remove
+		 * @return jsep
+		 */
+		jsep.removeUnaryOp = function(op_name) {
+			delete unary_ops[op_name];
+			if(op_name.length === max_unop_len) {
+				max_unop_len = getMaxKeyLen(unary_ops);
+			}
+			return this;
+		};
+
+		/**
+		 * @method jsep.removeBinaryOp
+		 * @param {string} op_name The name of the binary op to remove
+		 * @return jsep
+		 */
+		jsep.removeBinaryOp = function(op_name) {
+			delete binary_ops[op_name];
+			if(op_name.length === max_binop_len) {
+				max_binop_len = getMaxKeyLen(binary_ops);
+			}
+			return this;
+		};
+
+		// In desktop environments, have a way to restore the old value for `jsep`
+		if (false) {
+			var old_jsep = root.jsep;
+			// The star of the show! It's a function!
+			root.jsep = jsep;
+			// And a courteous function willing to move out of the way for other similarly-named objects!
+			jsep.noConflict = function() {
+				if(root.jsep === jsep) {
+					root.jsep = old_jsep;
+				}
+				return jsep;
+			};
+		} else {
+			// In Node.JS environments
+			if (typeof module !== 'undefined' && module.exports) {
+				exports = module.exports = jsep;
+			} else {
+				exports.parse = jsep;
+			}
+		}
+	}(this));
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	function _dim(x) {
+	  var ret = [];
+	  while(typeof x === "object") {
+	    ret.push(x.length); x = x[0];
+	  }
+	  return ret;
+	};
+
+	exports.dim = function dim(x) {
+	  var y,z;
+	  if(typeof x === "object") {
+	    y = x[0];
+	    if(typeof y === "object") {
+	      z = y[0];
+	      if(typeof z === "object") {
+	        return _dim(x);
+	      }
+	      return [x.length,y.length];
+	    }
+	    return [x.length];
+	  }
+	  return [];
+	};
+
+	exports.diag = function diag(d) {
+	  var i,i1,j,n = d.length, A = Array(n), Ai;
+	  for(i=n-1;i>=0;i--) {
+	    Ai = Array(n);
+	    i1 = i+2;
+	    for(j=n-1;j>=i1;j-=2) {
+	      Ai[j] = 0;
+	      Ai[j-1] = 0;
+	    }
+	    if(j>i) { Ai[j] = 0; }
+	    Ai[i] = d[i];
+	    for(j=i-1;j>=1;j-=2) {
+	      Ai[j] = 0;
+	      Ai[j-1] = 0;
+	    }
+	    if(j===0) {
+	      Ai[0] = 0;
+	    }
+	    A[i] = Ai;
+	  }
+	  return A;
+	};
+
+	exports.rep = function rep(s,v,k) {
+	  if(k === undefined) {
+	    k=0;
+	  }
+	  var n = s[k], ret = Array(n), i;
+	  if(k === s.length-1) {
+	    for(i=n-2;i>=0;i-=2) {
+	      ret[i+1] = v; ret[i] = v;
+	    }
+	    if(i===-1) {
+	      ret[0] = v;
+	    }
+	    return ret;
+	  }
+	  for(i=n-1;i>=0;i--) {
+	    ret[i] = exports.rep(s,v,k+1);
+	  }
+	  return ret;
+	};
+
+	exports.identity = function identity(n) {
+	  return exports.diag(exports.rep([n],1));
+	};
+
+	exports.dotMMsmall = function dotMMsmall (x,y) {
+	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0;
+	  p = x.length; q = y.length; r = y[0].length;
+	  ret = Array(p);
+	  for(i=p-1;i>=0;i--) {
+	    foo = Array(r);
+	    bar = x[i];
+	    for(k=r-1;k>=0;k--) {
+	      woo = bar[q-1]*y[q-1][k];
+	      for(j=q-2;j>=1;j-=2) {
+	          i0 = j-1;
+	          woo += bar[j]*y[j][k] + bar[i0]*y[i0][k];
+	      }
+	      if(j===0) {
+	        woo += bar[0]*y[0][k];
+	      }
+	      foo[k] = woo;
+	    }
+	    ret[i] = foo;
+	  }
+	  return ret;
+	};
+
+	exports.dotMMbig = function dotMMbig (x,y) {
+	  function gc(A,j,x) {
+	      var n = A.length, i;
+	      for(i=n-1;i>0;--i) {
+	          x[i] = A[i][j];
+	          --i;
+	          x[i] = A[i][j];
+	      }
+	      if(i===0) x[0] = A[0][j];
+	  }
+	  var p = y.length, v = Array(p);
+	  var m = x.length, n = y[0].length, A = new Array(m), xj;
+	  var VV = exports.dotVV;
+	  var i,j,k,z;
+	  --p;
+	  --m;
+	  for(i=m;i!==-1;--i) A[i] = Array(n);
+	  --n;
+	  for(i=n;i!==-1;--i) {
+	      gc(y,i,v);
+	      for(j=m;j!==-1;--j) {
+	          z=0;
+	          xj = x[j];
+	          A[j][i] = VV(xj,v);
+	      }
+	  }
+	  return A;
+	};
+
+	exports.dotMV = function dotMV (x,y) {
+	  var p = x.length, q = y.length,i;
+	  var ret = Array(p), dotVV = exports.dotVV;
+	  for(i=p-1;i>=0;i--) {
+	    ret[i] = dotVV(x[i],y);
+	  }
+	  return ret;
+	};
+
+	exports.dotVM = function dotVM (x,y) {
+	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0,s1,s2,s3,baz,accum;
+	  p = x.length; q = y[0].length;
+	  ret = Array(q);
+	  for(k=q-1;k>=0;k--) {
+	    woo = x[p-1]*y[p-1][k];
+	    for(j=p-2;j>=1;j-=2) {
+	      i0 = j-1;
+	      woo += x[j]*y[j][k] + x[i0]*y[i0][k];
+	    }
+	    if(j===0) {
+	      woo += x[0]*y[0][k];
+	    }
+	    ret[k] = woo;
+	  }
+	  return ret;
+	};
+
+	exports.dotVV = function dotVV (x,y) {
+	  var i,n=x.length,i1,ret = x[n-1]*y[n-1];
+	  for(i=n-2;i>=1;i-=2) {
+	    i1 = i-1;
+	    ret += x[i]*y[i] + x[i1]*y[i1];
+	  }
+	  if(i===0) {
+	    ret += x[0]*y[0];
+	  }
+	  return ret;
+	};
+
+	exports.mulVS = function mulVS (x,y) {
+	  var _n = x.length;
+	  var i, ret = Array(_n);
+
+	  for(i=_n-1;i!==-1;--i) {
+	    ret[i] = x[i] * y;
+	  }
+	  return ret;
+	};
+
+	exports.mulSV = function mulSV (x,y) {
+	  var _n = y.length;
+	  var i, ret = Array(_n);
+
+	  for(i=_n-1;i!==-1;--i) {
+	    ret[i] = x * y[i];
+	  }
+
+	  return ret;
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var utils = __webpack_require__(4);
+	var error = __webpack_require__(5);
+	var numeral = __webpack_require__(12);
+	var _ = __webpack_require__(6);
 
 	//TODO
 	exports.ASC = function() {
@@ -4339,7 +5417,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 8 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -5024,7 +6102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 9 */
+/* 13 */
 /***/ function(module, exports) {
 
 	this.j$ = this.jStat = (function(Math, undefined) {
@@ -8284,1024 +9362,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var jsep = __webpack_require__(11);
-
-	jsep.addBinaryOp('=', 6);
-
-	var binops = {
-	  '+' : function(a, b) { return a + b; },
-	  '-' : function(a, b) { return a - b; },
-	  '*' : function(a, b) { return a * b; },
-	  '/' : function(a, b) { return a / b; },
-	  '%' : function(a, b) { return a % b; },
-	  '>' : function(a, b) { return a > b; },
-	  '>=' : function(a, b) { return a >= b; },
-	  '<' : function(a, b) { return a < b; },
-	  '<=' : function(a, b) { return a <= b; },
-	  '=' : function(a, b) { return a == b; },
-	  '==' : function(a, b) { return a == b; },
-	  '!=' : function(a, b) { return a !== b; }
-	};
-	var unops = {
-	  '-' : function(a) { return -a; },
-	  '!' : function(a) { return !a; }
-	};
-	var logops = {
-	  '&&' : function(a, b) { return a && b; },
-	  '||' : function(a, b) { return a || b; }
-	};
-
-	function do_eval(node, variables) {
-	  if (node.type === 'BinaryExpression') {
-	    var binop = binops[node.operator];
-	    if (!binop) {
-	      throw new Error('Unknown binary operator ' + node.operator);
-	    }
-	    return binop(do_eval(node.left), do_eval(node.right));
-	  } else if (node.type === 'UnaryExpression') {
-	    var unop = unops[node.operator];
-	    if (!unop) {
-	      throw new Error('Unknown unary operator ' + node.operator);
-	    }
-	    return unop(do_eval(node.argument));
-	  } else if (node.type === 'LogicalExpression') {
-	    var logop = logops[node.operator];
-	    if (!logop) {
-	      throw new Error('Unknown logical operator ' + node.operator);
-	    }
-	    return logop(do_eval(node.left), do_eval(node.right));
-	  } else if (node.type === 'Literal') {
-	    return node.value;
-	  } else if (node.type === 'Identifier') {
-	    return variables ? variables[node.name] : undefined;
-	  } else {
-	    throw new Error('Unsupported expr node', node);
-	  }
-	}
-
-	module.exports = function evalExpr(expr, variables) {
-	  var ast = jsep(expr);
-	  return do_eval(ast, variables);
-	};
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports, __webpack_require__) {
-
-	//     JavaScript Expression Parser (JSEP) 0.2.9
-	//     JSEP may be freely distributed under the MIT License
-	//     http://jsep.from.so/
-
-	/*global module: true, exports: true, console: true */
-	(function (root) {
-		'use strict';
-		// Node Types
-		// ----------
-		
-		// This is the full set of types that any JSEP node can be.
-		// Store them here to save space when minified
-		var COMPOUND = 'Compound',
-			IDENTIFIER = 'Identifier',
-			MEMBER_EXP = 'MemberExpression',
-			LITERAL = 'Literal',
-			THIS_EXP = 'ThisExpression',
-			CALL_EXP = 'CallExpression',
-			UNARY_EXP = 'UnaryExpression',
-			BINARY_EXP = 'BinaryExpression',
-			LOGICAL_EXP = 'LogicalExpression',
-			CONDITIONAL_EXP = 'ConditionalExpression',
-			ARRAY_EXP = 'Array',
-
-			PERIOD_CODE = 46, // '.'
-			COMMA_CODE  = 44, // ','
-			SQUOTE_CODE = 39, // single quote
-			DQUOTE_CODE = 34, // double quotes
-			OPAREN_CODE = 40, // (
-			CPAREN_CODE = 41, // )
-			OBRACK_CODE = 91, // [
-			CBRACK_CODE = 93, // ]
-			QUMARK_CODE = 63, // ?
-			SEMCOL_CODE = 59, // ;
-			COLON_CODE  = 58, // :
-
-			throwError = function(message, index) {
-				var error = new Error(message + ' at character ' + index);
-				error.index = index;
-				error.dedscription = message;
-				throw error;
-			},
-
-		// Operations
-		// ----------
-		
-		// Set `t` to `true` to save space (when minified, not gzipped)
-			t = true,
-		// Use a quickly-accessible map to store all of the unary operators
-		// Values are set to `true` (it really doesn't matter)
-			unary_ops = {'-': t, '!': t, '~': t, '+': t},
-		// Also use a map for the binary operations but set their values to their
-		// binary precedence for quick reference:
-		// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
-			binary_ops = {
-				'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
-				'==': 6, '!=': 6, '===': 6, '!==': 6,
-				'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
-				'<<':8,  '>>': 8, '>>>': 8,
-				'+': 9, '-': 9,
-				'*': 10, '/': 10, '%': 10
-			},
-		// Get return the longest key length of any object
-			getMaxKeyLen = function(obj) {
-				var max_len = 0, len;
-				for(var key in obj) {
-					if((len = key.length) > max_len && obj.hasOwnProperty(key)) {
-						max_len = len;
-					}
-				}
-				return max_len;
-			},
-			max_unop_len = getMaxKeyLen(unary_ops),
-			max_binop_len = getMaxKeyLen(binary_ops),
-		// Literals
-		// ----------
-		// Store the values to return for the various literals we may encounter
-			literals = {
-				'true': true,
-				'false': false,
-				'null': null
-			},
-		// Except for `this`, which is special. This could be changed to something like `'self'` as well
-			this_str = 'this',
-		// Returns the precedence of a binary operator or `0` if it isn't a binary operator
-			binaryPrecedence = function(op_val) {
-				return binary_ops[op_val] || 0;
-			},
-		// Utility function (gets called from multiple places)
-		// Also note that `a && b` and `a || b` are *logical* expressions, not binary expressions
-			createBinaryExpression = function (operator, left, right) {
-				var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
-				return {
-					type: type,
-					operator: operator,
-					left: left,
-					right: right
-				};
-			},
-			// `ch` is a character code in the next three functions
-			isDecimalDigit = function(ch) {
-				return (ch >= 48 && ch <= 57); // 0...9
-			},
-			isIdentifierStart = function(ch) {
-				return (ch === 36) || (ch === 95) || // `$` and `_`
-						(ch >= 65 && ch <= 90) || // A...Z
-						(ch >= 97 && ch <= 122); // a...z
-			},
-			isIdentifierPart = function(ch) {
-				return (ch === 36) || (ch === 95) || // `$` and `_`
-						(ch >= 65 && ch <= 90) || // A...Z
-						(ch >= 97 && ch <= 122) || // a...z
-						(ch >= 48 && ch <= 57); // 0...9
-			},
-
-			// Parsing
-			// -------
-			// `expr` is a string with the passed in expression
-			jsep = function(expr) {
-				// `index` stores the character number we are currently at while `length` is a constant
-				// All of the gobbles below will modify `index` as we move along
-				var index = 0,
-					charAtFunc = expr.charAt,
-					charCodeAtFunc = expr.charCodeAt,
-					exprI = function(i) { return charAtFunc.call(expr, i); },
-					exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
-					length = expr.length,
-
-					// Push `index` up to the next non-space character
-					gobbleSpaces = function() {
-						var ch = exprICode(index);
-						// space or tab
-						while(ch === 32 || ch === 9) {
-							ch = exprICode(++index);
-						}
-					},
-					
-					// The main parsing function. Much of this code is dedicated to ternary expressions
-					gobbleExpression = function() {
-						var test = gobbleBinaryExpression(),
-							consequent, alternate;
-						
-						gobbleSpaces();
-						// Ternary expression: test ? consequent : alternate
-						if(exprICode(index) === QUMARK_CODE) {
-							index++;
-							consequent = gobbleExpression();
-							if(!consequent) {
-								throwError('Expected expression', index);
-							}
-							gobbleSpaces();
-							if(exprICode(index) === COLON_CODE) {
-								index++;
-								alternate = gobbleExpression();
-								if(!alternate) {
-									throwError('Expected expression', index);
-								}
-								return {
-									type: CONDITIONAL_EXP,
-									test: test,
-									consequent: consequent,
-									alternate: alternate
-								};
-							} else {
-								throwError('Expected :', index);
-							}
-						} else {
-							return test;
-						}
-					},
-
-					// Search for the operation portion of the string (e.g. `+`, `===`)
-					// Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `>>>`)
-					// and move down from 3 to 2 to 1 character until a matching binary operation is found
-					// then, return that binary operation
-					gobbleBinaryOp = function() {
-						gobbleSpaces();
-						var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
-						while(tc_len > 0) {
-							if(binary_ops.hasOwnProperty(to_check)) {
-								index += tc_len;
-								return to_check;
-							}
-							to_check = to_check.substr(0, --tc_len);
-						}
-						return false;
-					},
-
-					// This function is responsible for gobbling an individual expression,
-					// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
-					gobbleBinaryExpression = function() {
-						var ch_i, node, biop, prec, stack, biop_info, left, right, i;
-
-						// First, try to get the leftmost thing
-						// Then, check to see if there's a binary operator operating on that leftmost thing
-						left = gobbleToken();
-						biop = gobbleBinaryOp();
-
-						// If there wasn't a binary operator, just return the leftmost node
-						if(!biop) {
-							return left;
-						}
-
-						// Otherwise, we need to start a stack to properly place the binary operations in their
-						// precedence structure
-						biop_info = { value: biop, prec: binaryPrecedence(biop)};
-
-						right = gobbleToken();
-						if(!right) {
-							throwError("Expected expression after " + biop, index);
-						}
-						stack = [left, biop_info, right];
-
-						// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
-						while((biop = gobbleBinaryOp())) {
-							prec = binaryPrecedence(biop);
-
-							if(prec === 0) {
-								break;
-							}
-							biop_info = { value: biop, prec: prec };
-
-							// Reduce: make a binary expression from the three topmost entries.
-							while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
-								right = stack.pop();
-								biop = stack.pop().value;
-								left = stack.pop();
-								node = createBinaryExpression(biop, left, right);
-								stack.push(node);
-							}
-
-							node = gobbleToken();
-							if(!node) {
-								throwError("Expected expression after " + biop, index);
-							}
-							stack.push(biop_info, node);
-						}
-
-						i = stack.length - 1;
-						node = stack[i];
-						while(i > 1) {
-							node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
-							i -= 2;
-						}
-						return node;
-					},
-
-					// An individual part of a binary expression:
-					// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
-					gobbleToken = function() {
-						var ch, curr_node, unop, to_check, tc_len;
-						
-						gobbleSpaces();
-						ch = exprICode(index);
-
-						if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
-							// Char code 46 is a dot `.` which can start off a numeric literal
-							return gobbleNumericLiteral();
-						} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
-							// Single or double quotes
-							return gobbleStringLiteral();
-						} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
-							// `foo`, `bar.baz`
-							return gobbleVariable();
-						} else {
-							to_check = expr.substr(index, max_unop_len);
-							tc_len = to_check.length;
-							while(tc_len > 0) {
-								if(unary_ops.hasOwnProperty(to_check)) {
-									index += tc_len;
-									return {
-										type: UNARY_EXP,
-										operator: to_check,
-										argument: gobbleToken(),
-										prefix: true
-									};
-								}
-								to_check = to_check.substr(0, --tc_len);
-							}
-							
-							return false;
-						}
-					},
-					// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
-					// keep track of everything in the numeric literal and then calling `parseFloat` on that string
-					gobbleNumericLiteral = function() {
-						var number = '', ch;
-						while(isDecimalDigit(exprICode(index))) {
-							number += exprI(index++);
-						}
-
-						if(exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
-							number += exprI(index++);
-
-							while(isDecimalDigit(exprICode(index))) {
-								number += exprI(index++);
-							}
-						}
-						
-						ch = exprI(index);
-						if(ch === 'e' || ch === 'E') { // exponent marker
-							number += exprI(index++);
-							ch = exprI(index);
-							if(ch === '+' || ch === '-') { // exponent sign
-								number += exprI(index++);
-							}
-							while(isDecimalDigit(exprICode(index))) { //exponent itself
-								number += exprI(index++);
-							}
-							if(!isDecimalDigit(exprICode(index-1)) ) {
-								throwError('Expected exponent (' + number + exprI(index) + ')', index);
-							}
-						}
-						
-
-						// Check to make sure this isn't a variable name that start with a number (123abc)
-						if(isIdentifierStart(exprICode(index))) {
-							throwError( 'Variable names cannot start with a number (' +
-										number + exprI(index) + ')', index);
-						}
-
-						return {
-							type: LITERAL,
-							value: parseFloat(number),
-							raw: number
-						};
-					},
-
-					// Parses a string literal, staring with single or double quotes with basic support for escape codes
-					// e.g. `"hello world"`, `'this is\nJSEP'`
-					gobbleStringLiteral = function() {
-						var str = '', quote = exprI(index++), closed = false, ch;
-
-						while(index < length) {
-							ch = exprI(index++);
-							if(ch === quote) {
-								closed = true;
-								break;
-							} else if(ch === '\\') {
-								// Check for all of the common escape codes
-								ch = exprI(index++);
-								switch(ch) {
-									case 'n': str += '\n'; break;
-									case 'r': str += '\r'; break;
-									case 't': str += '\t'; break;
-									case 'b': str += '\b'; break;
-									case 'f': str += '\f'; break;
-									case 'v': str += '\x0B'; break;
-								}
-							} else {
-								str += ch;
-							}
-						}
-
-						if(!closed) {
-							throwError('Unclosed quote after "'+str+'"', index);
-						}
-
-						return {
-							type: LITERAL,
-							value: str,
-							raw: quote + str + quote
-						};
-					},
-					
-					// Gobbles only identifiers
-					// e.g.: `foo`, `_value`, `$x1`
-					// Also, this function checks if that identifier is a literal:
-					// (e.g. `true`, `false`, `null`) or `this`
-					gobbleIdentifier = function() {
-						var ch = exprICode(index), start = index, identifier;
-
-						if(isIdentifierStart(ch)) {
-							index++;
-						} else {
-							throwError('Unexpected ' + exprI(index), index);
-						}
-
-						while(index < length) {
-							ch = exprICode(index);
-							if(isIdentifierPart(ch)) {
-								index++;
-							} else {
-								break;
-							}
-						}
-						identifier = expr.slice(start, index);
-
-						if(literals.hasOwnProperty(identifier)) {
-							return {
-								type: LITERAL,
-								value: literals[identifier],
-								raw: identifier
-							};
-						} else if(identifier === this_str) {
-							return { type: THIS_EXP };
-						} else {
-							return {
-								type: IDENTIFIER,
-								name: identifier
-							};
-						}
-					},
-
-					// Gobbles a list of arguments within the context of a function call
-					// or array literal. This function also assumes that the opening character
-					// `(` or `[` has already been gobbled, and gobbles expressions and commas
-					// until the terminator character `)` or `]` is encountered.
-					// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
-					gobbleArguments = function(termination) {
-						var ch_i, args = [], node;
-						while(index < length) {
-							gobbleSpaces();
-							ch_i = exprICode(index);
-							if(ch_i === termination) { // done parsing
-								index++;
-								break;
-							} else if (ch_i === COMMA_CODE) { // between expressions
-								index++;
-							} else {
-								node = gobbleExpression();
-								if(!node || node.type === COMPOUND) {
-									throwError('Expected comma', index);
-								}
-								args.push(node);
-							}
-						}
-						return args;
-					},
-
-					// Gobble a non-literal variable name. This variable name may include properties
-					// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
-					// It also gobbles function calls:
-					// e.g. `Math.acos(obj.angle)`
-					gobbleVariable = function() {
-						var ch_i, node;
-						ch_i = exprICode(index);
-							
-						if(ch_i === OPAREN_CODE) {
-							node = gobbleGroup();
-						} else {
-							node = gobbleIdentifier();
-						}
-						gobbleSpaces();
-						ch_i = exprICode(index);
-						while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
-							index++;
-							if(ch_i === PERIOD_CODE) {
-								gobbleSpaces();
-								node = {
-									type: MEMBER_EXP,
-									computed: false,
-									object: node,
-									property: gobbleIdentifier()
-								};
-							} else if(ch_i === OBRACK_CODE) {
-								node = {
-									type: MEMBER_EXP,
-									computed: true,
-									object: node,
-									property: gobbleExpression()
-								};
-								gobbleSpaces();
-								ch_i = exprICode(index);
-								if(ch_i !== CBRACK_CODE) {
-									throwError('Unclosed [', index);
-								}
-								index++;
-							} else if(ch_i === OPAREN_CODE) {
-								// A function call is being made; gobble all the arguments
-								node = {
-									type: CALL_EXP,
-									'arguments': gobbleArguments(CPAREN_CODE),
-									callee: node
-								};
-							}
-							gobbleSpaces();
-							ch_i = exprICode(index);
-						}
-						return node;
-					},
-
-					// Responsible for parsing a group of things within parentheses `()`
-					// This function assumes that it needs to gobble the opening parenthesis
-					// and then tries to gobble everything within that parenthesis, assuming
-					// that the next thing it should see is the close parenthesis. If not,
-					// then the expression probably doesn't have a `)`
-					gobbleGroup = function() {
-						index++;
-						var node = gobbleExpression();
-						gobbleSpaces();
-						if(exprICode(index) === CPAREN_CODE) {
-							index++;
-							return node;
-						} else {
-							throwError('Unclosed (', index);
-						}
-					},
-
-					// Responsible for parsing Array literals `[1, 2, 3]`
-					// This function assumes that it needs to gobble the opening bracket
-					// and then tries to gobble the expressions as arguments.
-					gobbleArray = function() {
-						index++;
-						return {
-							type: ARRAY_EXP,
-							body: gobbleArguments(CBRACK_CODE)
-						};
-					},
-
-					nodes = [], ch_i, node;
-					
-				while(index < length) {
-					ch_i = exprICode(index);
-
-					// Expressions can be separated by semicolons, commas, or just inferred without any
-					// separators
-					if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
-						index++; // ignore separators
-					} else if (ch_i === OBRACK_CODE && (node = gobbleArray())) {
-						nodes.push(node);
-					} else {
-						// Try to gobble each expression individually
-						if((node = gobbleExpression())) {
-							nodes.push(node);
-						// If we weren't able to find a binary expression and are out of room, then
-						// the expression passed in probably has too much
-						} else if(index < length) {
-							throwError('Unexpected "' + exprI(index) + '"', index);
-						}
-					}
-				}
-
-				// If there's only one expression just try returning the expression
-				if(nodes.length === 1) {
-					return nodes[0];
-				} else {
-					return {
-						type: COMPOUND,
-						body: nodes
-					};
-				}
-			};
-
-		// To be filled in by the template
-		jsep.version = '0.2.9';
-		jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
-
-		/**
-		 * @method jsep.addUnaryOp
-		 * @param {string} op_name The name of the unary op to add
-		 * @return jsep
-		 */
-		jsep.addUnaryOp = function(op_name) {
-			unary_ops[op_name] = t; return this;
-		};
-
-		/**
-		 * @method jsep.addBinaryOp
-		 * @param {string} op_name The name of the binary op to add
-		 * @param {number} precedence The precedence of the binary op (can be a float)
-		 * @return jsep
-		 */
-		jsep.addBinaryOp = function(op_name, precedence) {
-			max_binop_len = Math.max(op_name.length, max_binop_len);
-			binary_ops[op_name] = precedence;
-			return this;
-		};
-
-		/**
-		 * @method jsep.removeUnaryOp
-		 * @param {string} op_name The name of the unary op to remove
-		 * @return jsep
-		 */
-		jsep.removeUnaryOp = function(op_name) {
-			delete unary_ops[op_name];
-			if(op_name.length === max_unop_len) {
-				max_unop_len = getMaxKeyLen(unary_ops);
-			}
-			return this;
-		};
-
-		/**
-		 * @method jsep.removeBinaryOp
-		 * @param {string} op_name The name of the binary op to remove
-		 * @return jsep
-		 */
-		jsep.removeBinaryOp = function(op_name) {
-			delete binary_ops[op_name];
-			if(op_name.length === max_binop_len) {
-				max_binop_len = getMaxKeyLen(binary_ops);
-			}
-			return this;
-		};
-
-		// In desktop environments, have a way to restore the old value for `jsep`
-		if (false) {
-			var old_jsep = root.jsep;
-			// The star of the show! It's a function!
-			root.jsep = jsep;
-			// And a courteous function willing to move out of the way for other similarly-named objects!
-			jsep.noConflict = function() {
-				if(root.jsep === jsep) {
-					root.jsep = old_jsep;
-				}
-				return jsep;
-			};
-		} else {
-			// In Node.JS environments
-			if (typeof module !== 'undefined' && module.exports) {
-				exports = module.exports = jsep;
-			} else {
-				exports.parse = jsep;
-			}
-		}
-	}(this));
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var utils = __webpack_require__(3);
-	var error = __webpack_require__(4);
-
-	// TODO
-	exports.CELL = function() {
-	 throw new Error('CELL is not implemented');
-	};
-
-	exports.ERROR = {};
-	exports.ERROR.TYPE = function(error_val) {
-	  switch (error_val) {
-	    case error.nil: return 1;
-	    case error.div0: return 2;
-	    case error.value: return 3;
-	    case error.ref: return 4;
-	    case error.name: return 5;
-	    case error.num: return 6;
-	    case error.na: return 7;
-	    case error.data: return 8;
-	  }
-	  return error.na;
-	};
-
-	// TODO
-	exports.INFO = function() {
-	 throw new Error('INFO is not implemented');
-	};
-
-	exports.ISBLANK = function(value) {
-	  return value === null;
-	};
-
-	exports.ISERR = function(value) {
-	  return ([error.value, error.ref, error.div0, error.num, error.name, error.nil]).indexOf(value) >= 0 ||
-	    (typeof value === 'number' && (isNaN(value) || !isFinite(value)));
-	};
-
-	exports.ISERROR = function(value) {
-	  return exports.ISERR(value) || value === error.na;
-	};
-
-	exports.ISEVEN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.floor(Math.abs(number)) & 1) ? false : true;
-	};
-
-	// TODO
-	exports.ISFORMULA = function() {
-	  throw new Error('ISFORMULA is not implemented');
-	};
-
-	exports.ISLOGICAL = function(value) {
-	  return value === true || value === false;
-	};
-
-	exports.ISNA = function(value) {
-	  return value === error.na;
-	};
-
-	exports.ISNONTEXT = function(value) {
-	  return typeof(value) !== 'string';
-	};
-
-	exports.ISNUMBER = function(value) {
-	  return typeof(value) === 'number' && !isNaN(value) && isFinite(value);
-	};
-
-	exports.ISODD = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.floor(Math.abs(number)) & 1) ? true : false;
-	};
-
-	// TODO
-	exports.ISREF = function() {
-	  throw new Error('ISREF is not implemented');
-	};
-
-	exports.ISTEXT = function(value) {
-	  return typeof(value) === 'string';
-	};
-
-	exports.N = function(value) {
-	  if (exports.ISNUMBER(value)) {
-	    return value;
-	  }
-	  if (value instanceof Date) {
-	    return utils.jsToExcelTimestamp(value.getTime());
-	  }
-	  if (value === true) {
-	    return 1;
-	  }
-	  if (value === false) {
-	    return 0;
-	  }
-	  if (exports.ISERROR(value)) {
-	    return value;
-	  }
-	  return 0;
-	};
-
-	exports.NA = function() {
-	  return error.na;
-	};
-
-	// TODO
-	exports.SHEET = function() {
-	  throw new Error('SHEET is not implemented');
-	};
-
-	// TODO
-	exports.SHEETS = function() {
-	  throw new Error('SHEETS is not implemented');
-	};
-
-	exports.TYPE = function(value) {
-	  if (exports.ISNUMBER(value)) {
-	    return 1;
-	  }
-	  if (exports.ISTEXT(value)) {
-	    return 2;
-	  }
-	  if (exports.ISLOGICAL(value)) {
-	    return 4;
-	  }
-	  if (exports.ISERROR(value)) {
-	    return 16;
-	  }
-	  if (Array.isArray(value)) {
-	    return 64;
-	  }
-	};
-
-
-/***/ },
-/* 13 */
-/***/ function(module, exports) {
-
-	function _dim(x) {
-	  var ret = [];
-	  while(typeof x === "object") {
-	    ret.push(x.length); x = x[0];
-	  }
-	  return ret;
-	};
-
-	exports.dim = function dim(x) {
-	  var y,z;
-	  if(typeof x === "object") {
-	    y = x[0];
-	    if(typeof y === "object") {
-	      z = y[0];
-	      if(typeof z === "object") {
-	        return _dim(x);
-	      }
-	      return [x.length,y.length];
-	    }
-	    return [x.length];
-	  }
-	  return [];
-	};
-
-	exports.diag = function diag(d) {
-	  var i,i1,j,n = d.length, A = Array(n), Ai;
-	  for(i=n-1;i>=0;i--) {
-	    Ai = Array(n);
-	    i1 = i+2;
-	    for(j=n-1;j>=i1;j-=2) {
-	      Ai[j] = 0;
-	      Ai[j-1] = 0;
-	    }
-	    if(j>i) { Ai[j] = 0; }
-	    Ai[i] = d[i];
-	    for(j=i-1;j>=1;j-=2) {
-	      Ai[j] = 0;
-	      Ai[j-1] = 0;
-	    }
-	    if(j===0) {
-	      Ai[0] = 0;
-	    }
-	    A[i] = Ai;
-	  }
-	  return A;
-	};
-
-	exports.rep = function rep(s,v,k) {
-	  if(k === undefined) {
-	    k=0;
-	  }
-	  var n = s[k], ret = Array(n), i;
-	  if(k === s.length-1) {
-	    for(i=n-2;i>=0;i-=2) {
-	      ret[i+1] = v; ret[i] = v;
-	    }
-	    if(i===-1) {
-	      ret[0] = v;
-	    }
-	    return ret;
-	  }
-	  for(i=n-1;i>=0;i--) {
-	    ret[i] = exports.rep(s,v,k+1);
-	  }
-	  return ret;
-	};
-
-	exports.identity = function identity(n) {
-	  return exports.diag(exports.rep([n],1));
-	};
-
-	exports.dotMMsmall = function dotMMsmall (x,y) {
-	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0;
-	  p = x.length; q = y.length; r = y[0].length;
-	  ret = Array(p);
-	  for(i=p-1;i>=0;i--) {
-	    foo = Array(r);
-	    bar = x[i];
-	    for(k=r-1;k>=0;k--) {
-	      woo = bar[q-1]*y[q-1][k];
-	      for(j=q-2;j>=1;j-=2) {
-	          i0 = j-1;
-	          woo += bar[j]*y[j][k] + bar[i0]*y[i0][k];
-	      }
-	      if(j===0) {
-	        woo += bar[0]*y[0][k];
-	      }
-	      foo[k] = woo;
-	    }
-	    ret[i] = foo;
-	  }
-	  return ret;
-	};
-
-	exports.dotMMbig = function dotMMbig (x,y) {
-	  function gc(A,j,x) {
-	      var n = A.length, i;
-	      for(i=n-1;i>0;--i) {
-	          x[i] = A[i][j];
-	          --i;
-	          x[i] = A[i][j];
-	      }
-	      if(i===0) x[0] = A[0][j];
-	  }
-	  var p = y.length, v = Array(p);
-	  var m = x.length, n = y[0].length, A = new Array(m), xj;
-	  var VV = exports.dotVV;
-	  var i,j,k,z;
-	  --p;
-	  --m;
-	  for(i=m;i!==-1;--i) A[i] = Array(n);
-	  --n;
-	  for(i=n;i!==-1;--i) {
-	      gc(y,i,v);
-	      for(j=m;j!==-1;--j) {
-	          z=0;
-	          xj = x[j];
-	          A[j][i] = VV(xj,v);
-	      }
-	  }
-	  return A;
-	};
-
-	exports.dotMV = function dotMV (x,y) {
-	  var p = x.length, q = y.length,i;
-	  var ret = Array(p), dotVV = exports.dotVV;
-	  for(i=p-1;i>=0;i--) {
-	    ret[i] = dotVV(x[i],y);
-	  }
-	  return ret;
-	};
-
-	exports.dotVM = function dotVM (x,y) {
-	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0,s1,s2,s3,baz,accum;
-	  p = x.length; q = y[0].length;
-	  ret = Array(q);
-	  for(k=q-1;k>=0;k--) {
-	    woo = x[p-1]*y[p-1][k];
-	    for(j=p-2;j>=1;j-=2) {
-	      i0 = j-1;
-	      woo += x[j]*y[j][k] + x[i0]*y[i0][k];
-	    }
-	    if(j===0) {
-	      woo += x[0]*y[0][k];
-	    }
-	    ret[k] = woo;
-	  }
-	  return ret;
-	};
-
-	exports.dotVV = function dotVV (x,y) {
-	  var i,n=x.length,i1,ret = x[n-1]*y[n-1];
-	  for(i=n-2;i>=1;i-=2) {
-	    i1 = i-1;
-	    ret += x[i]*y[i] + x[i1]*y[i1];
-	  }
-	  if(i===0) {
-	    ret += x[0]*y[0];
-	  }
-	  return ret;
-	};
-
-	exports.mulVS = function mulVS (x,y) {
-	  var _n = x.length;
-	  var i, ret = Array(_n);
-
-	  for(i=_n-1;i!==-1;--i) {
-	    ret[i] = x[i] * y;
-	  }
-	  return ret;
-	};
-
-	exports.mulSV = function mulSV (x,y) {
-	  var _n = y.length;
-	  var i, ret = Array(_n);
-
-	  for(i=_n-1;i!==-1;--i) {
-	    ret[i] = x * y[i];
-	  }
-
-	  return ret;
-	};
-
-
-/***/ },
 /* 14 */
 /***/ function(module, exports) {
 
@@ -9311,12 +9371,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var error = __webpack_require__(4);
-	var jStat = __webpack_require__(9).jStat;
-	var text = __webpack_require__(7);
-	var utils = __webpack_require__(3);
+	var error = __webpack_require__(5);
+	var jStat = __webpack_require__(13).jStat;
+	var text = __webpack_require__(11);
+	var utils = __webpack_require__(4);
 	var bessel = __webpack_require__(16);
-	var _ = __webpack_require__(5);
+	var _ = __webpack_require__(6);
 
 	function isValidBinaryNumber(number) {
 	  return (/^[01]{1,10}$/).test(number);
@@ -11162,10 +11222,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var error = __webpack_require__(4);
-	var utils = __webpack_require__(3);
-	var information = __webpack_require__(12);
-	var _ = __webpack_require__(5);
+	var error = __webpack_require__(5);
+	var utils = __webpack_require__(4);
+	var information = __webpack_require__(7);
+	var _ = __webpack_require__(6);
 
 	exports.AND = function() {
 	  var args = _.flatten(arguments);
@@ -11260,8 +11320,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var error = __webpack_require__(4);
-	var utils = __webpack_require__(3);
+	var error = __webpack_require__(5);
+	var utils = __webpack_require__(4);
 
 	var WEEK_STARTS = [
 	  undefined,
@@ -11395,8 +11455,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    sd = start_date.getUTCDate() === 31 ? 30 : start_date.getUTCDate();
 	    ed = end_date.getUTCDate() === 31 ? 30 : end_date.getUTCDate();
 	  } else {
-	    var smd = new Date(start_date.getUTCFullYear(), sm + 1, 0).getUTCDate();
-	    var emd = new Date(end_date.getUTCFullYear(), em + 1, 0).getUTCDate();
+	    var smd = utils.createUTCDate(start_date.getUTCFullYear(), sm + 1, 0).getUTCDate();
+	    var emd = utils.createUTCDate(end_date.getUTCFullYear(), em + 1, 0).getUTCDate();
 	    sd = start_date.getUTCDate() === smd ? 30 : start_date.getUTCDate();
 	    if (end_date.getUTCDate() == emd) {
 	      if (sd < 30) {
@@ -11435,7 +11495,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return error.value;
 	  }
 	  months = parseInt(months, 10);
-	  return utils.jsToExcelTimestamp(new Date(start_date.getUTCFullYear(), start_date.getUTCMonth() + months + 1, 0));
+	  return utils.jsToExcelTimestamp(utils.createUTCDate(start_date.getUTCFullYear(), start_date.getUTCMonth() + months + 1, 0));
 	};
 
 	exports.HOUR = function(serial_number) {
@@ -11454,7 +11514,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  date.setUTCHours(0, 0, 0);
 	  date.setUTCDate(date.getUTCDate() + 4 - (date.getUTCDay() || 7));
-	  var yearStart = new Date(date.getUTCFullYear(), 0, 1);
+	  var yearStart = utils.createUTCDate(date.getUTCFullYear(), 0, 1);
 	  return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
 	};
 
@@ -11530,11 +11590,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    day.setUTCDate(day.getUTCDate() + 1);
 	  }
-	  return total;
+	  return total + 1;
 	};
 
 	exports.NOW = function() {
-	  return utils.jsToExcelTimestamp(new Date());
+	  return utils.jsToExcelTimestamp(utils.createUTCDate());
 	};
 
 	exports.SECOND = function(serial_number) {
@@ -11575,7 +11635,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.TODAY = function() {
-	  var date = new Date();
+	  var date = utils.createUTCDate();
 	  date.setUTCHours(0, 0, 0, 0);
 	  return utils.jsToExcelTimestamp(date);
 	};
@@ -11604,7 +11664,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return exports.ISOWEEKNUM(serial_number);
 	  }
 	  var week_start = WEEK_STARTS[return_type];
-	  var jan = new Date(serial_number.getUTCFullYear(), 0, 1);
+	  var jan = utils.createUTCDate(serial_number.getUTCFullYear(), 0, 1);
 	  var inc = jan.getUTCDay() < week_start ? 1 : 0;
 	  jan -= Math.abs(jan.getUTCDay() - week_start) * 24 * 60 * 60 * 1000;
 	  return Math.floor(((serial_number - jan) / (1000 * 60 * 60 * 24)) / 7 + 1) + inc;
@@ -11623,9 +11683,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (days instanceof Error) {
 	    return days;
 	  }
-	  if (days < 0) {
-	    return error.num;
-	  }
 	  if (weekend === undefined) {
 	    weekend = WEEKEND_TYPES[1];
 	  } else {
@@ -11639,6 +11696,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  } else if (!(holidays instanceof Array)) {
 	    holidays = [holidays];
 	  }
+	  start_date.setUTCHours(0, 0, 0);
 	  for (var i = 0; i < holidays.length; i++) {
 	    var h = utils.parseDate(holidays[i]);
 	    if (h instanceof Error) {
@@ -11647,10 +11705,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    holidays[i] = h;
 	  }
 	  var d = 0;
-	  while (d < days) {
-	    start_date.setDate(start_date.getUTCDate() + 1);
+	  var totalNumberOfDays = Math.abs(days);
+
+	  while (d < totalNumberOfDays) {
+	    if (days >= 0) {
+	      start_date.setUTCDate(start_date.getUTCDate() + 1);
+	    } else {
+	      start_date.setUTCDate(start_date.getUTCDate() - 1);
+	    }
+
 	    var day = start_date.getUTCDay();
-	    var inc = true;
 	    if (day === weekend[0] || day === weekend[1]) {
 	      continue;
 	    }
@@ -11665,7 +11729,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	    d++;
 	  }
-	  return utils.jsToExcelTimestamp(start_date);
+
+	  /* The time of the start date was set to 00:00 before beginning the process of
+	   * finding the end date. Due to daylight saving time, the time of the end date
+	   * may not be 00:00 if a date has been processed where clocks are advanced or
+	   * set back. As this function should return whole days, the returned Excel
+	   * date is rounded. (Truncating the returned Excel date instead would have
+	   * returned the wrong date if a date has been processed where clocks are set
+	   * back.)
+	   */
+	  return Math.round(utils.jsToExcelTimestamp(start_date));
 	};
 
 	exports.YEAR = function(serial_number) {
@@ -11708,19 +11781,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	      return ((ed + em * 30 + ey * 360) - (sd + sm * 30 + sy * 360)) / 360;
 	    case 1:
 	      var feb29Between = function(date1, date2) {
-	        var mar1year1 = new Date(date1.getUTCFullYear(), 2, 1);
-	        if (new Date(date1.getUTCFullYear(), 1, 29).getUTCMonth() == 1 && date1 - mar1year1 < 0 && date2 - mar1year1 >= 0) {
+	        var mar1year1 = utils.createUTCDate(date1.getUTCFullYear(), 2, 1);
+	        if (utils.createUTCDate(date1.getUTCFullYear(), 1, 29).getUTCMonth() == 1 && date1 - mar1year1 < 0 && date2 - mar1year1 >= 0) {
 	          return true;
 	        }
-	        var mar1year2 = new Date(date2.getUTCFullYear(), 2, 1);
-	        if (new Date(date2.getUTCFullYear(), 1, 29).getUTCMonth() == 1 && date2 - mar1year2 >= 0 && date1 - mar1year2 < 0) {
+	        var mar1year2 = utils.createUTCDate(date2.getUTCFullYear(), 2, 1);
+	        if (utils.createUTCDate(date2.getUTCFullYear(), 1, 29).getUTCMonth() == 1 && date2 - mar1year2 >= 0 && date1 - mar1year2 < 0) {
 	          return true;
 	        }
 	        return false;
 	      };
 	      var ylength = 365;
 	      if (sy === ey || ((sy + 1) === ey) && ((sm > em) || ((sm === em) && (sd >= ed)))) {
-	        if (sy === ey && new Date(sy, 1, 29).getUTCMonth() == 1) {
+	        if (sy === ey && utils.createUTCDate(sy, 1, 29).getUTCMonth() == 1) {
 	          ylength = 366;
 	        } else if (feb29Between(start_date, end_date) || (em === 1 && ed === 29)) {
 	          ylength = 366;
@@ -11728,7 +11801,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return (end_date - start_date) / 1000 / 60 / 60 / 24 / ylength;
 	      }
 	      var years = (ey - sy) + 1;
-	      var days = (new Date(ey + 1, 0, 1) - new Date(sy, 0, 1)) / 1000 / 60 / 60 / 24;
+	      var days = (utils.createUTCDate(ey + 1, 0, 1) - utils.createUTCDate(sy, 0, 1)) / 1000 / 60 / 60 / 24;
 	      var average = days / years;
 	      return (end_date - start_date) / 1000 / 60 / 60 / 24 / average;
 	    case 2:
@@ -11745,10 +11818,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var error = __webpack_require__(4);
+	var error = __webpack_require__(5);
 	var dateTime = __webpack_require__(19);
-	var utils = __webpack_require__(3);
-	var _ = __webpack_require__(5);
+	var utils = __webpack_require__(4);
+	var _ = __webpack_require__(6);
 
 	// TODO
 	exports.ACCRINT = function() {
@@ -13017,9 +13090,9 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _ = __webpack_require__(5);
-	var utils = __webpack_require__(3);
-	var error = __webpack_require__(4);
+	var _ = __webpack_require__(6);
+	var utils = __webpack_require__(4);
+	var error = __webpack_require__(5);
 
 	exports.CHOOSE = function (index_num) {
 	  index_num = utils.parseNumber(index_num);
