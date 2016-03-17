@@ -2298,6 +2298,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (number instanceof Error) {
 	    return number;
 	  }
+
+	  if ((number < -1) || (number > 1)) {
+	    return error.num;
+	  }
+
 	  return Math.acos(number);
 	};
 
@@ -2306,6 +2311,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (number instanceof Error) {
 	    return number;
 	  }
+
+	  if (number < 1) {
+	    return error.num;
+	  }
+
 	  return Math.log(number + Math.sqrt(number * number - 1));
 	};
 
@@ -2413,6 +2423,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (number instanceof Error) {
 	    return number;
 	  }
+
+	  if ((number < -1) || (number > 1)) {
+	    return error.num;
+	  }
+
 	  return Math.asin(number);
 	};
 
@@ -2449,6 +2464,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (number instanceof Error) {
 	    return number;
 	  }
+
+	  if ((number <= -1) || (number >= 1)) {
+	    return error.num;
+	  }
+
 	  return Math.log((1 + number) / (1 - number)) / 2;
 	};
 
@@ -3791,12 +3811,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Creates a new Date instance using the same parameters supplied to the Date
-	 * class. If a single parameter
-
-	 * The constructor of Date may automatically make use of the local time zone. As
-	 * this is not desirable, this function ensures that the returned date uses the
-	 * UTC time zone.
+	 * Creates a new Date instance using the same parameters accepted by the Date
+	 * class. If only a single parameter is given which is not a string, this
+	 * function behaves exactly like the Date constructor. Otherwise, this function
+	 * returns a date whose time zone offset has been set to UTC.
+	 * <p>
+	 * The standard Date constructor incorporates the local time zone unless special
+	 * ISO 8601 strings are given. This is problematic for many calculations and by
+	 * only using UTC Date instances, many problems are avoided.
+	 *
+	 * @param {*} [valueOrDateStringOrYear]
+	 *   the first parameter to the Date constructor, which may be a value (the
+	 *   number of milliseconds since 1 January 1970 00:00:00 UTC), a textual date
+	 *   string (where the recognized format varies between implementations) or a
+	 *   year.
+	 * @param {Number} [month]
+	 *   the month.
+	 * @param {Number} [day]
+	 *   the day.
+	 * @param {Number} [hour]
+	 *   the hour.
+	 * @param {Number} [minute]
+	 *   the minute.
+	 * @param {Number} [second]
+	 *   the second.
+	 * @param {Number} [millisecond]
+	 *   the millisecond.
+	 * @return {Date}
+	 *   a new Date instance.
 	 */
 	exports.createUTCDate = function(valueOrDateStringOrYear,
 	                                 month,
@@ -3833,6 +3875,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    second);
 	  } else if (arguments.length === 7) {
 	    date = new Date(valueOrDateStringOrYear, month,
+	                    month,
 	                    day,
 	                    hour,
 	                    minute,
