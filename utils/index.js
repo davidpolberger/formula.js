@@ -345,7 +345,7 @@ exports.createUTCDate = function(valueOrDateStringOrYear,
 };
 
 exports.parseDate = function(date) {
-  if (!isNaN(date)) {
+  if ((date !== null) && (date !== undefined) && (!isNaN(date))) {
     if (date instanceof Date) {
       return exports.createUTCDate(date);
     }
