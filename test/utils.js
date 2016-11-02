@@ -101,4 +101,22 @@ suite('Utils', function() {
     utils.parseText([1]).should.equal(error.value);
     utils.parseText(error.na).should.equal(error.na);
   });
+
+  suite('excelToJsTimestamp', function () {
+      test('February 3, 2001', function () {
+          utils.excelToJsTimestamp(36925).should.equal(Date.UTC(2001, 1, 3));
+      });
+      test('January 1, 1900', function () {
+          utils.excelToJsTimestamp(1).should.equal(Date.UTC(1900, 0, 1));
+      });
+  });
+
+  suite('jsToExcelTimestamp', function () {
+      test('February 3, 2001', function () {
+          utils.jsToExcelTimestamp(Date.UTC(2001, 1, 3)).should.equal(36925);
+      });
+      test('January 1, 1900', function () {
+          utils.jsToExcelTimestamp(Date.UTC(1900, 0, 1)).should.equal(1);
+      });
+  });
 });
