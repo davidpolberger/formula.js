@@ -124,37 +124,94 @@ suite('Date & Time', function () {
     });
   });
 
-  test('DAY', function() {
-    dateTime.DAY(1).should.equal(1);
-    dateTime.DAY(2958465).should.equal(31);
-    dateTime.DAY('1').should.equal(1);
-    dateTime.DAY('1/1/1900').should.equal(1);
-    dateTime.DAY(new Date(1900, 0, 1)).should.equal(1);
-    dateTime.DAY(-1).should.equal(error.num);
-    dateTime.DAY('a').should.equal(error.value);
+  suite('DAY', function() {
+    test('returns 1 for excel timestamp 1-jan-1900', function() {
+      dateTime.DAY(1).should.equal(1);
+    });
+    test('returns 31 for excel timestamp 31-dec-9999', function () {
+      dateTime.DAY(2958465).should.equal(31);
+    });
+    test('converts text number to excel timestamp', function () {
+      dateTime.DAY('1').should.equal(1);
+    });
+    test('returns day of text date', function () {
+      dateTime.DAY('1/1/1900').should.equal(1);
+    });
+    test('returns day of Date', function () {
+      dateTime.DAY(new Date(1900, 0, 1)).should.equal(1);
+    });
+    test('returns num error for negative number', function () {
+      dateTime.DAY(-1).should.equal(error.num);
+    });
+    test('returns value error for invalid text', function () {
+      dateTime.DAY('a').should.equal(error.value);
+    });
   });
 
-  test('DAYS', function() {
-    dateTime.DAYS(2, 1).should.equal(1);
-    dateTime.DAYS('1/2/1900', '1/1/1900').should.equal(1);
-    dateTime.DAYS(new Date(1900, 1, 2), new Date(1900, 1, 1)).should.equal(1);
-    dateTime.DAYS('a', 1).should.equal(error.value);
-    dateTime.DAYS(1, 'a').should.equal(error.value);
+  suite('DAYS', function() {
+    test('returns delta between excel timestamps', function () {
+      dateTime.DAYS(2, 1).should.equal(1);
+      dateTime.DAYS(1, 2).should.equal(-1);
+    });
+    test('returns day delta between text dates', function () {
+      dateTime.DAYS('1/2/1900', '1/1/1900').should.equal(1);
+      dateTime.DAYS('1/1/2001', '1/1/2000').should.equal(366);
+    });
+    test('returns day delta between Date objects', function () {
+      dateTime.DAYS(new Date(1900, 1, 2), new Date(1900, 1, 1)).should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.DAYS('a', 1).should.equal(error.value);
+      dateTime.DAYS(1, 'a').should.equal(error.value);
+    });
   });
 
-  test('DAYS360', function() {
-    dateTime.DAYS360('1/1/1901', '1/2/1901', true).should.equal(1);
-    dateTime.DAYS360('1/1/1901', '12/31/1901', true).should.equal(359);
-    dateTime.DAYS360('1/1/1901', '1/1/1902', true).should.equal(360);
-    dateTime.DAYS360('1/1/1901', '2/1/1901', true).should.equal(30);
-    dateTime.DAYS360('1/1/1901', '1/2/1901', false).should.equal(1);
-    dateTime.DAYS360('1/1/1901', '12/31/1901', false).should.equal(360);
-    dateTime.DAYS360('1/1/1901', '1/1/1902', false).should.equal(360);
-    dateTime.DAYS360('1/1/1901', '2/1/1901', false).should.equal(30);
-    dateTime.DAYS360('1/30/1901', '12/31/1901', false).should.equal(330);
-    dateTime.DAYS360('1/1/1901', 'a').should.equal(error.value);
-    dateTime.DAYS360('a', '1/2/1901').should.equal(error.value);
-    dateTime.DAYS360('1/1/1901', '1/2/1901', 'a').should.equal(error.value);
+  suite('DAYS360', function () {
+    suite('US method', function () {
+      test('returns delta between excel timestamps', function () {
+        dateTime.DAYS360(1, 2).should.equal(1);
+        dateTime.DAYS360(2, 1).should.equal(-1);
+      });
+      test('returns actual day delta for dates in same month', function () {
+        dateTime.DAYS360('1/2/2000', '1/10/2000').should.equal(8);
+        dateTime.DAYS360('1/1/2000', '1/31/2000').should.equal(30);
+      });
+      test('returns 30 for 1st of month to 1st of next month', function () {
+        dateTime.DAYS360('1/1/2000', '2/1/2000').should.equal(30);
+      });
+      test('returns 360 for 1-jan to 31-dec of same year', function () {
+        dateTime.DAYS360('1/1/2000', '12/31/2000').should.equal(360);
+      });
+      test('returns 360 for 1-jan to 1-jan of next year', function () {
+        dateTime.DAYS360('1/1/2000', '1/1/2001').should.equal(360);
+      });
+    });
+    suite('European method', function() {
+      test('returns delta between excel timestamps', function () {
+        dateTime.DAYS360(1, 2, true).should.equal(1);
+        dateTime.DAYS360(2, 1, true).should.equal(-1);
+      });
+      test('returns actual day delta for dates in same month', function () {
+        dateTime.DAYS360('1/2/2000', '1/10/2000', true).should.equal(8);
+      });
+      test('returns 29 for 1-jan to 31-jan', function () {
+        dateTime.DAYS360('1/1/2000', '1/31/2000', true).should.equal(29);
+      });
+      test('return 30 for 1st of month to 1st of next month', function () {
+        dateTime.DAYS360('1/1/2000', '2/1/2000', true).should.equal(30);
+      });
+      test('returns 359 for 1-jan to 31-dec of same year', function () {
+        dateTime.DAYS360('1/1/2000', '12/31/2000', true).should.equal(359);
+      });
+      test('returns 360 for 1-jan to 1-jan of next year', function () {
+        dateTime.DAYS360('1/1/2000', '1/1/2001', true).should.equal(360);
+      });
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.DAYS360('1/1/2000', 'a').should.equal(error.value);
+      dateTime.DAYS360('a', '1/2/2000').should.equal(error.value);
+      dateTime.DAYS360('1/1/2000', '1/2/2000', 'a').should.equal(error.value);
+    });
   });
 
   test('EDATE', function() {
