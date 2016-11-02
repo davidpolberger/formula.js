@@ -83,7 +83,7 @@ suite('Math & Trig', function() {
   });
 
   test('ATANH', function() {
-    mathTrig.ATANH(1).should.equal(Infinity);
+    mathTrig.ATANH(1).should.equal(error.num);
     mathTrig.ATANH('invalid').should.equal(error.value);
   });
 

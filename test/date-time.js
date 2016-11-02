@@ -197,7 +197,7 @@ suite('Date & Time', function () {
     dateTime.WORKDAY('a', 1, '1/2/1900').should.equal(error.value);
     dateTime.WORKDAY('1/1/1900', 'a').should.equal(error.value);
     dateTime.WORKDAY('1/1/1900', 1, 'a').should.equal(error.value);
-    dateTime.WORKDAY('1/1/1900', -1).should.equal(error.num);
+    excelTimestampToDate(dateTime.WORKDAY('1/1/2016', -1)).should.eql(new Date(2015, 11, 31));
   });
 
   test('WORKDAY.INTL', function() {
