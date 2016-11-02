@@ -375,8 +375,8 @@ suite('Statistical', function() {
   });
 
   test('GEOMEAN', function() {
-    statistical.GEOMEAN([4, 5, 8, 7, 11, 4, 3]).should.approximately(5.476986969656962, 1e-9);
-    statistical.GEOMEAN([4, 5, 8, 7, 'invalid', 4, 3]).should.equal(4.876031973957155);
+    statistical.GEOMEAN([4, 5, 8, 7, 11, 4, 3]).should.approximately(5.476986969656962, 1e-15);
+    statistical.GEOMEAN([4, 5, 8, 7, 'invalid', 4, 3]).should.approximately(4.876031973957155, 1e-15);
     statistical.GEOMEAN([2, 2]).should.equal(2);
     statistical.GEOMEAN([2, undefined]).should.equal(2);
     statistical.GEOMEAN([2, '']).should.equal(2);
