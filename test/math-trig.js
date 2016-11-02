@@ -99,10 +99,6 @@ suite('Math & Trig', function() {
   });
 
   test('CEILING', function() {
-    //mathTrig.CEILING(4.1).should.equal(5);
-    //mathTrig.CEILING(4.9).should.equal(5);
-    //mathTrig.CEILING(-4.1).should.equal(-4);
-    //mathTrig.CEILING(-4.9).should.equal(-4);
     mathTrig.CEILING(4.1, 0).should.equal(0);
     mathTrig.CEILING(4.1, 1).should.equal(5);
     mathTrig.CEILING(4.1, 2).should.equal(6);
@@ -113,11 +109,9 @@ suite('Math & Trig', function() {
     mathTrig.CEILING(-1.234, -0.1).should.approximately(-1.3, 1e-9);
     mathTrig.CEILING(-1.234, -0.01).should.approximately(-1.24, 1e-9);
     mathTrig.CEILING(-1.234, -0.001).should.approximately(-1.234, 1e-9);
-    //mathTrig.CEILING(-4.1, 2, 0).should.equal(-4);
-    //mathTrig.CEILING(-4.1, 2, -1).should.equal(-6);
-    //mathTrig.CEILING(-4.1, -2, 0).should.equal(-4);
-    //mathTrig.CEILING(-4.1, -2, -1).should.equal(-6);
-    //mathTrig.CEILING(-4.1, -2, 'invalid').should.equal(error.value);
+    mathTrig.CEILING(0).should.equal(error.value);
+    mathTrig.CEILING('invalid').should.equal(error.value);
+    mathTrig.CEILING(0, 'invalid').should.equal(error.value);
   });
 
   test('CEILING.MATH', function() {
@@ -125,6 +119,8 @@ suite('Math & Trig', function() {
     mathTrig.CEILING.MATH(6.7).should.equal(7);
     mathTrig.CEILING.MATH(-8.1, 2).should.equal(-8);
     mathTrig.CEILING.MATH(-5.5, 2, -1).should.equal(-6);
+    mathTrig.CEILING.MATH('invalid').should.equal(error.value);
+    mathTrig.CEILING.MATH(0, 'invalid').should.equal(error.value);
     mathTrig.CEILING.MATH(-5.5, 2, 'invalid').should.equal(error.value);
   });
 
