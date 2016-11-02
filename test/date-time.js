@@ -10,7 +10,8 @@ suite('Date & Time', function () {
     return new Date(localDate.getTime() + localDate.getTimezoneOffset() * 60000);
   }
 
-  should.Assertion.add('equalDate', function (expectedDate) {
+  should.Assertion.add('beExcelTimestamp', function (year, month, day) {
+    var expectedDate = new Date(year, month - 1, day);
     var actualDate = excelTimestampToDate(this.obj);
     this.params = {
       operator: '`' + actualDate + '` to equal date `' + expectedDate + '`'
@@ -18,7 +19,7 @@ suite('Date & Time', function () {
     this.assert(actualDate.getTime() === expectedDate.getTime());
   });
 
-  should.Assertion.add('haveYear', function (expectedYear) {
+  should.Assertion.add('beExcelTimestampWithYear', function (expectedYear) {
     var actualDate = excelTimestampToDate(this.obj);
     this.params = {
       operator: '`' + actualDate + '` to have year `' + expectedYear + '`'
@@ -28,31 +29,31 @@ suite('Date & Time', function () {
 
   suite('DATE', function() {
     test('returns excel timestamp for year, month, day', function() {
-      dateTime.DATE(2001, 2, 3).should.equalDate(new Date(2001, 1, 3));
+      dateTime.DATE(2001, 2, 3).should.beExcelTimestamp(2001, 2, 3);
     });
     test('uses year as-is for 1900 to 9999', function() {
-      dateTime.DATE(1900, 2, 2).should.haveYear(1900);
-      dateTime.DATE(9999, 2, 2).should.haveYear(9999);
+      dateTime.DATE(1900, 2, 2).should.beExcelTimestampWithYear(1900);
+      dateTime.DATE(9999, 2, 2).should.beExcelTimestampWithYear(9999);
     });
     test('adds 1900 to year for 0 to 1899', function() {
-      dateTime.DATE(0, 2, 2).should.haveYear(1900);
-      dateTime.DATE(1899, 2, 2).should.haveYear(3799);
+      dateTime.DATE(0, 2, 2).should.beExcelTimestampWithYear(1900);
+      dateTime.DATE(1899, 2, 2).should.beExcelTimestampWithYear(3799);
     });
     test('returns num error for year <0 or >9999', function() {
       dateTime.DATE(-1, 2, 2).should.equal(error.num);
       dateTime.DATE(10000, 2, 2).should.equal(error.num);
     });
     test('adds months >12', function() {
-      dateTime.DATE(2008, 14, 2).should.equalDate(new Date(2009, 1, 2));
+      dateTime.DATE(2008, 14, 2).should.beExcelTimestamp(2009, 2, 2);
     });
     test('subtracts months <0', function() {
-      dateTime.DATE(2008, -3, 2).should.equalDate(new Date(2007, 8, 2));
+      dateTime.DATE(2008, -3, 2).should.beExcelTimestamp(2007, 9, 2);
     });
     test('adds days > month has', function() {
-      dateTime.DATE(2008, 1, 35).should.equalDate(new Date(2008, 1, 4));
+      dateTime.DATE(2008, 1, 35).should.beExcelTimestamp(2008, 2, 4);
     });
     test('subtracts days <0', function() {
-      dateTime.DATE(2008, 1, -15).should.equalDate(new Date(2007, 11, 16));
+      dateTime.DATE(2008, 1, -15).should.beExcelTimestamp(2007, 12, 16);
     });
     test('returns value error for string year', function() {
       dateTime.DATE('x', 1, 1).should.equal(error.value);
@@ -67,19 +68,25 @@ suite('Date & Time', function () {
 
   suite('DATEVALUE', function () {
     test('parses dates between 1-jan-1900 and 31-dec-9999', function () {
-      dateTime.DATEVALUE('1/2/2000').should.equalDate(new Date(2000, 0, 2));
-      dateTime.DATEVALUE('1/2/2100').should.equalDate(new Date(2100, 0, 2));
-      dateTime.DATEVALUE('1/2/1970').should.equalDate(new Date(1970, 0, 2));
-      dateTime.DATEVALUE('1/1/1900').should.equalDate(new Date(1900, 0, 1));
-      dateTime.DATEVALUE('12/31/9999').should.equalDate(new Date(9999, 11, 31));
+      dateTime.DATEVALUE('1/2/2000').should.beExcelTimestamp(2000, 1, 2);
+      dateTime.DATEVALUE('1/2/2100').should.beExcelTimestamp(2100, 1, 2);
+      dateTime.DATEVALUE('1/2/1970').should.beExcelTimestamp(1970, 1, 2);
+      dateTime.DATEVALUE('1/1/1900').should.beExcelTimestamp(1900, 1, 1);
+      dateTime.DATEVALUE('12/31/9999').should.beExcelTimestamp(9999, 12, 31);
     });
     test('parses supported formats', function () {
-      dateTime.DATEVALUE('2-jan-2000').should.equalDate(new Date(2000, 0, 2));
-      dateTime.DATEVALUE('2-JAN-2000').should.equalDate(new Date(2000, 0, 2));
-      dateTime.DATEVALUE('january 2, 2000').should.equalDate(new Date(2000, 0, 2));
-      dateTime.DATEVALUE('JANUARY 2, 2000').should.equalDate(new Date(2000, 0, 2));
-      dateTime.DATEVALUE('2000-1-2').should.equalDate(new Date(2000, 0, 2));
-      dateTime.DATEVALUE('2000/1/2').should.equalDate(new Date(2000, 0, 2));
+      dateTime.DATEVALUE('2-jan-2000').should.beExcelTimestamp(2000, 1, 2);
+      dateTime.DATEVALUE('2-JAN-2000').should.beExcelTimestamp(2000, 1, 2);
+      dateTime.DATEVALUE('january 2, 2000').should.beExcelTimestamp(2000, 1, 2);
+      dateTime.DATEVALUE('JANUARY 2, 2000').should.beExcelTimestamp(2000, 1, 2);
+      dateTime.DATEVALUE('2000-1-2').should.beExcelTimestamp(2000, 1, 2);
+      dateTime.DATEVALUE('2000/1/2').should.beExcelTimestamp(2000, 1, 2);
+    });
+    test('ignores time part of date-time', function () {
+      //TODO: dateTime.DATEVALUE('1/2/2000 15:00').should.beExcelTimestamp(2000, 1, 2);
+    });
+    test('returns 0 for time only string', function () {
+      //TODO: dateTime.DATEVALUE('15:00').should.equal(0);
     });
     // TODO: How to use the current year when no year is specified?  Date.parse() seems to use 
     // 2001 when no year is specified (is that standard?), so could that and change the year if 
@@ -92,25 +99,25 @@ suite('Date & Time', function () {
     // space (are there more?).  Basically, parsing the date would be mostly custom rather than
     // using Date.
     test('uses current year when not specified', function () {
-      //dateTime.DATEVALUE('1/5').should.equalDate(new Date(new Date().getFullYear(), 0, 5));
-      //dateTime.DATEVALUE('5-jan').should.equalDate(new Date(new Date().getFullYear(), 0, 5));
+      //dateTime.DATEVALUE('1/5').should.beExcelTimestamp(new Date().getFullYear(), 1, 5);
+      //dateTime.DATEVALUE('5-jan').should.beExcelTimestamp(new Date().getFullYear(), 1, 5);
     });
     test('expands 2-digit year as 19xx for year >=30', function () {
       //NOTE: Excel 2013 uses 30 as the cutoff for 19xx/20xx, but this (via new Date()) seems to 
       // use 50.  Older Excel versions used 20 instead of 30, and future versions (in 10 to 20 
       // years!), will surely push the changeover higher.  So, it would be good if this used
       // 30, but I think it would be hard to implement so maybe 50 is good enough.
-      //dateTime.DATEVALUE('1/1/30').should.haveYear(1930);
-      dateTime.DATEVALUE('1/1/50').should.haveYear(1950);
-      dateTime.DATEVALUE('1/1/99').should.haveYear(1999);
+      //dateTime.DATEVALUE('1/1/30').should.beExcelTimestampWithYear(1930);
+      dateTime.DATEVALUE('1/1/50').should.beExcelTimestampWithYear(1950);
+      dateTime.DATEVALUE('1/1/99').should.beExcelTimestampWithYear(1999);
     });
     test('expands 2-digit year as 20xx for year <30', function () {
-      dateTime.DATEVALUE('1/1/01').should.haveYear(2001);
-      dateTime.DATEVALUE('1/1/29').should.haveYear(2029);
+      dateTime.DATEVALUE('1/1/01').should.beExcelTimestampWithYear(2001);
+      dateTime.DATEVALUE('1/1/29').should.beExcelTimestampWithYear(2029);
     });
     test('expands 1-digit year as 200x', function () {
-      dateTime.DATEVALUE('1/1/1').should.haveYear(2001);
-      dateTime.DATEVALUE('1/1/9').should.haveYear(2009);
+      dateTime.DATEVALUE('1/1/1').should.beExcelTimestampWithYear(2001);
+      dateTime.DATEVALUE('1/1/9').should.beExcelTimestampWithYear(2009);
     });
     test('returns value error for date before 1900', function () {
       dateTime.DATEVALUE('12/31/1899').should.equal(error.value);
@@ -214,28 +221,49 @@ suite('Date & Time', function () {
     });
   });
 
-  test('EDATE', function() {
-    dateTime.EDATE('1/1/1900', 0).should.equal(1);
-    dateTime.EDATE('1/1/1900', 1).should.equal(32);
-    dateTime.EDATE('1/1/1900', 12).should.equal(367);
-    dateTime.EDATE('a', 0).should.equal(error.value);
-    dateTime.EDATE('1/1/1900', 'a').should.equal(error.value);
+  suite('EDATE', function() {
+    test('returns input date plus number of months', function () {
+      dateTime.EDATE('1/1/2000', 0).should.beExcelTimestamp(2000, 1, 1);
+      dateTime.EDATE('1/1/2000', 13).should.beExcelTimestamp(2001, 2, 1);
+      dateTime.EDATE('1/1/2000', -3).should.beExcelTimestamp(1999, 10, 1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.EDATE('a', 0).should.equal(error.value);
+      dateTime.EDATE('1/1/2000', 'a').should.equal(error.value);
+    });
   });
 
-  test('EOMONTH', function() {
-    dateTime.EOMONTH('1/1/1900', 0).should.equal(31);
-    dateTime.EOMONTH('1/1/1900', 1).should.equal(59);
-    dateTime.EOMONTH('1/1/1900', 12).should.equal(397);
-    dateTime.EOMONTH('a', 0).should.equal(error.value);
-    dateTime.EOMONTH('1/1/1900', 'a').should.equal(error.value);
+  suite('EOMONTH', function () {
+    test('returns last day of month specified from start date and month delta', function () {
+      dateTime.EOMONTH('1/1/2000', 0).should.beExcelTimestamp(2000, 1, 31);
+      dateTime.EOMONTH('1/1/2000', 1).should.beExcelTimestamp(2000, 2, 29);
+      dateTime.EOMONTH('1/1/2000', 12).should.beExcelTimestamp(2001, 1, 31);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.EOMONTH('a', 0).should.equal(error.value);
+      dateTime.EOMONTH('1/1/2000', 'a').should.equal(error.value);
+    });
   });
 
-  test('HOUR', function() {
-    dateTime.HOUR('1/1/1900').should.equal(0);
-    dateTime.HOUR('1/1/1900 1:00').should.equal(1);
-    // dateTime.HOUR('1:00').should.equal(1);
-    // dateTime.HOUR('0.75').should.equal(18);
-    dateTime.HOUR('a').should.equal(error.value);
+  suite('HOUR', function() {
+    test('returns hour of day of excel timestamp', function () {
+      dateTime.HOUR(123.75).should.equal(18);
+    });
+    test('returns hour of day of excel timestamp string', function () {
+      dateTime.HOUR('0.25').should.equal(6);
+    });
+    test('returns 0 for date only string', function () {
+      dateTime.HOUR('1/1/2000').should.equal(0);
+    });
+    test('returns hour of day for date/time string', function () {
+      dateTime.HOUR('1/1/2000 1:23').should.equal(1);
+    });
+    test('returns hour for time only string', function () {
+      //TODO: dateTime.HOUR('1:00').should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.HOUR('a').should.equal(error.value);
+    });
   });
 
   test('ISOWEEKNUM', function() {
@@ -323,7 +351,7 @@ suite('Date & Time', function () {
     dateTime.WORKDAY('a', 1, '1/2/1900').should.equal(error.value);
     dateTime.WORKDAY('1/1/1900', 'a').should.equal(error.value);
     dateTime.WORKDAY('1/1/1900', 1, 'a').should.equal(error.value);
-    dateTime.WORKDAY('1/1/2016', -1).should.equalDate(new Date(2015, 11, 31));
+    dateTime.WORKDAY('1/1/2016', -1).should.beExcelTimestamp(2015, 12, 31);
   });
 
   test('WORKDAY.INTL', function() {

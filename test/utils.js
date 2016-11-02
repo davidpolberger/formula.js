@@ -102,6 +102,35 @@ suite('Utils', function() {
     utils.parseText(error.na).should.equal(error.na);
   });
 
+  suite('parseDate', function() {
+    test('returns Date object equal to input Date object', function () {
+      utils.parseDate(new Date(2000, 2, 3)).should.eql(new Date(2000, 2, 3));
+    });
+    test('returns Date object equal to Excel timestamp', function () {
+      utils.parseDate(36559.5).should.eql(new Date(Date.parse("2000-02-03 12:00:00 GMT")));
+    });
+    test('returns Date object equal to Excel timestamp string', function () {
+      utils.parseDate('36559.5').should.eql(new Date(Date.parse("2000-02-03 12:00:00 GMT")));
+    });
+    test('parses required date/time formats', function () {
+      var expected = new Date(Date.parse("2000-2-3 13:00 GMT")).getTime();
+      utils.parseDate('2/3/2000 13:00').getTime().should.equal(expected);
+      utils.parseDate('02/03/2000 13:00:00').getTime().should.equal(expected);
+      utils.parseDate('2000-2-3 13:00:00.0').getTime().should.equal(expected);
+      utils.parseDate('2000-02-03 13:00').getTime().should.equal(expected);
+      utils.parseDate('2000-feb-03 13:00').getTime().should.equal(expected);
+      utils.parseDate('2000-FEB-03 13:00').getTime().should.equal(expected);
+      utils.parseDate('February 3, 2000 13:00').getTime().should.equal(expected);
+      utils.parseDate('february 3, 2000 13:00').getTime().should.equal(expected);
+    });
+    test('returns num error for negative number', function () {
+      utils.parseDate(-1).should.eql(error.num);
+    });
+    test('returns value error for invalid date format', function () {
+      utils.parseDate('0/0/0').should.eql(error.value);
+    });
+  });
+
   suite('excelToJsTimestamp', function () {
       test('February 3, 2001', function () {
           utils.excelToJsTimestamp(36925).should.equal(Date.UTC(2001, 1, 3));
