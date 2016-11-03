@@ -342,7 +342,7 @@ suite('Statistical', function() {
     statistical.GAMMA.DIST(10.00001131, 9, 2, false).should.approximately(0.03263913, 1e-9);
     statistical.GAMMA.DIST(1, 9, 2).should.approximately(2.9380709195212246e-8, 1e-9);
     statistical.GAMMA.DIST(1, 9, 2, true).should.approximately(3.4354902468473216e-9, 1e-9);
-    statistical.GAMMA.DIST().should.equal(error.num);
+    statistical.GAMMA.DIST().should.equal(error.value);
     statistical.GAMMA.DIST(-1, 9, 2, true).should.equal(error.num);
     statistical.GAMMA.DIST(1, 0, 2, true).should.equal(error.num);
     statistical.GAMMA.DIST(1, 9, 0, true).should.equal(error.num);

@@ -13,32 +13,71 @@ suite('Utils', function() {
     utils.cleanFloat(3.0999999999999996).should.equal(3.1);
   });
 
-  test('parseBool', function() {
-    utils.parseBool(true).should.equal(true);
-    utils.parseBool(0).should.equal(false);
-    utils.parseBool(1).should.equal(true);
-    utils.parseBool('TRUE').should.equal(true);
-    utils.parseBool('true').should.equal(true);
-    utils.parseBool('FALSE').should.equal(false);
-    utils.parseBool('false').should.equal(false);
-    utils.parseBool('invalid').should.equal(error.value);
-    utils.parseBool(new Date()).should.equal(true);
-    utils.parseBool(NaN).should.equal(true);
-    var err = new Error();
-    utils.parseBool(err).should.equal(err);
+  suite('parseBool', function() {
+    test('returns input boolean', function () {
+      utils.parseBool(true).should.equal(true);
+      utils.parseBool(false).should.equal(false);
+    });
+    test('returns false for 0', function () {
+      utils.parseBool(0).should.equal(false);
+    });
+    test('returns true for number != 0', function () {
+      utils.parseBool(1).should.equal(true);
+      utils.parseBool(-1).should.equal(true);
+      utils.parseBool(123).should.equal(true);
+    });
+    test('returns true for string true', function () {
+      utils.parseBool('TRUE').should.equal(true);
+      utils.parseBool('true').should.equal(true);
+    });
+    test('returns true for string false', function () {
+      utils.parseBool('FALSE').should.equal(false);
+      utils.parseBool('false').should.equal(false);
+    });
+    test('returns input error', function () {
+      var err = new Error();
+      utils.parseBool(err).should.equal(err);
+    });
+    test('returns value error for invalid string', function () {
+      utils.parseBool('xyz').should.equal(error.value);
+    });
+    test('returns true for Date object', function () {
+      //TODO: I think the result should be value.error. Note that excel returns false for ISLOGICAL(DATE(2000,1,1))
+      utils.parseBool(new Date()).should.equal(true);
+    });
+    test('returns true for NaN', function () {
+      //TODO: I think the result should be value.error
+      utils.parseBool(NaN).should.equal(true);
+    });
   });
 
-  test('parseNumber', function() {
-    utils.parseNumber(12.34).should.equal(12.34);
-    utils.parseNumber('2').should.equal(2);
-    utils.parseNumber('2.3').should.equal(2.3);
-    utils.parseNumber('-3').should.equal(-3);
-    utils.parseNumber('string').should.equal(error.value);
-    utils.parseNumber(true).should.equal(1);
-    utils.parseNumber(false).should.equal(0);
-    utils.parseNumber(null).should.equal(0);
-    utils.parseNumber(undefined).should.equal(0);
-    utils.parseNumber(error.na).should.equal(error.na);
+  suite('parseNumber', function() {
+    test('returns input number', function () {
+      utils.parseNumber(12.34).should.equal(12.34);
+    });
+    test('returns number represented by string', function () {
+      utils.parseNumber('2').should.equal(2);
+      utils.parseNumber('2.3').should.equal(2.3);
+      utils.parseNumber('-3').should.equal(-3);
+    });
+    test('returns 1 for true', function () {
+      utils.parseNumber(true).should.equal(1);
+    });
+    test('returns 0 for false', function () {
+      utils.parseNumber(false).should.equal(0);
+    });
+    test('returns value error for undefined', function () {
+      utils.parseNumber().should.equal(error.value);
+    });
+    test('returns value error for null', function () {
+      utils.parseNumber(null).should.equal(error.value);
+    });
+    test('returns value error for non-number string', function () {
+      utils.parseNumber('xyz').should.equal(error.value);
+    });
+    test('returns input error', function () {
+      utils.parseNumber(error.na).should.equal(error.na);
+    });
   });
 
   test('parseNumbers', function() {
@@ -97,14 +136,33 @@ suite('Utils', function() {
     utils.parseMatrix(1).should.eql([[1]]);
   });
 
-  test('parseText', function() {
-    utils.parseText(null).should.equal('');
-    utils.parseText('string').should.equal('string');
-    utils.parseText(123).should.equal('123');
-    utils.parseText(true).should.equal('TRUE');
-    utils.parseText(false).should.equal('FALSE');
-    utils.parseText([1]).should.equal(error.value);
-    utils.parseText(error.na).should.equal(error.na);
+  suite('parseText', function() {
+    test('returns input string', function () {
+      utils.parseText('string').should.equal('string');
+    });
+    test('returns a number as its decimal representation', function () {
+      utils.parseText(123).should.equal('123');
+    });
+    test('returns TRUE for true', function () {
+      utils.parseText(true).should.equal('TRUE');
+    });
+    test('returns FALSE for false', function () {
+      utils.parseText(false).should.equal('FALSE');
+    });
+    test('returns the input error', function () {
+      utils.parseText(error.na).should.equal(error.na);
+    });
+    test('returns blank for null', function () {
+      //TODO: should this return an error instead?
+      utils.parseText(null).should.equal('');
+    });
+    test('returns blank for undefined', function () {
+      //TODO: should this return an error instead?
+      utils.parseText().should.equal('');
+    });
+    test('returns value error for an array', function () {
+      utils.parseText([1]).should.equal(error.value);
+    });
   });
 
   suite('createUTCDate', function() {

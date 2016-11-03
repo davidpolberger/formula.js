@@ -10,65 +10,52 @@ exports.cleanFloat = function(number) {
   return Math.round(number * power) / power;
 };
 
-exports.parseBool = function(bool) {
-  if (typeof bool === 'boolean') {
-    return bool;
+exports.parseBool = function(value) {
+  if (typeof value === 'boolean') {
+    return value;
   }
-
-  if (bool instanceof Error) {
-    return bool;
+  if (value instanceof Error) {
+    return value;
   }
-
-  if (typeof bool === 'number') {
-    return bool !== 0;
+  if (typeof value === 'number') {
+    return value !== 0;
   }
-
-  if (typeof bool === 'string') {
-    var up = bool.toUpperCase();
+  if (typeof value === 'string') {
+    var up = value.toUpperCase();
     if (up === 'TRUE') {
       return true;
     }
-
     if (up === 'FALSE') {
       return false;
     }
   }
-
-  if (bool instanceof Date && !isNaN(bool)) {
+  if (value instanceof Date && !isNaN(value)) {
     return true;
   }
-
   return error.value;
 };
 
 /*
- * 2 -> 2
- * '2' -> 2
- * 'invalid' -> #value!
- * true -> 1
- * false -> 0
- * undefined -> 0
- * null -> 0
- * error -> error
+ * Returns the input (non-NaN) number or the input error or the number represented by a string or 
+ * 1/0 for true/false.  Otherwise (i.e. undefined, null, NaN, string not representing a number ...)
+ * returns error.value.
  */
-exports.parseNumber = function(num) {
-  if (num instanceof Error) {
-    return num;
+exports.parseNumber = function(value) {
+  if (typeof value === 'number' && !isNaN(value)) {
+    return value;
   }
-  if (num === undefined || num === null) {
+  if (value instanceof Error) {
+    return value;
+  }
+  if (value === false) {
     return 0;
   }
-  if (num === false) {
-    return 0;
-  }
-  if (num === true) {
+  if (value === true) {
     return 1;
   }
-  if (!isNaN(num)) {
-    var value = parseFloat(num);
-    if (!isNaN(value)) {
-      return value;
-    }
+  var float = parseFloat(value);
+  if (!isNaN(float)) {
+    return float;
   }
   return error.value;
 };
@@ -304,14 +291,11 @@ exports.jsToExcelTimestamp = function(timestamp) {
  *   a new Date instance.
  */
 exports.createUTCDate = function(ms1970OrDateStrOrYear, month, day, hour, minute, second, millisecond) {
-  if ((arguments.length === 1) &&
-      (typeof ms1970OrDateStrOrYear !== 'string')) {
+  if (arguments.length === 1 && typeof ms1970OrDateStrOrYear !== 'string') {
     // 1st arg is the only and is not a string ... so it must be milliseconds since 1970
     return new Date(ms1970OrDateStrOrYear);
   }
-
-  var date = null;
-
+  var date;
   if (arguments.length === 0) {
     date = new Date();
   } else if (arguments.length === 1) {
@@ -329,37 +313,29 @@ exports.createUTCDate = function(ms1970OrDateStrOrYear, month, day, hour, minute
     date = new Date(ms1970OrDateStrOrYear, month, day, hour, minute);
   } else if (arguments.length === 6) {
     date = new Date(ms1970OrDateStrOrYear, month, day, hour, minute, second);
-  } else if (arguments.length === 7) {
+  } else {
     date = new Date(ms1970OrDateStrOrYear, month, day, hour, minute, second, millisecond);
   }
-
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
 };
 
-exports.parseDate = function(date) {
-  if ((date !== null) && (date !== undefined) && (!isNaN(date))) {
-    if (date instanceof Date) {
-      return exports.createUTCDate(date);
+exports.parseDate = function(value) {
+  if ((value !== null) && (value !== undefined) && (!isNaN(value))) {
+    if (value instanceof Date) {
+      return exports.createUTCDate(value);
     }
-
-    var d = parseFloat(date);
-
-    if (d < 0) {
+    var float = parseFloat(value);
+    if (float < 0) {
       return error.num;
     }
-
-    return exports.createUTCDate(exports.excelToJsTimestamp(d));
+    return exports.createUTCDate(exports.excelToJsTimestamp(float));
   }
-
-  if (typeof date === 'string') {
-
-    date = exports.createUTCDate(date);
-
-    if (!isNaN(date)) {
-      return date;
+  if (typeof value === 'string') {
+    value = exports.createUTCDate(value);
+    if (!isNaN(value)) {
+      return value;
     }
   }
-
   return error.value;
 };
 
@@ -384,21 +360,21 @@ exports.parseDates = function(array) {
   return result;
 };
 
-exports.parseText = function(text) {
-  if (text instanceof Error) {
-    return text;
+exports.parseText = function(value) {
+  if (typeof (value) === 'string') {
+    return value;
   }
-  if (text === undefined || text === null) {
+  if (value instanceof Error) {
+    return value;
+  }
+  if (value === undefined || value === null) {
     return '';
   }
-  if (typeof(text) === 'string') {
-    return text;
+  if (typeof(value) === 'number') {
+    return value.toString();
   }
-  if (typeof(text) === 'number') {
-    return text.toString();
-  }
-  if (typeof(text) === 'boolean') {
-    return text.toString().toUpperCase();
+  if (typeof(value) === 'boolean') {
+    return value.toString().toUpperCase();
   }
   return error.value;
 };
