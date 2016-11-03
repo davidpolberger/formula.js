@@ -266,121 +266,236 @@ suite('Date & Time', function () {
     });
   });
 
-  test('ISOWEEKNUM', function() {
-    dateTime.ISOWEEKNUM('1/1/1901').should.equal(1);
-    dateTime.ISOWEEKNUM('1/8/1901').should.equal(2);
-    dateTime.ISOWEEKNUM('12/29/1901').should.equal(52);
-    dateTime.ISOWEEKNUM('6/6/1902').should.equal(23);
-    dateTime.ISOWEEKNUM('a').should.equal(error.value);
+  suite('ISOWEEKNUM', function() {
+    test('returns week number for date string', function () {
+      dateTime.ISOWEEKNUM('1/1/1901').should.equal(1);
+      dateTime.ISOWEEKNUM('1/8/1901').should.equal(2);
+      dateTime.ISOWEEKNUM('12/29/1901').should.equal(52);
+      dateTime.ISOWEEKNUM('6/6/1902').should.equal(23);
+    });
+    test('returns week number for timestamp', function () {
+      dateTime.ISOWEEKNUM(1).should.equal(1);
+    });
+    test('returns week number for timestamp string', function () {
+      dateTime.ISOWEEKNUM('1').should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.ISOWEEKNUM('a').should.equal(error.value);
+    });
   });
 
-  test('MINUTE', function() {
-    dateTime.MINUTE('1/1/1901').should.equal(0);
-    dateTime.MINUTE('1/1/1901 1:01').should.equal(1);
-    // dateTime.MINUTE('1:01').should.equal(1);
-    dateTime.MINUTE('a').should.equal(error.value);
+  suite('MINUTE', function() {
+    test('returns 0 for date only string', function () {
+      dateTime.MINUTE('1/1/1901').should.equal(0);
+    });
+    test('returns minute of date/time string', function () {
+      dateTime.MINUTE('1/1/1901 1:01').should.equal(1);
+    });
+    test('returns minute of time only string', function () {
+      //TODO: dateTime.MINUTE('1:01').should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.MINUTE('a').should.equal(error.value);
+    });
   });
 
-  test('MONTH', function() {
-    dateTime.MONTH('1/1/1900').should.equal(1);
-    dateTime.MONTH('12/1/1900').should.equal(12);
-    dateTime.MONTH('a').should.equal(error.value);
+  suite('MONTH', function() {
+    test('returns month of date string', function () {
+      dateTime.MONTH('1/1/1900').should.equal(1);
+      dateTime.MONTH('12/1/1900').should.equal(12);
+    });
+    test('returns month of timestamp', function () {
+      dateTime.MONTH(1).should.equal(1);
+    });
+    test('returns month of timestamp string', function () {
+      dateTime.MONTH('1').should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.MONTH('a').should.equal(error.value);
+    });
   });
 
-  test('NETWORKDAYS', function() {
-    dateTime.NETWORKDAYS('1/1/1900', '1/2/1900').should.equal(2);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900').should.equal(24);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', '1/2/1900').should.equal(23);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', ['1/2/1900', '1/3/1900']).should.equal(22);
-    dateTime.NETWORKDAYS('a', '1/2/1900').should.equal(error.value);
-    dateTime.NETWORKDAYS('1/1/1900', 'a').should.equal(error.value);
-    dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', 'a').should.equal(error.value);
+  suite('NETWORKDAYS', function() {
+    test('returns workdays between two dates', function () {
+      dateTime.NETWORKDAYS('1/1/1900', '2/1/1900').should.equal(24);
+    });
+    test('excludes holiday', function () {
+      dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', '1/2/1900').should.equal(23);
+    });
+    test('excludes array of holidays', function () {
+      dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', ['1/2/1900', '1/3/1900']).should.equal(22);
+    });
+    test('does not decrease count for holiday that does not fall between dates', function () {
+      dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', ['1/2/1900', '3/3/1900']).should.equal(23);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.NETWORKDAYS('a', '1/2/1900').should.equal(error.value);
+      dateTime.NETWORKDAYS('1/1/1900', 'a').should.equal(error.value);
+      dateTime.NETWORKDAYS('1/1/1900', '2/1/1900', 'a').should.equal(error.value);
+    });
   });
 
-  test('NETWORKDAYS.INTL', function() {
-    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900').should.equal(2);
-    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', 2).should.equal(1);
-    dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', -1).should.equal(error.value);
+  suite('NETWORKDAYS.INTL', function() {
+    test('returns workday count based on weekend definition', function () {
+      dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900').should.equal(2);
+      dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', 2).should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', -1).should.equal(error.value);
+    });
   });
 
   test('NOW', function() {
-    // dateTime.NOW().should.instanceof(Date);
+    dateTime.NOW().should.instanceof(Number);
+    //TODO: improve test
+    //index.excelToJsTimestamp(dateTime.NOW()).should.equal(Date.now());
   });
 
-  test('SECOND', function() {
-    dateTime.SECOND('1/1/1900').should.equal(0);
-    dateTime.SECOND('1/1/1900 1:00:01').should.equal(1);
-    dateTime.SECOND('a').should.equal(error.value);
+  suite('SECOND', function() {
+    test('returns seconds from time only text', function () {
+      //TODO: dateTime.SECOND('2:00:01').should.equal(1);
+    });
+    test('returns seconds from date/time text', function () {
+      dateTime.SECOND('1/1/1900 2:00:03').should.equal(3);
+    });
+    test('returns 0 for date only text', function () {
+      dateTime.SECOND('1/1/1900').should.equal(0);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.SECOND('a').should.equal(error.value);
+    });
   });
 
-  test('TIME', function() {
-    dateTime.TIME(0, 0, 0).should.equal(0);
-    dateTime.TIME(1, 1, 1).should.approximately(0.04237268518518519, 1e-9);
-    dateTime.TIME(-1, -1, -1).should.equal(error.num);
-    dateTime.TIME('invalid').should.equal(error.value);
+  suite('TIME', function() {
+    test('returns timestamp for hours,minutes,seconds', function () {
+      dateTime.TIME(0, 0, 0).should.equal(0);
+      dateTime.TIME(1, 1, 1).should.approximately(0.04237268518518519, 1e-9);
+    });
+    test('returns num error for invalid hours/minutes/seconds', function () {
+      dateTime.TIME(-1, 0, 0).should.equal(error.num);
+      dateTime.TIME(0, -1, 0).should.equal(error.num);
+      dateTime.TIME(0, 0, -1).should.equal(error.num);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.TIME('invalid', 0, 0).should.equal(error.value);
+      dateTime.TIME(0, 'invalid', 0).should.equal(error.value);
+      dateTime.TIME(0, 0, 'invalid').should.equal(error.value);
+    });
   });
 
-  test('TIMEVALUE', function() {
-    dateTime.TIMEVALUE('1/1/1900 00:00:00').should.equal(0);
-    dateTime.TIMEVALUE('1/1/1900 12:00:00').should.approximately(0.5, 1e-9);
-    dateTime.TIMEVALUE('a').should.equal(error.value);
+  suite('TIMEVALUE', function() {
+    test('returns 0 for date only text', function () {
+      dateTime.TIMEVALUE('1/1/1900').should.equal(0);
+    });
+    test('returns time date/time text', function () {
+      dateTime.TIMEVALUE('1/1/1900 1:2:3').should.approximately(0.043090278, 1e-9);
+    });
+    test('returns time for time only text', function () {
+      //TODO: dateTime.TIMEVALUE('1:2:3').should.approximately(0.043090278, 1e-9);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.TIMEVALUE('a').should.equal(error.value);
+    });
   });
 
   test('TODAY', function() {
-    // dateTime.TODAY().should.instanceof(Date);
+    dateTime.TODAY().should.instanceof(Number);
+    //TODO: improve test
   });
 
-  test('WEEKDAY', function() {
-    dateTime.WEEKDAY('1/1/1901').should.equal(3);
-    dateTime.WEEKDAY('1/1/1901', 2).should.equal(2);
-    dateTime.WEEKDAY('a').should.equal(error.value);
+  suite('WEEKDAY', function() {
+    test('returns day ID', function () {
+      dateTime.WEEKDAY('1/1/1901').should.equal(3);
+    });
+    test('returns day ID for return_type=2', function () {
+      dateTime.WEEKDAY('1/1/1901', 2).should.equal(2);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.WEEKDAY('a').should.equal(error.value);
+    });
   });
 
-  test('WEEKNUM', function() {
-    dateTime.WEEKNUM('1/1/1900').should.equal(1);
-    dateTime.WEEKNUM('2/1/1900').should.equal(5);
-    dateTime.WEEKNUM('2/1/1909', 2).should.equal(6);
-    dateTime.WEEKNUM('1/1/1901', 21).should.equal(1);
-    dateTime.WEEKNUM('a').should.equal(error.value);
+  suite('WEEKNUM', function() {
+    test('returns week number for date text', function () {
+      dateTime.WEEKNUM('1/1/1900').should.equal(1);
+      dateTime.WEEKNUM('2/1/1900').should.equal(5);
+      dateTime.WEEKNUM('2/1/1909', 2).should.equal(6);
+      dateTime.WEEKNUM('1/1/1901', 21).should.equal(1);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.WEEKNUM('a').should.equal(error.value);
+    });
   });
 
-  test('WORKDAY', function() {
-    dateTime.WORKDAY('1/1/1900', 1).should.equal(2);
-    dateTime.WORKDAY('1/1/1900', 7).should.equal(10);
-    dateTime.WORKDAY('1/1/1900', 2, '1/2/1900').should.equal(4);
-    dateTime.WORKDAY('a', 1, '1/2/1900').should.equal(error.value);
-    dateTime.WORKDAY('1/1/1900', 'a').should.equal(error.value);
-    dateTime.WORKDAY('1/1/1900', 1, 'a').should.equal(error.value);
-    dateTime.WORKDAY('1/1/2016', -1).should.beExcelTimestamp(2015, 12, 31);
+  suite('WORKDAY', function() {
+    test('returns timestamp of workday from start date plus workday count', function () {
+      dateTime.WORKDAY('1/1/1900', 1).should.beExcelTimestamp(1900, 1, 2);
+      dateTime.WORKDAY('1/1/1900', 7).should.beExcelTimestamp(1900, 1, 10);
+    });
+    test('returns timestamp of workday from start date plus negative workday count', function () {
+      dateTime.WORKDAY('1/1/2016', -1).should.beExcelTimestamp(2015, 12, 31);
+    });
+    test('excludes holiday', function () {
+      dateTime.WORKDAY('1/1/1900', 2, '1/2/1900').should.beExcelTimestamp(1900, 1, 4);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.WORKDAY('a', 1, '1/2/1900').should.equal(error.value);
+      dateTime.WORKDAY('1/1/1900', 'a').should.equal(error.value);
+      dateTime.WORKDAY('1/1/1900', 1, 'a').should.equal(error.value);
+    });
   });
 
-  test('WORKDAY.INTL', function() {
-    dateTime.WORKDAY.INTL('1/1/1900', 1).should.equal(2);
-    dateTime.WORKDAY.INTL('1/1/1905', 1, 2).should.equal(1830);
-    dateTime.WORKDAY.INTL('1/1/1900', 1, 'a').should.equal(error.value);
+  suite('WORKDAY.INTL', function() {
+    test('returns timestamp of workday from start date plus workday count', function () {
+      dateTime.WORKDAY.INTL('1/1/1900', 1).should.beExcelTimestamp(1900, 1, 2);
+      dateTime.WORKDAY.INTL('1/1/1905', 1, 2).should.beExcelTimestamp(1905, 1, 3);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.WORKDAY.INTL('1/1/1900', 1, 'a').should.equal(error.value);
+    });
   });
 
-  test('YEAR', function() {
-    dateTime.YEAR('1/1/1900').should.equal(1900);
-    dateTime.YEAR('a').should.equal(error.value);
+  suite('YEAR', function() {
+    test('returns year of date string', function () {
+      dateTime.YEAR('1/1/1900').should.equal(1900);
+    });
+    test('returns year of timestamp', function () {
+      dateTime.YEAR(1).should.equal(1900);
+    });
+    test('returns year of timestamp text', function () {
+      dateTime.YEAR('1').should.equal(1900);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.YEAR('a').should.equal(error.value);
+    });
   });
 
   test('YEARFRAC', function() {
-    dateTime.YEARFRAC('1/1/1900', '1/2/1900').should.approximately(0.002777777777777778, 1e-3);
-    dateTime.YEARFRAC('1/31/1900', '3/31/1900', 0).should.approximately(0.16666666666666666, 1e-3);
-    dateTime.YEARFRAC('1/31/1900', '2/1/1900', 0).should.approximately(0.002777777777777778, 1e-3);
-    dateTime.YEARFRAC('1/30/1900', '3/31/1900', 0).should.approximately(0.16666666666666666, 1e-3);
-
-    dateTime.YEARFRAC('1/1/1900', '1/2/1900', 1).should.approximately(0.0027397260273972603, 1e-3);
-    dateTime.YEARFRAC('1/1/1904', '1/1/1905', 1).should.equal(1);
-    dateTime.YEARFRAC('5/1/1903', '5/1/1904', 1).should.equal(1);
-    dateTime.YEARFRAC('1/1/1903', '5/1/1904', 1).should.approximately(1.3295713634290924, 1e-3);
-    dateTime.YEARFRAC('1/1/1904', '1/2/1904', 1).should.approximately(0.00273224043715847, 1e-3);
-
-    dateTime.YEARFRAC('1/1/1900', '1/2/1900', 2).should.approximately(0.002777777777777778, 1e-3);
-    dateTime.YEARFRAC('1/1/1900', '1/2/1900', 3).should.approximately(0.0027397260273972603, 1e-3);
-    dateTime.YEARFRAC('1/1/1900', '1/2/1900', 4).should.approximately(0.002777777777777778, 1e-3);
-    dateTime.YEARFRAC('a', '1/2/1900').should.equal(error.value);
-    dateTime.YEARFRAC('1/1/1900', 'a').should.equal(error.value);
+    test('returns fraction of year for method 0', function () {
+      dateTime.YEARFRAC('1/1/1900', '1/2/1900').should.approximately(0.002777777777777778, 1e-3);
+      dateTime.YEARFRAC('1/31/1900', '3/31/1900', 0).should.approximately(0.16666666666666666, 1e-3);
+      dateTime.YEARFRAC('1/31/1900', '2/1/1900', 0).should.approximately(0.002777777777777778, 1e-3);
+      dateTime.YEARFRAC('1/30/1900', '3/31/1900', 0).should.approximately(0.16666666666666666, 1e-3);
+    });
+    test('returns fraction of year for method 1', function () {
+      dateTime.YEARFRAC('1/1/1900', '1/2/1900', 1).should.approximately(0.0027397260273972603, 1e-3);
+      dateTime.YEARFRAC('1/1/1904', '1/1/1905', 1).should.equal(1);
+      dateTime.YEARFRAC('5/1/1903', '5/1/1904', 1).should.equal(1);
+      dateTime.YEARFRAC('1/1/1903', '5/1/1904', 1).should.approximately(1.3295713634290924, 1e-3);
+      dateTime.YEARFRAC('1/1/1904', '1/2/1904', 1).should.approximately(0.00273224043715847, 1e-3);
+    });
+    test('returns fraction of year for method 2', function () {
+      dateTime.YEARFRAC('1/1/1900', '1/2/1900', 2).should.approximately(0.002777777777777778, 1e-3);
+    });
+    test('returns fraction of year for method 3', function () {
+      dateTime.YEARFRAC('1/1/1900', '1/2/1900', 3).should.approximately(0.0027397260273972603, 1e-3);
+    });
+    test('returns fraction of year for method 4', function () {
+      dateTime.YEARFRAC('1/1/1900', '1/2/1900', 4).should.approximately(0.002777777777777778, 1e-3);
+    });
+    test('returns value error for invalid arg', function () {
+      dateTime.YEARFRAC('a', '1/2/1900').should.equal(error.value);
+      dateTime.YEARFRAC('1/1/1900', 'a').should.equal(error.value);
+    });
   });
 });
