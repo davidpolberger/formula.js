@@ -270,19 +270,28 @@ exports.jsToExcelTimestamp = function(timestamp) {
 
 /**
  * Creates a new Date instance using the same parameters accepted by the Date
- * class. If only a single parameter is given which is not a string, this
+ * constructor. If only a single, non-string parameter is given, this
  * function behaves exactly like the Date constructor. Otherwise, this function
- * returns a date whose time zone offset has been set to UTC.
+ * returns a date with time zone offset set to UTC.
  * <p>
  * The standard Date constructor incorporates the local time zone unless special
  * ISO 8601 strings are given. This is problematic for many calculations and by
  * only using UTC Date instances, many problems are avoided.
+ * <p>
+ * Unlike Date, Excel can parse a string that contains time without date (i.e. 
+ * '2:30').  Further, without a date part, the resulting timestamp does include
+ * date information, but it's strange: 0-jan-1900.  This corresponds to the 
+ * excel timestamp value of 0.  The date 31-dec-1899 is used instead since its
+ * somewhat close.  But do note that this date actually corresponds to an excel
+ * timestamp of -1 -- which is invalid ... as all negative timestamp values are
+ * invalid.  The real solution is to avoid using Date at all.  But that's 
+ * undesirable since Date provides alot of utility.
  *
- * @param {*} [valueOrDateStringOrYear]
- *   the first parameter to the Date constructor, which may be a value (the
- *   number of milliseconds since 1 January 1970 00:00:00 UTC), a textual date
- *   string (where the recognized format varies between implementations) or a
- *   year.
+ * @param {Number|String} [ms1970OrDateStrOrYear]
+ *   the first parameter to the Date constructor, which may be the number of 
+ *   milliseconds since 1 January 1970 00:00:00 UTC, a textual date string 
+ *   (where the recognized format varies between implementations) or a
+ *   year (when there's more than one parameter).
  * @param {Number} [month]
  *   the month.
  * @param {Number} [day]
@@ -298,16 +307,11 @@ exports.jsToExcelTimestamp = function(timestamp) {
  * @return {Date}
  *   a new Date instance.
  */
-exports.createUTCDate = function(valueOrDateStringOrYear,
-                                 month,
-                                 day,
-                                 hour,
-                                 minute,
-                                 second,
-                                 millisecond) {
+exports.createUTCDate = function(ms1970OrDateStrOrYear, month, day, hour, minute, second, millisecond) {
   if ((arguments.length === 1) &&
-      (typeof valueOrDateStringOrYear !== "string")) {
-    return new Date(valueOrDateStringOrYear);
+      (typeof ms1970OrDateStrOrYear !== 'string')) {
+    // 1st arg is the only and is not a string ... so it must be milliseconds since 1970
+    return new Date(ms1970OrDateStrOrYear);
   }
 
   var date = null;
@@ -315,30 +319,22 @@ exports.createUTCDate = function(valueOrDateStringOrYear,
   if (arguments.length === 0) {
     date = new Date();
   } else if (arguments.length === 1) {
-    date = new Date(valueOrDateStringOrYear);
+    //NOTE: 1st arg is the only and must be a string (see check above)
+    date = new Date(ms1970OrDateStrOrYear);
+    if (isNaN(date.getTime()))
+      date = new Date('12/31/1899 ' + ms1970OrDateStrOrYear);
   } else if (arguments.length === 2) {
-    date = new Date(valueOrDateStringOrYear, month);
+    date = new Date(ms1970OrDateStrOrYear, month);
   } else if (arguments.length === 3) {
-    date = new Date(valueOrDateStringOrYear, month, day);
+    date = new Date(ms1970OrDateStrOrYear, month, day);
   } else if (arguments.length === 4) {
-    date = new Date(valueOrDateStringOrYear, month, day, hour);
+    date = new Date(ms1970OrDateStrOrYear, month, day, hour);
   } else if (arguments.length === 5) {
-    date = new Date(valueOrDateStringOrYear, month, day, hour, minute);
+    date = new Date(ms1970OrDateStrOrYear, month, day, hour, minute);
   } else if (arguments.length === 6) {
-    date = new Date(valueOrDateStringOrYear,
-                    month,
-                    day,
-                    hour,
-                    minute,
-                    second);
+    date = new Date(ms1970OrDateStrOrYear, month, day, hour, minute, second);
   } else if (arguments.length === 7) {
-    date = new Date(valueOrDateStringOrYear, month,
-                    month,
-                    day,
-                    hour,
-                    minute,
-                    second,
-                    millisecond);
+    date = new Date(ms1970OrDateStrOrYear, month, day, hour, minute, second, millisecond);
   }
 
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
@@ -360,6 +356,7 @@ exports.parseDate = function(date) {
   }
 
   if (typeof date === 'string') {
+
     date = exports.createUTCDate(date);
 
     if (!isNaN(date)) {

@@ -102,26 +102,67 @@ suite('Utils', function() {
     utils.parseText(error.na).should.equal(error.na);
   });
 
+  suite('createUTCDate', function() {
+    test('returns Date object for now', function () {
+      var date = new Date();
+      utils.createUTCDate().should.eql(new Date(date.getTime() - new Date().getTimezoneOffset() * 60000));
+    });
+    test('returns Date object for js timestamp', function () {
+      utils.createUTCDate(123456).should.eql(new Date(123456));
+    });
+    test('returns Date object for year,month', function () {
+      utils.createUTCDate(2000, 1).should.eql(new Date(Date.parse('2000-02-01 00:00:00 GMT')));
+    });
+    test('returns Date object for year,month,day', function () {
+      utils.createUTCDate(2000, 1, 3).should.eql(new Date(Date.parse('2000-02-03 00:00:00 GMT')));
+    });
+    test('returns Date object for year,month,day,hour', function () {
+      utils.createUTCDate(2000, 1, 3, 4).should.eql(new Date(Date.parse('2000-02-03 04:00:00 GMT')));
+    });
+    test('returns Date object for year,month,day,hour,minute', function () {
+      utils.createUTCDate(2000, 1, 3, 4, 5).should.eql(new Date(Date.parse('2000-02-03 04:05:00 GMT')));
+    });
+    test('returns Date object for year,month,day,hour,minute,second', function () {
+      utils.createUTCDate(2000, 1, 3, 4, 5, 6).should.eql(new Date(Date.parse('2000-02-03 04:05:06 GMT')));
+    });
+    test('returns Date object for year,month,day,hour,minute,second,millisecond', function () {
+      utils.createUTCDate(2000, 1, 3, 4, 5, 6, 7).should.eql(new Date(Date.parse('2000-02-03 04:05:06.007 GMT')));
+    });
+    test('parses required date/time formats', function () {
+      var expected = new Date(Date.parse('2000-2-3 13:00 GMT')).getTime();
+      utils.createUTCDate('2/3/2000 13:00').getTime().should.equal(expected);
+      utils.createUTCDate('02/03/2000 13:00:00').getTime().should.equal(expected);
+      utils.createUTCDate('2000-2-3 13:00:00.0').getTime().should.equal(expected);
+      utils.createUTCDate('2000-02-03 13:00').getTime().should.equal(expected);
+      utils.createUTCDate('2000-feb-03 13:00').getTime().should.equal(expected);
+      utils.createUTCDate('2000-FEB-03 13:00').getTime().should.equal(expected);
+      utils.createUTCDate('February 3, 2000 13:00').getTime().should.equal(expected);
+      utils.createUTCDate('february 3, 2000 13:00').getTime().should.equal(expected);
+    });
+    test('parses date only text', function () {
+      utils.createUTCDate('2/3/2000').should.eql(new Date(Date.parse('2000-2-3 00:00 GMT')));
+    });
+    test('parses time only text', function () {
+      //new Date(Date.parse('1899-12-31 13:00 GMT')).should.equal(0);
+      utils.createUTCDate('13:00').should.eql(new Date(Date.parse('1899-12-31 13:00 GMT')));
+    });
+    test('returns invalid date for invalid date format', function () {
+      utils.createUTCDate('0/0/0').getTime().should.be.NaN();
+    });
+  });
+
   suite('parseDate', function() {
     test('returns Date object equal to input Date object', function () {
       utils.parseDate(new Date(2000, 2, 3)).should.eql(new Date(2000, 2, 3));
     });
     test('returns Date object equal to Excel timestamp', function () {
-      utils.parseDate(36559.5).should.eql(new Date(Date.parse("2000-02-03 12:00:00 GMT")));
+      utils.parseDate(36559.5).should.eql(new Date(Date.parse('2000-02-03 12:00:00 GMT')));
     });
     test('returns Date object equal to Excel timestamp string', function () {
-      utils.parseDate('36559.5').should.eql(new Date(Date.parse("2000-02-03 12:00:00 GMT")));
+      utils.parseDate('36559.5').should.eql(new Date(Date.parse('2000-02-03 12:00:00 GMT')));
     });
-    test('parses required date/time formats', function () {
-      var expected = new Date(Date.parse("2000-2-3 13:00 GMT")).getTime();
-      utils.parseDate('2/3/2000 13:00').getTime().should.equal(expected);
-      utils.parseDate('02/03/2000 13:00:00').getTime().should.equal(expected);
-      utils.parseDate('2000-2-3 13:00:00.0').getTime().should.equal(expected);
-      utils.parseDate('2000-02-03 13:00').getTime().should.equal(expected);
-      utils.parseDate('2000-feb-03 13:00').getTime().should.equal(expected);
-      utils.parseDate('2000-FEB-03 13:00').getTime().should.equal(expected);
-      utils.parseDate('February 3, 2000 13:00').getTime().should.equal(expected);
-      utils.parseDate('february 3, 2000 13:00').getTime().should.equal(expected);
+    test('parses date/time text', function () {
+      utils.parseDate('2/3/2000 13:00').should.eql(new Date(Date.parse('2000-2-3 13:00 GMT')));
     });
     test('returns num error for negative number', function () {
       utils.parseDate(-1).should.eql(error.num);
