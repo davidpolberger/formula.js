@@ -470,9 +470,10 @@ suite('Date & Time', function () {
     });
   });
 
-  test('YEARFRAC', function() {
+  suite('YEARFRAC', function() {
     test('returns fraction of year for method 0', function () {
       dateTime.YEARFRAC('1/1/1900', '1/2/1900').should.be.approximately(0.002777777777777778, 1e-3);
+      dateTime.YEARFRAC('1/2/1900', '1/1/1900').should.be.approximately(-0.002777777777777778, 1e-3);
       dateTime.YEARFRAC('1/31/1900', '3/31/1900', 0).should.be.approximately(0.16666666666666666, 1e-3);
       dateTime.YEARFRAC('1/31/1900', '2/1/1900', 0).should.be.approximately(0.002777777777777778, 1e-3);
       dateTime.YEARFRAC('1/30/1900', '3/31/1900', 0).should.be.approximately(0.16666666666666666, 1e-3);
