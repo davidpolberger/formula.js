@@ -20,15 +20,21 @@ suite('Logical', function() {
       logical.IF(true, 1, 2).should.equal(1);
       logical.IF(false, 1, 'bye').should.equal('bye');
     });
-    test('returns value error for invalid args', function () {
-      logical.IF('a').should.equal(error.value);
-      logical.IF(true).should.equal(error.value);
+    test('converts 1st arg to bool if possible', function () {
+      logical.IF('true', 1).should.equal(1);
+      logical.IF('false', 1, 2).should.equal(2);
+      logical.IF(1, 1).should.equal(1);
+      logical.IF(0, 1, 2).should.equal(2);
     });
     test('returns false for false condition and no 3rd arg', function () {
       logical.IF(false, 2).should.equal(false);
     });
-    test('return NA for NA condition', function () {
+    test('returns NA for NA condition', function () {
       logical.IF(error.na, 1, 2).should.equal(error.na);
+    });
+    test('returns value error for invalid args', function () {
+      logical.IF('a', 0).should.equal(error.value);
+      logical.IF(true).should.equal(error.value);
     });
   });
 
