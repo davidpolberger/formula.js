@@ -18,7 +18,10 @@ suite('Utils', function() {
     utils.parseBool(0).should.equal(false);
     utils.parseBool(1).should.equal(true);
     utils.parseBool('TRUE').should.equal(true);
+    utils.parseBool('true').should.equal(true);
     utils.parseBool('FALSE').should.equal(false);
+    utils.parseBool('false').should.equal(false);
+    utils.parseBool('invalid').should.equal(error.value);
     utils.parseBool(new Date()).should.equal(true);
     utils.parseBool(NaN).should.equal(true);
     var err = new Error();
@@ -26,8 +29,10 @@ suite('Utils', function() {
   });
 
   test('parseNumber', function() {
-    utils.parseNumber(2).should.equal(2);
+    utils.parseNumber(12.34).should.equal(12.34);
     utils.parseNumber('2').should.equal(2);
+    utils.parseNumber('2.3').should.equal(2.3);
+    utils.parseNumber('-3').should.equal(-3);
     utils.parseNumber('string').should.equal(error.value);
     utils.parseNumber(true).should.equal(1);
     utils.parseNumber(false).should.equal(0);
