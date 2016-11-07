@@ -32,7 +32,7 @@ exports.parseBool = function(value) {
   return error.value;
 };
 
-/*
+/**
  * Returns the input (non-NaN) number or the input error or the number represented by a string or 
  * 1/0 for true/false.  Otherwise (i.e. undefined, null, NaN, string not representing a number ...)
  * returns error.value.
@@ -57,7 +57,8 @@ exports.parseNumber = function(value) {
   return error.value;
 };
 
-/* Parses the arguments to a function that accepts the standard, variable-length numbers.
+/**
+ * Parses the arguments to a function that accepts the standard, variable-length numbers.
  * Returns the input if error, or value error if the input is not an array or is empty.  
  * Otherwise, returns an array of numbers represented by the array -- including flattening array 
  * arguments.  Includes numbers and values that can be converted to numbers, and returns value 
@@ -89,7 +90,8 @@ exports.parseNumbersFromArguments = function (args) {
   return numbers;
 };
 
-/* TODO: This function is partially if not fully replaced by parseNumbersFromArguments.
+/**
+ * TODO: This function is partially if not fully replaced by parseNumbersFromArguments.
  * NOTE: this function treats values as argument array items -- ignoring non-numbers
  *
  * 2 -> #value!
@@ -123,7 +125,8 @@ exports.parseNumbers = function(array) {
   return result;
 };
 
-/* Returns an array of numbers -- one for each input array item.  The number is the input item if 
+/**
+ * Returns an array of numbers -- one for each input array item.  The number is the input item if 
  * it is a number or is 1/0 for true/false or otherwise is 0.  Returns the input if it is an error.
  *
  * 2 -> #value!
@@ -165,7 +168,8 @@ exports.parseNumbersA = function(array) {
   return result;
 };
 
-/* Returns an array of numbers -- one for each input array item.  The number is the input item if 
+/**
+ * Returns an array of numbers -- one for each input array item.  The number is the input item if 
  * it represents (is convertible to) a number.  Returns value error is any value does not represent
  * a number.  Returns the input if it is an error.
  *
@@ -206,7 +210,7 @@ exports.parseNumbersConvert = function(array) {
   return result;
 };
 
-/*
+/**
  * 2, 2 -> #value!
  * error, error -> error
  * [2], [2] -> [[2], [2]]
@@ -271,7 +275,9 @@ exports.parseMatrix = function(matrix) {
   return matrix;
 };
 
-// Parse dates
+/**
+ * Returns an excel (OLE Automation) date/time value from a javascript timestamp.
+ */
 exports.excelToJsTimestamp = function(timestamp) {
   if (timestamp < 60) {
     timestamp++;
@@ -279,7 +285,10 @@ exports.excelToJsTimestamp = function(timestamp) {
   return Math.round((timestamp - 25569) * 86400000);
 };
 
-exports.jsToExcelTimestamp = function(timestamp) {
+/**
+ * Returns a javascript timestamp from an excel (OLE Automation) date/time value.
+ */
+exports.jsToExcelTimestamp = function (timestamp) {
   timestamp = (timestamp / 86400000) + 25569;
   if (timestamp <= 60) {
     timestamp--;
