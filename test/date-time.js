@@ -27,41 +27,41 @@ suite('Date & Time', function () {
     this.assert(actualDate.getFullYear() === expectedYear);
   });
 
-  suite('DATE', function() {
-    test('returns excel timestamp for year, month, day', function() {
+  suite('DATE', function () {
+    test('returns excel timestamp for year, month, day', function () {
       dateTime.DATE(2001, 2, 3).should.be.excelTimestamp(2001, 2, 3);
     });
-    test('uses year as-is for 1900 to 9999', function() {
+    test('uses year as-is for 1900 to 9999', function () {
       dateTime.DATE(1900, 2, 2).should.be.excelTimestampWithYear(1900);
       dateTime.DATE(9999, 2, 2).should.be.excelTimestampWithYear(9999);
     });
-    test('adds 1900 to year for 0 to 1899', function() {
+    test('adds 1900 to year for 0 to 1899', function () {
       dateTime.DATE(0, 2, 2).should.be.excelTimestampWithYear(1900);
       dateTime.DATE(1899, 2, 2).should.be.excelTimestampWithYear(3799);
     });
-    test('returns num error for year <0 or >9999', function() {
+    test('returns num error for year <0 or >9999', function () {
       dateTime.DATE(-1, 2, 2).should.equal(error.num);
       dateTime.DATE(10000, 2, 2).should.equal(error.num);
     });
-    test('adds months >12', function() {
+    test('adds months >12', function () {
       dateTime.DATE(2008, 14, 2).should.be.excelTimestamp(2009, 2, 2);
     });
-    test('subtracts months <0', function() {
+    test('subtracts months <0', function () {
       dateTime.DATE(2008, -3, 2).should.be.excelTimestamp(2007, 9, 2);
     });
-    test('adds days > month has', function() {
+    test('adds days > month has', function () {
       dateTime.DATE(2008, 1, 35).should.be.excelTimestamp(2008, 2, 4);
     });
-    test('subtracts days <0', function() {
+    test('subtracts days <0', function () {
       dateTime.DATE(2008, 1, -15).should.be.excelTimestamp(2007, 12, 16);
     });
-    test('returns value error for string year', function() {
+    test('returns value error for string year', function () {
       dateTime.DATE('x', 1, 1).should.equal(error.value);
     });
-    test('returns value error for string month', function() {
+    test('returns value error for string month', function () {
       dateTime.DATE(2000, 'x', 1).should.equal(error.value);
     });
-    test('returns value error for string day', function() {
+    test('returns value error for string day', function () {
       dateTime.DATE(2000, 1, 'invalid').should.equal(error.value);
     });
   });
@@ -131,8 +131,8 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('DAY', function() {
-    test('returns 1 for excel timestamp 1-jan-1900', function() {
+  suite('DAY', function () {
+    test('returns 1 for excel timestamp 1-jan-1900', function () {
       dateTime.DAY(1).should.equal(1);
     });
     test('returns 31 for excel timestamp 31-dec-9999', function () {
@@ -155,7 +155,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('DAYS', function() {
+  suite('DAYS', function () {
     test('returns delta between excel timestamps', function () {
       dateTime.DAYS(2, 1).should.equal(1);
       dateTime.DAYS(1, 2).should.equal(-1);
@@ -193,7 +193,7 @@ suite('Date & Time', function () {
         dateTime.DAYS360('1/1/2000', '1/1/2001').should.equal(360);
       });
     });
-    suite('European method', function() {
+    suite('European method', function () {
       test('returns delta between excel timestamps', function () {
         dateTime.DAYS360(1, 2, true).should.equal(1);
         dateTime.DAYS360(2, 1, true).should.equal(-1);
@@ -221,7 +221,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('EDATE', function() {
+  suite('EDATE', function () {
     test('returns input date plus number of months', function () {
       dateTime.EDATE('1/1/2000', 0).should.be.excelTimestamp(2000, 1, 1);
       dateTime.EDATE('1/1/2000', 13).should.be.excelTimestamp(2001, 2, 1);
@@ -245,7 +245,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('HOUR', function() {
+  suite('HOUR', function () {
     test('returns hour of day of excel timestamp', function () {
       dateTime.HOUR(123.75).should.equal(18);
     });
@@ -266,7 +266,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('ISOWEEKNUM', function() {
+  suite('ISOWEEKNUM', function () {
     test('returns week number for date string', function () {
       dateTime.ISOWEEKNUM('1/1/1901').should.equal(1);
       dateTime.ISOWEEKNUM('1/8/1901').should.equal(2);
@@ -284,7 +284,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('MINUTE', function() {
+  suite('MINUTE', function () {
     test('returns 0 for date only string', function () {
       dateTime.MINUTE('1/1/1901').should.equal(0);
     });
@@ -299,7 +299,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('MONTH', function() {
+  suite('MONTH', function () {
     test('returns month of date string', function () {
       dateTime.MONTH('1/1/1900').should.equal(1);
       dateTime.MONTH('12/1/1900').should.equal(12);
@@ -315,7 +315,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('NETWORKDAYS', function() {
+  suite('NETWORKDAYS', function () {
     test('returns workdays between two dates', function () {
       dateTime.NETWORKDAYS('1/1/1900', '2/1/1900').should.equal(24);
     });
@@ -335,7 +335,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('NETWORKDAYS.INTL', function() {
+  suite('NETWORKDAYS.INTL', function () {
     test('returns workday count based on weekend definition', function () {
       dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900').should.equal(2);
       dateTime.NETWORKDAYS.INTL('1/1/1900', '1/2/1900', 2).should.equal(1);
@@ -345,13 +345,13 @@ suite('Date & Time', function () {
     });
   });
 
-  test('NOW', function() {
+  test('NOW', function () {
     dateTime.NOW().should.instanceof(Number);
     //TODO: improve test
     //utils.excelToJsTimestamp(dateTime.NOW()).should.equal(Date.now());
   });
 
-  suite('SECOND', function() {
+  suite('SECOND', function () {
     test('returns seconds from time only text', function () {
       dateTime.SECOND('2:00:01').should.equal(1);
     });
@@ -366,7 +366,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('TIME', function() {
+  suite('TIME', function () {
     test('returns timestamp for hours,minutes,seconds', function () {
       dateTime.TIME(0, 0, 0).should.equal(0);
       dateTime.TIME(1, 1, 1).should.be.approximately(0.04237268518518519, 1e-9);
@@ -383,7 +383,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('TIMEVALUE', function() {
+  suite('TIMEVALUE', function () {
     test('returns 0 for date only text', function () {
       dateTime.TIMEVALUE('1/1/1900').should.equal(0);
     });
@@ -398,12 +398,12 @@ suite('Date & Time', function () {
     });
   });
 
-  test('TODAY', function() {
+  test('TODAY', function () {
     dateTime.TODAY().should.instanceof(Number);
     //TODO: improve test
   });
 
-  suite('WEEKDAY', function() {
+  suite('WEEKDAY', function () {
     test('returns day ID', function () {
       dateTime.WEEKDAY('1/1/1901').should.equal(3);
     });
@@ -415,7 +415,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('WEEKNUM', function() {
+  suite('WEEKNUM', function () {
     test('returns week number for date text', function () {
       dateTime.WEEKNUM('1/1/1900').should.equal(1);
       dateTime.WEEKNUM('2/1/1900').should.equal(5);
@@ -427,7 +427,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('WORKDAY', function() {
+  suite('WORKDAY', function () {
     test('returns timestamp of workday from start date plus workday count', function () {
       dateTime.WORKDAY('1/1/1900', 1).should.be.excelTimestamp(1900, 1, 2);
       dateTime.WORKDAY('1/1/1900', 7).should.be.excelTimestamp(1900, 1, 10);
@@ -445,7 +445,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('WORKDAY.INTL', function() {
+  suite('WORKDAY.INTL', function () {
     test('returns timestamp of workday from start date plus workday count', function () {
       dateTime.WORKDAY.INTL('1/1/1900', 1).should.be.excelTimestamp(1900, 1, 2);
       dateTime.WORKDAY.INTL('1/1/1905', 1, 2).should.be.excelTimestamp(1905, 1, 3);
@@ -455,7 +455,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('YEAR', function() {
+  suite('YEAR', function () {
     test('returns year of date string', function () {
       dateTime.YEAR('1/1/1900').should.equal(1900);
     });
@@ -470,7 +470,7 @@ suite('Date & Time', function () {
     });
   });
 
-  suite('YEARFRAC', function() {
+  suite('YEARFRAC', function () {
     test('returns fraction of year for method 0', function () {
       dateTime.YEARFRAC('1/1/1900', '1/2/1900').should.be.approximately(0.002777777777777778, 1e-3);
       dateTime.YEARFRAC('1/2/1900', '1/1/1900').should.be.approximately(-0.002777777777777778, 1e-3);

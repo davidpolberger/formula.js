@@ -2,18 +2,18 @@ var utils = require('../utils');
 var should = require('should');
 var error = require('../lib/error');
 
-suite('Utils', function() {
-  test('argsToArray', function() {
-    (function() {
+suite('Utils', function () {
+  test('argsToArray', function () {
+    (function () {
       should.deepEqual(utils.argsToArray(arguments), [1, 2, 3]);
     })(1, 2, 3);
   });
 
-  test('cleanFloat', function() {
+  test('cleanFloat', function () {
     utils.cleanFloat(3.0999999999999996).should.equal(3.1);
   });
 
-  suite('parseBool', function() {
+  suite('parseBool', function () {
     test('returns input boolean', function () {
       utils.parseBool(true).should.equal(true);
       utils.parseBool(false).should.equal(false);
@@ -47,7 +47,7 @@ suite('Utils', function() {
     });
   });
 
-  suite('parseNumber', function() {
+  suite('parseNumber', function () {
     test('returns input number', function () {
       utils.parseNumber(12.34).should.equal(12.34);
     });
@@ -116,7 +116,7 @@ suite('Utils', function() {
     });
   });
 
-  test('parseNumbersA', function() {
+  test('parseNumbersA', function () {
     utils.parseNumbersA(2).should.equal(error.value);
     utils.parseNumbersA(error.na).should.equal(error.na);
     utils.parseNumbersA([2]).should.eql([2]);
@@ -129,7 +129,7 @@ suite('Utils', function() {
     utils.parseNumbersA([error.na]).should.equal(error.na);
   });
 
-  test('parseNumbersConvert', function() {
+  test('parseNumbersConvert', function () {
     utils.parseNumbersConvert(2).should.equal(error.value);
     utils.parseNumbersConvert(error.na).should.equal(error.na);
     utils.parseNumbersConvert([2]).should.eql([2]);
@@ -142,7 +142,7 @@ suite('Utils', function() {
     utils.parseNumbersConvert([error.na]).should.equal(error.na);
   });
 
-  test('parseNumbersX', function() {
+  test('parseNumbersX', function () {
     utils.parseNumbersA(2, 2).should.equal(error.value);
     utils.parseNumbersA(error.na, error.na).should.equal(error.na);
     utils.parseNumbersX([2], [2]).should.eql([[2],[2]]);
@@ -155,11 +155,11 @@ suite('Utils', function() {
     utils.parseNumbersX([error.na], [error.na]).should.equal(error.na);
   });
 
-  test('parseMatrix', function() {
+  test('parseMatrix', function () {
     utils.parseMatrix(1).should.eql([[1]]);
   });
 
-  suite('parseText', function() {
+  suite('parseText', function () {
     test('returns input string', function () {
       utils.parseText('string').should.equal('string');
     });
@@ -188,7 +188,7 @@ suite('Utils', function() {
     });
   });
 
-  suite('createUTCDate', function() {
+  suite('createUTCDate', function () {
     test('returns Date object for now', function () {
       var date = new Date();
       utils.createUTCDate().should.eql(new Date(date.getTime() - new Date().getTimezoneOffset() * 60000));
@@ -237,7 +237,7 @@ suite('Utils', function() {
     });
   });
 
-  suite('parseDate', function() {
+  suite('parseDate', function () {
     test('returns Date object equal to input Date object', function () {
       utils.parseDate(new Date(2000, 2, 3)).should.eql(new Date(2000, 2, 3));
     });

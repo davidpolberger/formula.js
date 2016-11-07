@@ -51,11 +51,11 @@ suite('Statistical', function () {
   });
 
   suite('AVERAGEA', function () {
-    test('returns average', function() {
+    test('returns average', function () {
       statistical.AVERAGEA(2, 4, 8, 16).should.equal(7.5);
       statistical.AVERAGEA([2, 4], [8, 16]).should.equal(7.5);
     });
-    test('converts to number if possible', function() {
+    test('converts to number if possible', function () {
       statistical.AVERAGEA(2, true).should.equal(1.5);
       statistical.AVERAGEA(2, false).should.equal(1);
       statistical.AVERAGEA(2, '4').should.equal(3);
@@ -576,7 +576,7 @@ suite('Statistical', function () {
   });
 
   suite('MEDIAN', function () {
-    test('accepts standard number arguments', function() {
+    test('accepts standard number arguments', function () {
       statistical.MEDIAN.should.acceptStandardNumberArguments();
     });
     test('returns num error for no numbers', function () {
