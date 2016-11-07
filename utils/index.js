@@ -29,9 +29,6 @@ exports.parseBool = function(value) {
       return false;
     }
   }
-  if (value instanceof Date && !isNaN(value)) {
-    return true;
-  }
   return error.value;
 };
 
@@ -60,7 +57,41 @@ exports.parseNumber = function(value) {
   return error.value;
 };
 
-/*
+/* Parses the arguments to a function that accepts the standard, variable-length numbers.
+ * Returns the input if error, or value error if the input is not an array or is empty.  
+ * Otherwise, returns an array of numbers represented by the array -- including flattening array 
+ * arguments.  Includes numbers and values that can be converted to numbers, and returns value 
+ * error if any does not represent a number. For an array argument, ignores all non-number 
+ * elements -- even values that often are converted to numbers!  For example, ['0'] results in [0],
+ * ['x'] results in value error and both [['0']] and [['x']] result in [].
+ *
+ * Input to this function is expected to be the global arguments object -- for a public (Excel) function.
+ */
+exports.parseNumbersFromArguments = function (args) {
+  if (args.length === 0)
+    return error.value;
+  var numbers = [];
+  for (var i = 0; i < args.length; i++) {
+    var arg = args[i];
+    if (arg instanceof Array) {
+      for (var ii = 0; ii < arg.length; ++ii) {
+        var item = arg[ii];
+        if (typeof (item) === 'number')
+          numbers.push(item);
+      }
+    } else {
+      var number = exports.parseNumber(arg);
+      if (number instanceof Error)
+        return number;
+      numbers.push(number);
+    }
+  }
+  return numbers;
+};
+
+/* TODO: This function is partially if not fully replaced by parseNumbersFromArguments.
+ * NOTE: this function treats values as argument array items -- ignoring non-numbers
+ *
  * 2 -> #value!
  * error -> error
  * [2] -> [2]
@@ -92,7 +123,9 @@ exports.parseNumbers = function(array) {
   return result;
 };
 
-/*
+/* Returns an array of numbers -- one for each input array item.  The number is the input item if 
+ * it is a number or is 1/0 for true/false or otherwise is 0.  Returns the input if it is an error.
+ *
  * 2 -> #value!
  * error -> error
  * [2] -> [2]
@@ -132,7 +165,10 @@ exports.parseNumbersA = function(array) {
   return result;
 };
 
-/*
+/* Returns an array of numbers -- one for each input array item.  The number is the input item if 
+ * it represents (is convertible to) a number.  Returns value error is any value does not represent
+ * a number.  Returns the input if it is an error.
+ *
  * 2 -> #value!
  * error -> error
  * [2] -> [2]
