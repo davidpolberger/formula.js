@@ -22,7 +22,7 @@ suite('Math & Trig', function() {
   });
 
   test('ACOT', function() {
-    mathTrig.ACOT(1).should.approximately(0.7853981633974483, 1e-9);
+    mathTrig.ACOT(1).should.be.approximately(0.7853981633974483, 1e-9);
     mathTrig.ACOT().should.equal(error.value);
     mathTrig.ACOT('invalid').should.equal(error.value);
   });
@@ -42,18 +42,18 @@ suite('Math & Trig', function() {
     mathTrig.AGGREGATE(5, 4, [1, 2, 3]).should.equal(1);
     mathTrig.AGGREGATE(6, 4, [1, 2, 3]).should.equal(6);
     mathTrig.AGGREGATE(7, 4, [1, 2, 3]).should.equal(1);
-    mathTrig.AGGREGATE(8, 4, [1, 2, 3]).should.approximately(0.816496580927726, 1e-9);
+    mathTrig.AGGREGATE(8, 4, [1, 2, 3]).should.be.approximately(0.816496580927726, 1e-9);
     mathTrig.AGGREGATE(9, 4, [1, 2, 3]).should.equal(6);
     mathTrig.AGGREGATE(10, 4, [1, 2, 3]).should.equal(1);
-    mathTrig.AGGREGATE(11, 4, [1, 2, 3]).should.approximately(0.6666666666666666, 1e-9);
+    mathTrig.AGGREGATE(11, 4, [1, 2, 3]).should.be.approximately(0.6666666666666666, 1e-9);
     mathTrig.AGGREGATE(12, 4, [1, 2, 3]).should.equal(2);
     mathTrig.AGGREGATE(13, 4, [1, 2, 3]).should.equal(error.na);
     mathTrig.AGGREGATE(13, 4, [1, 1, 3]).should.equal(1);
     mathTrig.AGGREGATE(14, 4, [1, 2, 3], 2).should.equal(2);
     mathTrig.AGGREGATE(15, 4, [1, 2, 3], 2).should.equal(2);
-    mathTrig.AGGREGATE(16, 4, [1, 2, 3], 0.4).should.approximately(1.8, 1e-9);
+    mathTrig.AGGREGATE(16, 4, [1, 2, 3], 0.4).should.be.approximately(1.8, 1e-9);
     mathTrig.AGGREGATE(17, 4, [1, 2, 3], 2).should.equal(2);
-    mathTrig.AGGREGATE(18, 4, [1, 2, 3], 0.4).should.approximately(1.6, 1e-9);
+    mathTrig.AGGREGATE(18, 4, [1, 2, 3], 0.4).should.be.approximately(1.6, 1e-9);
     mathTrig.AGGREGATE(19, 4, [1, 2, 3], 2).should.equal(2);
     mathTrig.AGGREGATE('invalid', 4, [1, 2, 3], 2).should.equal(error.value);
   });
@@ -68,25 +68,25 @@ suite('Math & Trig', function() {
   });
 
   test('ASIN', function() {
-    mathTrig.ASIN(0.5).should.approximately(0.5235987755982989, 1e-9);
+    mathTrig.ASIN(0.5).should.be.approximately(0.5235987755982989, 1e-9);
     mathTrig.ASIN().should.equal(error.value);
     mathTrig.ASIN('invalid').should.equal(error.value);
   });
 
   test('ASINH', function() {
-    mathTrig.ASINH(0.5).should.approximately(0.48121182505960347, 1e-9);
+    mathTrig.ASINH(0.5).should.be.approximately(0.48121182505960347, 1e-9);
     mathTrig.ASINH().should.equal(error.value);
     mathTrig.ASINH('invalid').should.equal(error.value);
   });
 
   test('ATAN', function() {
-    mathTrig.ATAN(1).should.approximately(0.7853981633974483, 1e-9);
+    mathTrig.ATAN(1).should.be.approximately(0.7853981633974483, 1e-9);
     mathTrig.ATAN().should.equal(error.value);
     mathTrig.ATAN('invalid').should.equal(error.value);
   });
 
   test('ATAN2', function() {
-    mathTrig.ATAN2(1, 1).should.approximately(0.7853981633974483, 1e-9);
+    mathTrig.ATAN2(1, 1).should.be.approximately(0.7853981633974483, 1e-9);
     mathTrig.ATAN2().should.equal(error.value);
     mathTrig.ATAN2(1, 'invalid').should.equal(error.value);
   });
@@ -114,11 +114,11 @@ suite('Math & Trig', function() {
     mathTrig.CEILING(4.1, 2).should.equal(6);
     mathTrig.CEILING(-4.1, 2).should.equal(-4);
     mathTrig.CEILING(-4.1, -2).should.equal(-6);
-    mathTrig.CEILING(1.234, 0.1).should.approximately(1.3, 1e-9);
-    mathTrig.CEILING(-1.234, 0.1).should.approximately(-1.2, 1e-9);
-    mathTrig.CEILING(-1.234, -0.1).should.approximately(-1.3, 1e-9);
-    mathTrig.CEILING(-1.234, -0.01).should.approximately(-1.24, 1e-9);
-    mathTrig.CEILING(-1.234, -0.001).should.approximately(-1.234, 1e-9);
+    mathTrig.CEILING(1.234, 0.1).should.be.approximately(1.3, 1e-9);
+    mathTrig.CEILING(-1.234, 0.1).should.be.approximately(-1.2, 1e-9);
+    mathTrig.CEILING(-1.234, -0.1).should.be.approximately(-1.3, 1e-9);
+    mathTrig.CEILING(-1.234, -0.01).should.be.approximately(-1.24, 1e-9);
+    mathTrig.CEILING(-1.234, -0.001).should.be.approximately(-1.234, 1e-9);
     mathTrig.CEILING(0).should.equal(error.value);
     mathTrig.CEILING('invalid').should.equal(error.value);
     mathTrig.CEILING(0, 'invalid').should.equal(error.value);
@@ -183,13 +183,13 @@ suite('Math & Trig', function() {
   });
 
   test('COT', function() {
-    mathTrig.COT(1).should.approximately(0.6420926159343306, 1e-9);
+    mathTrig.COT(1).should.be.approximately(0.6420926159343306, 1e-9);
     mathTrig.COT().should.equal(error.value);
     mathTrig.COT('invalid').should.equal(error.value);
   });
 
   test('COTH', function() {
-    mathTrig.COTH(1).should.approximately(1.3130352854993312, 1e-9);
+    mathTrig.COTH(1).should.be.approximately(1.3130352854993312, 1e-9);
     mathTrig.COTH().should.equal(error.value);
     mathTrig.COTH('invalid').should.equal(error.value);
   });
@@ -243,8 +243,8 @@ suite('Math & Trig', function() {
     mathTrig.FLOOR(3.7, 2).should.equal(2);
     mathTrig.FLOOR(-2.5, -2).should.equal(-2);
     mathTrig.FLOOR(2.5, -2).should.equal(error.num);
-    mathTrig.FLOOR(1.58, 0.1).should.approximately(1.5, 1e-9);
-    mathTrig.FLOOR(0.234, 0.01).should.approximately(0.23, 1e-9);
+    mathTrig.FLOOR(1.58, 0.1).should.be.approximately(1.5, 1e-9);
+    mathTrig.FLOOR(0.234, 0.01).should.be.approximately(0.23, 1e-9);
     mathTrig.FLOOR(0.234, 0).should.equal(0);
     mathTrig.FLOOR('invalid', 0).should.equal(error.value);
   });
@@ -384,7 +384,7 @@ suite('Math & Trig', function() {
       0.07719200094217188,
       0.04664570803435624,
       0.004409605990471723,
-      0.02262536512022899 ]]).should.approximately(0.20965322387919, 1e-12);
+      0.02262536512022899 ]]).should.be.approximately(0.20965322387919, 1e-12);
   });
 
   test('MOD', function() {
@@ -398,7 +398,7 @@ suite('Math & Trig', function() {
   test('MROUND', function() {
     mathTrig.MROUND(10, 3).should.equal(9);
     mathTrig.MROUND(-10, -3).should.equal(-9);
-    mathTrig.MROUND(1.3, 0.2).should.approximately(1.4000000000000001, 1e-9);
+    mathTrig.MROUND(1.3, 0.2).should.be.approximately(1.4000000000000001, 1e-9);
     mathTrig.MROUND(5, -2).should.equal(error.num);
     mathTrig.MROUND(5, 'invalid').should.equal(error.value);
   });
@@ -433,8 +433,8 @@ suite('Math & Trig', function() {
 
   test('POWER', function() {
     mathTrig.POWER(5, 2).should.equal(25);
-    mathTrig.POWER(98.6, 3.2).should.approximately(2401077.2220695773, 1e-9);
-    mathTrig.POWER(4, 5 / 4).should.approximately(5.656854249492381, 1e-9);
+    mathTrig.POWER(98.6, 3.2).should.be.approximately(2401077.2220695773, 1e-9);
+    mathTrig.POWER(4, 5 / 4).should.be.approximately(5.656854249492381, 1e-9);
     mathTrig.POWER(-1, 0.5).should.equal(error.num);
     mathTrig.POWER(-1, 'invalid').should.equal(error.value);
   });
@@ -507,15 +507,15 @@ suite('Math & Trig', function() {
   });
 
   test('SEC', function() {
-    mathTrig.SEC(45).should.approximately(1.9035944074044246, 1e-9);
-    mathTrig.SEC(30).should.approximately(6.482921234962678, 1e-9);
+    mathTrig.SEC(45).should.be.approximately(1.9035944074044246, 1e-9);
+    mathTrig.SEC(30).should.be.approximately(6.482921234962678, 1e-9);
     mathTrig.SEC().should.equal(error.value);
     mathTrig.SEC('invalid').should.equal(error.value);
   });
 
   test('SECH', function() {
-    mathTrig.SECH(45).should.approximately(5.725037161098787e-20, 1e-9);
-    mathTrig.SECH(30).should.approximately(1.8715245937680347e-13, 1e-9);
+    mathTrig.SECH(45).should.be.approximately(5.725037161098787e-20, 1e-9);
+    mathTrig.SECH(30).should.be.approximately(1.8715245937680347e-13, 1e-9);
     mathTrig.SECH().should.equal(error.value);
     mathTrig.SECH('invalid').should.equal(error.value);
   });
@@ -524,7 +524,7 @@ suite('Math & Trig', function() {
     mathTrig.SERIESSUM(mathTrig.PI() / 4, 0, 2, [
       1, -1 / mathTrig.FACT(2),
       1 / mathTrig.FACT(4), -1 / mathTrig.FACT(6)
-    ]).should.approximately(0.7071032148228457, 1e-9);
+    ]).should.be.approximately(0.7071032148228457, 1e-9);
     mathTrig.SERIESSUM(1, 2, 3, 'invalid').should.equal(error.value);
   });
 
@@ -543,7 +543,7 @@ suite('Math & Trig', function() {
   });
 
   test('SINH', function() {
-    mathTrig.SINH(1).should.approximately(1.1752011936438014, 1e-9); // the golden ratio: http://mathworld.wolfram.com/HyperbolicSine.html
+    mathTrig.SINH(1).should.be.approximately(1.1752011936438014, 1e-9); // the golden ratio: http://mathworld.wolfram.com/HyperbolicSine.html
     mathTrig.SINH().should.equal(error.value);
     mathTrig.SINH('invalid').should.equal(error.value);
   });
@@ -556,7 +556,7 @@ suite('Math & Trig', function() {
   });
 
   test('SQRTPI', function() {
-    mathTrig.SQRTPI(3).should.approximately(3.0699801238394655, 1e-9);
+    mathTrig.SQRTPI(3).should.be.approximately(3.0699801238394655, 1e-9);
     mathTrig.SQRTPI(-1).should.equal(error.num);
     mathTrig.SQRTPI('invalid').should.equal(error.value);
   });
@@ -569,10 +569,10 @@ suite('Math & Trig', function() {
     mathTrig.SUBTOTAL(5, [1, 2, 3]).should.equal(1);
     mathTrig.SUBTOTAL(6, [1, 2, 3]).should.equal(6);
     mathTrig.SUBTOTAL(7, [1, 2, 3]).should.equal(1);
-    mathTrig.SUBTOTAL(8, [1, 2, 3]).should.approximately(0.816496580927726, 1e-9);
+    mathTrig.SUBTOTAL(8, [1, 2, 3]).should.be.approximately(0.816496580927726, 1e-9);
     mathTrig.SUBTOTAL(9, [1, 2, 3]).should.equal(6);
     mathTrig.SUBTOTAL(10, [1, 2, 3]).should.equal(1);
-    mathTrig.SUBTOTAL(11, [1, 2, 3]).should.approximately(0.6666666666666666, 1e-9);
+    mathTrig.SUBTOTAL(11, [1, 2, 3]).should.be.approximately(0.6666666666666666, 1e-9);
     mathTrig.SUBTOTAL(101, [1, 2, 3]).should.equal(2);
     mathTrig.SUBTOTAL(102, [1, 2, 3, 'does not count']).should.equal(3);
     mathTrig.SUBTOTAL(103, [1, 2, 3, 'counts']).should.equal(4);
@@ -580,11 +580,12 @@ suite('Math & Trig', function() {
     mathTrig.SUBTOTAL(105, [1, 2, 3]).should.equal(1);
     mathTrig.SUBTOTAL(106, [1, 2, 3]).should.equal(6);
     mathTrig.SUBTOTAL(107, [1, 2, 3]).should.equal(1);
-    mathTrig.SUBTOTAL(108, [1, 2, 3]).should.approximately(0.816496580927726, 1e-9);
+    mathTrig.SUBTOTAL(108, [1, 2, 3]).should.be.approximately(0.816496580927726, 1e-9);
     mathTrig.SUBTOTAL(109, [1, 2, 3]).should.equal(6);
     mathTrig.SUBTOTAL(110, [1, 2, 3]).should.equal(1);
-    mathTrig.SUBTOTAL(111, [1, 2, 3]).should.approximately(0.6666666666666666, 1e-9);
+    mathTrig.SUBTOTAL(111, [1, 2, 3]).should.be.approximately(0.6666666666666666, 1e-9);
     mathTrig.SUBTOTAL('invalid', [1, 2, 3]).should.equal(error.value);
+    mathTrig.SUBTOTAL().should.equal(error.value);
   });
 
   test('SUM', function() {
@@ -663,7 +664,7 @@ suite('Math & Trig', function() {
       [0.55],
       [0.3],
       [0.1]
-    ]).should.approximately(2.75, 1e-9);
+    ]).should.be.approximately(2.75, 1e-9);
 
     mathTrig.SUMPRODUCT([
       1,
@@ -673,7 +674,7 @@ suite('Math & Trig', function() {
       0.55,
       0.3,
       0.1
-    ]).should.approximately(2.75, 1e-9);
+    ]).should.be.approximately(2.75, 1e-9);
 
     mathTrig.SUMPRODUCT([
       [3, 4],
@@ -724,18 +725,18 @@ suite('Math & Trig', function() {
   });
 
   test('TAN', function() {
-    mathTrig.TAN(0.785).should.approximately(0.9992039901050427, 1e-9);
-    mathTrig.TAN(45*mathTrig.PI()/180).should.approximately(1, 1e-9);
-    mathTrig.TAN(mathTrig.RADIANS(45)).should.approximately(1, 1e-9);
+    mathTrig.TAN(0.785).should.be.approximately(0.9992039901050427, 1e-9);
+    mathTrig.TAN(45*mathTrig.PI()/180).should.be.approximately(1, 1e-9);
+    mathTrig.TAN(mathTrig.RADIANS(45)).should.be.approximately(1, 1e-9);
     mathTrig.TANH(error.na).should.equal(error.na);
     mathTrig.TAN().should.equal(error.value);
     mathTrig.TAN('invalid').should.equal(error.value);
   });
 
   test('TANH', function() {
-    mathTrig.TANH(-2).should.approximately(-0.9640275800758168, 1e-9);
+    mathTrig.TANH(-2).should.be.approximately(-0.9640275800758168, 1e-9);
     mathTrig.TANH(0).should.equal(0);
-    mathTrig.TANH(0.5).should.approximately(0.46211715726000974, 1e-9);
+    mathTrig.TANH(0.5).should.be.approximately(0.46211715726000974, 1e-9);
     mathTrig.TANH(error.na).should.equal(error.na);
     mathTrig.TANH().should.equal(error.value);
     mathTrig.TANH('invalid').should.equal(error.value);
