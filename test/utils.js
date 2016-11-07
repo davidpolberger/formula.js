@@ -41,10 +41,6 @@ suite('Utils', function() {
     test('returns value error for invalid string', function () {
       utils.parseBool('xyz').should.equal(error.value);
     });
-    test('returns true for Date object', function () {
-      //TODO: I think the result should be value.error. Note that excel returns false for ISLOGICAL(DATE(2000,1,1))
-      utils.parseBool(new Date()).should.equal(true);
-    });
     test('returns true for NaN', function () {
       //TODO: I think the result should be value.error
       utils.parseBool(NaN).should.equal(true);
@@ -80,9 +76,9 @@ suite('Utils', function() {
     });
   });
 
-  test('parseNumbers', function() {
-    utils.parseNumbers(2).should.eql(error.value);
-    utils.parseNumbers(error.na).should.eql(error.na);
+  test('parseNumbers', function () {
+    utils.parseNumbers(2).should.equal(error.value);
+    utils.parseNumbers(error.na).should.equal(error.na);
     utils.parseNumbers([2]).should.eql([2]);
     utils.parseNumbers(['2']).should.eql([]);
     utils.parseNumbers(['string']).should.eql([]);
@@ -90,12 +86,39 @@ suite('Utils', function() {
     utils.parseNumbers([false]).should.eql([]);
     utils.parseNumbers([null]).should.eql([]);
     utils.parseNumbers([undefined]).should.eql([]);
-    utils.parseNumbers([error.na]).should.eql(error.na);
+    utils.parseNumbers([error.na]).should.equal(error.na);
+  });
+
+  suite('parseNumbersFromArguments', function () {
+    test('returns array with numeric args', function () {
+      utils.parseNumbersFromArguments([1, 2, 3]).should.eql([1, 2, 3]);
+    });
+    test('converts arg to number', function () {
+      utils.parseNumbersFromArguments(['123']).should.eql([123]);
+      utils.parseNumbersFromArguments([true]).should.eql([1]);
+      utils.parseNumbersFromArguments([false]).should.eql([0]);
+    });
+    test('flattens array args', function () {
+      utils.parseNumbersFromArguments([[1, 2], [3, 4]]).should.eql([1, 2, 3, 4]);
+    });
+    test('ignores non-number in array arg', function () {
+      utils.parseNumbersFromArguments([['x']]).should.eql([]);
+      utils.parseNumbersFromArguments([['2']]).should.eql([]);
+      utils.parseNumbersFromArguments([[true]]).should.eql([]);
+      utils.parseNumbersFromArguments([[false]]).should.eql([]);
+    });
+    test('returns value error for no args', function () {
+      utils.parseNumbersFromArguments([]).should.equal(error.value);
+    });
+    test('returns first error item', function () {
+      var e = new Error();
+      utils.parseNumbersFromArguments([0, e, new Error()]).should.equal(e);
+    });
   });
 
   test('parseNumbersA', function() {
-    utils.parseNumbersA(2).should.eql(error.value);
-    utils.parseNumbersA(error.na).should.eql(error.na);
+    utils.parseNumbersA(2).should.equal(error.value);
+    utils.parseNumbersA(error.na).should.equal(error.na);
     utils.parseNumbersA([2]).should.eql([2]);
     utils.parseNumbersA(['2']).should.eql([0]);
     utils.parseNumbersA(['string']).should.eql([0]);
@@ -103,25 +126,25 @@ suite('Utils', function() {
     utils.parseNumbersA([false]).should.eql([0]);
     utils.parseNumbersA([null]).should.eql([]);
     utils.parseNumbersA([undefined]).should.eql([]);
-    utils.parseNumbersA([error.na]).should.eql(error.na);
+    utils.parseNumbersA([error.na]).should.equal(error.na);
   });
 
   test('parseNumbersConvert', function() {
-    utils.parseNumbersConvert(2).should.eql(error.value);
-    utils.parseNumbersConvert(error.na).should.eql(error.na);
+    utils.parseNumbersConvert(2).should.equal(error.value);
+    utils.parseNumbersConvert(error.na).should.equal(error.na);
     utils.parseNumbersConvert([2]).should.eql([2]);
     utils.parseNumbersConvert(['2']).should.eql([2]);
-    utils.parseNumbersConvert(['string']).should.eql(error.value);
-    utils.parseNumbersConvert([true]).should.eql(error.value);
-    utils.parseNumbersConvert([false]).should.eql(error.value);
+    utils.parseNumbersConvert(['string']).should.equal(error.value);
+    utils.parseNumbersConvert([true]).should.equal(error.value);
+    utils.parseNumbersConvert([false]).should.equal(error.value);
     utils.parseNumbersConvert([null]).should.eql([0]);
     utils.parseNumbersConvert([undefined]).should.eql([0]);
-    utils.parseNumbersConvert([error.na]).should.eql(error.na);
+    utils.parseNumbersConvert([error.na]).should.equal(error.na);
   });
 
   test('parseNumbersX', function() {
-    utils.parseNumbersA(2, 2).should.eql(error.value);
-    utils.parseNumbersA(error.na, error.na).should.eql(error.na);
+    utils.parseNumbersA(2, 2).should.equal(error.value);
+    utils.parseNumbersA(error.na, error.na).should.equal(error.na);
     utils.parseNumbersX([2], [2]).should.eql([[2],[2]]);
     utils.parseNumbersX(['2'], ['2']).should.eql([[], []]);
     utils.parseNumbersX(['string'], ['string']).should.eql([[], []]);
@@ -129,7 +152,7 @@ suite('Utils', function() {
     utils.parseNumbersX([false], [false]).should.eql([[], []]);
     utils.parseNumbersX([null], [null]).should.eql([[], []]);
     utils.parseNumbersX([undefined], [undefined]).should.eql([[], []]);
-    utils.parseNumbersX([error.na], [error.na]).should.eql(error.na);
+    utils.parseNumbersX([error.na], [error.na]).should.equal(error.na);
   });
 
   test('parseMatrix', function() {
@@ -228,10 +251,10 @@ suite('Utils', function() {
       utils.parseDate('2/3/2000 13:00').should.eql(new Date(Date.parse('2000-2-3 13:00 GMT')));
     });
     test('returns num error for negative number', function () {
-      utils.parseDate(-1).should.eql(error.num);
+      utils.parseDate(-1).should.equal(error.num);
     });
     test('returns value error for invalid date format', function () {
-      utils.parseDate('0/0/0').should.eql(error.value);
+      utils.parseDate('0/0/0').should.equal(error.value);
     });
   });
 
