@@ -185,14 +185,13 @@ suite('Utils', function () {
       utils.parseText(error.na).should.equal(error.na);
     });
     test('returns blank for null', function () {
-      //TODO: should this return an error instead?
       utils.parseText(null).should.equal('');
     });
     test('returns blank for undefined', function () {
       //TODO: should this return an error instead?
       utils.parseText().should.equal('');
     });
-    test('returns value error for an array', function () {
+    test('returns value error for other types', function () {
       utils.parseText([1]).should.equal(error.value);
     });
   });
