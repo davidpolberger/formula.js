@@ -58,14 +58,15 @@ exports.parseNumber = function(value) {
 
 /**
  * Parses the arguments to a function that accepts the standard, variable-length numbers.
- * Returns the input if error, or value error if the input is not an array or is empty.  
- * Otherwise, returns an array of numbers represented by the array -- including flattening array 
- * arguments.  Includes numbers and values that can be converted to numbers, and returns value 
- * error if any does not represent a number. For an array argument, ignores all non-number 
- * elements -- even values that often are converted to numbers!  For example, ['0'] results in [0],
+ * Returns value error if the input is empty.  Otherwise, returns an array of numbers represented
+ * by the arguments -- including flattening array arguments.  For non-array arguments, includes 
+ * numbers and values that can be converted to numbers, and returns value error if any value does 
+ * not represent a number.  For an array argument, ignores all non-number elements -- even values 
+ * that in other contexts are usually converted to numbers!  For example, ['0'] results in [0], 
  * ['x'] results in value error and both [['0']] and [['x']] result in [].
  *
- * Input to this function is expected to be the global arguments object -- for a public (Excel) function.
+ * Input to this function can be the global arguments object (and often is for a public Excel 
+ * function), but can be an Array instead.
  */
 exports.parseNumbersFromArguments = function (args) {
   if (args.length === 0)
