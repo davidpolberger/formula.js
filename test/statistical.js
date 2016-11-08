@@ -13,32 +13,31 @@ suite('Statistical', function () {
     this.params = {
       operator: 'to accept number arguments'
     };
-    var result = this.obj();
-    result.should.equal(error.value, 'expected value error for no args; actual=' + result);
-    var badArgs = [null, ['x'], ['x', 0]];
+    this.obj.should.throw();
+    var badArgs = [['x'], ['x', 0]];
     for (var i = 0; i < badArgs.length; ++i) {
       var args = badArgs[i];
       var result = this.obj.apply(this, args);
       result.should.equal(error.value, 'expected value error for input=' + args + '; actual=' + result);
     }
-    var goodArgs = [[0.1], [0, 0], [[0]], [[0, 0]]];
-    for (var i = 0; i < goodArgs.length; ++i) {
-      var args = goodArgs[i];
-      var result = this.obj.apply(this, args);
-      result.should.not.be.instanceOf(Error, 'expected no error for input: ' + args + '; actual=' + result);
-    }
   });
 
-  test('AVEDEV', function () {
-    statistical.AVEDEV(2, 4, 8, 16).should.be.approximately(4.5, 1e-9);
-    statistical.AVEDEV([2, 4, 8, 16]).should.be.approximately(4.5, 1e-9);
-    statistical.AVEDEV([2, 4], [8, 16]).should.be.approximately(4.5, 1e-9);
-    statistical.AVEDEV([[2, 4],[8, 16]]).should.be.approximately(4.5, 1e-9);
-    statistical.AVEDEV([2, 'invalid'], [8, 16]).should.be.approximately(4.888888888888888, 1e-9);
+  suite('AVEDEV', function () {
+    test('calculates', function() {
+      statistical.AVEDEV(2, 4, 8, 16).should.be.approximately(4.5, 1e-9);
+      statistical.AVEDEV([2, 4], [8, 16]).should.be.approximately(4.5, 1e-9);
+      statistical.AVEDEV([2, 'invalid'], [8, 16]).should.be.approximately(4.888888888888888, 1e-9);
+    });
+    test('accepts standard number arguments', function () {
+      statistical.AVEDEV.should.acceptStandardNumberArguments();
+    });
+    test('returns num error for no numbers', function () {
+      statistical.AVEDEV(['x']).should.equal(error.num);
+    });
   });
 
   suite('AVERAGE', function () {
-    test('returns average', function () {
+    test('calculates', function () {
       statistical.AVERAGE(2, 4, 8, 16).should.equal(7.5);
       statistical.AVERAGE([2, 4], ['x', true, false, 8, 16]).should.equal(7.5);
     });
@@ -51,7 +50,7 @@ suite('Statistical', function () {
   });
 
   suite('AVERAGEA', function () {
-    test('returns average', function () {
+    test('calculates', function () {
       statistical.AVERAGEA(2, 4, 8, 16).should.equal(7.5);
       statistical.AVERAGEA([2, 4], [8, 16]).should.equal(7.5);
     });
@@ -71,6 +70,9 @@ suite('Statistical', function () {
     });
     test('returns 0 for no numbers', function () {
       statistical.AVERAGEA(['x']).should.equal(0);
+    });
+    test('throws for no arguments', function () {
+      statistical.AVERAGEA.should.throw();
     });
   });
 

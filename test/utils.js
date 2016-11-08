@@ -107,8 +107,8 @@ suite('Utils', function () {
       utils.parseNumbersFromArguments([[true]]).should.eql([]);
       utils.parseNumbersFromArguments([[false]]).should.eql([]);
     });
-    test('returns value error for no args', function () {
-      utils.parseNumbersFromArguments([]).should.equal(error.value);
+    test('throws for no args', function () {
+      (function () { utils.parseNumbersFromArguments([]); }).should.throw();
     });
     test('returns first error item', function () {
       var e = new Error();

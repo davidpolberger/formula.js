@@ -58,7 +58,7 @@ exports.parseNumber = function(value) {
 
 /**
  * Parses the arguments to a function that accepts the standard, variable-length numbers.
- * Returns value error if the input is empty.  Otherwise, returns an array of numbers represented
+ * Throws if the input is empty.  Otherwise, returns an array of numbers represented
  * by the arguments -- including flattening array arguments.  For non-array arguments, includes 
  * numbers and values that can be converted to numbers, and returns value error if any value does 
  * not represent a number.  For an array argument, ignores all non-number elements -- even values 
@@ -70,7 +70,7 @@ exports.parseNumber = function(value) {
  */
 exports.parseNumbersFromArguments = function (args) {
   if (args.length === 0)
-    return error.value;
+    throw new Error('Missing number argument.');
   var numbers = [];
   for (var i = 0; i < args.length; i++) {
     var arg = args[i];
