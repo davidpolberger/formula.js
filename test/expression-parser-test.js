@@ -1,5 +1,5 @@
+var evalExpr = require('../lib/expression-parser');
 var should = require('should');
-var evalExpr = require('../utils/expression-parser');
 
 suite('expression-parser', function () {
   test('returns literal value', function () {

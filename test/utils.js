@@ -1,5 +1,5 @@
-var utils = require('../utils');
 var should = require('should');
+var utils = require('../lib/utils');
 var error = require('../lib/error');
 
 suite('Utils', function () {
@@ -30,7 +30,7 @@ suite('Utils', function () {
       utils.parseBool('TRUE').should.equal(true);
       utils.parseBool('true').should.equal(true);
     });
-    test('returns true for string false', function () {
+    test('returns false for string false', function () {
       utils.parseBool('FALSE').should.equal(false);
       utils.parseBool('false').should.equal(false);
     });

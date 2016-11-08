@@ -1,7 +1,7 @@
 var error = require('../lib/error');
 var dateTime = require('../lib/date-time');
 var should = require('should');
-var utils = require('../utils/index');
+var utils = require('../lib/utils');
 
 suite('Date & Time', function () {
 
