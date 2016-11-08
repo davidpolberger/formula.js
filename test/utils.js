@@ -65,17 +65,17 @@ suite('Utils', function () {
     test('returns 0 for false', function () {
       utils.parseNumber(false).should.equal(0);
     });
-    test('returns value error for undefined', function () {
-      utils.parseNumber().should.equal(error.value);
+    test('returns 0 for null', function () {
+      utils.parseNumber(null).should.equal(0);
     });
-    test('returns value error for null', function () {
-      utils.parseNumber(null).should.equal(error.value);
-    });
-    test('returns value error for non-number string', function () {
+    test('returns value error for value not representing a number', function () {
+      utils.parseNumber(undefined).should.equal(error.value);
+      utils.parseNumber('').should.equal(error.value);
       utils.parseNumber('xyz').should.equal(error.value);
     });
     test('returns input error', function () {
-      utils.parseNumber(error.na).should.equal(error.na);
+      var error = new Error();
+      utils.parseNumber(error).should.equal(error);
     });
   });
 
