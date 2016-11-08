@@ -18,6 +18,9 @@ suite('Utils', function () {
       utils.parseBool(true).should.equal(true);
       utils.parseBool(false).should.equal(false);
     });
+    test('returns false for null', function () {
+      utils.parseBool(null).should.equal(false);
+    });
     test('returns false for 0', function () {
       utils.parseBool(0).should.equal(false);
     });
