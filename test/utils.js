@@ -89,6 +89,12 @@ suite('Utils', function () {
     utils.parseNumbers([error.na]).should.equal(error.na);
   });
 
+  suite('selectNumbersFromArray', function () {
+    test('excludes non-number values', function () {
+      utils.selectNumbersFromArray([1, 'x', true, false, [3], 2]).should.eql([1, 2]);
+    });
+  });
+
   suite('parseNumbersFromArguments', function () {
     test('returns array with numeric args', function () {
       utils.parseNumbersFromArguments([1, 2, 3]).should.eql([1, 2, 3]);

@@ -57,6 +57,19 @@ exports.parseNumber = function(value) {
 };
 
 /**
+ * Returns an array of numbers from an input array -- skipping each non-number of the input.
+ */
+exports.selectNumbersFromArray = function (array) {
+  var numbers = [];
+  for (var i = 0; i < array.length; ++i) {
+    var item = array[i];
+    if (typeof (item) === 'number')
+      numbers.push(item);
+  }
+  return numbers;
+}
+
+/**
  * Parses the arguments to a function that accepts the standard, variable-length numbers.
  * Throws if the input is empty.  Otherwise, returns an array of numbers represented
  * by the arguments -- including flattening array arguments.  For non-array arguments, includes 
@@ -75,11 +88,7 @@ exports.parseNumbersFromArguments = function (args) {
   for (var i = 0; i < args.length; i++) {
     var arg = args[i];
     if (arg instanceof Array) {
-      for (var ii = 0; ii < arg.length; ++ii) {
-        var item = arg[ii];
-        if (typeof (item) === 'number')
-          numbers.push(item);
-      }
+      numbers = numbers.concat(exports.selectNumbersFromArray(arg));
     } else {
       var number = exports.parseNumber(arg);
       if (number instanceof Error)
@@ -423,3 +432,8 @@ exports.parseText = function(value) {
   }
   return error.value;
 };
+
+exports.validateRequiredArg = function(arg, name) {
+  if (arg === undefined)
+    throw new Error('Missing ' + (name || 'argument') + '.');
+}

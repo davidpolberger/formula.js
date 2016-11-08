@@ -47,7 +47,9 @@ function do_eval(node, variables) {
   } else if (node.type === 'Literal') {
     return node.value;
   } else if (node.type === 'Identifier') {
-    return variables ? variables[node.name] : undefined;
+    return node.name;
+    // NOTE: Excel treats undecorated text as a string literal -- not an identifier
+    //return variables ? variables[node.name] : undefined;
   } else {
     throw new Error('Unsupported expr node', node);
   }

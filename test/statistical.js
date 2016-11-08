@@ -76,17 +76,36 @@ suite('Statistical', function () {
     });
   });
 
-  test('AVERAGEIF', function () {
-    statistical.AVERAGEIF([2, 4, 8, 16], '>5').should.equal(12);
-    statistical.AVERAGEIF([2, 4, 8, 16], '>5', [1, 2, 3, 4]).should.be.approximately(3.5, 1e-9);
-    statistical.AVERAGEIF([
-      [2, 4],
-      [8, 16]
-    ], '>5', [
-      [1, 2],
-      [3, 4]
-    ]).should.be.approximately(3.5, 1e-9);
-    statistical.AVERAGEIF(['invalid'], '>5').should.equal(error.div0);
+  suite('AVERAGEIF', function () {
+    test('averages values that pass filter', function () {
+      statistical.AVERAGEIF([2, 4, 8, 16], '>5').should.equal(12);
+    });
+    test('averages values selected by test values that pass filter', function () {
+      statistical.AVERAGEIF([2, 4, 8, 16], '>5', [1, 2, 3, 4]).should.be.approximately(3.5, 1e-9);
+    });
+    test('selects by text matching', function () {
+      statistical.AVERAGEIF(['a', 'b', 'c'], '=b', [2, 3, 5]).should.be.approximately(3, 1e-9);
+    });
+    test('ignores non-numbers for calculating average', function () {
+      statistical.AVERAGEIF([2, 'x', '8', true, false, 16], '>5').should.equal(16);
+      statistical.AVERAGEIF([2, 4], '>0', ['x', 2]).should.be.approximately(2, 1e-9);
+    });
+    test('supports single item', function () {
+      statistical.AVERAGEIF(6, '1').should.equal(6);
+      statistical.AVERAGEIF(6, '1', 4).should.equal(4);
+    });
+    test('throws for array count mismatch', function () {
+      (function () { statistical.AVERAGEIF([1, 2, 3], '>0', [1, 2]); }).should.throw();
+      (function () { statistical.AVERAGEIF(1, '>0', [1, 2]); }).should.throw();
+      (function () { statistical.AVERAGEIF([1, 2], '>0', 1); }).should.throw();
+    });
+    test('throws for missing arg', function () {
+      statistical.AVERAGEIF.should.throw();
+      (function () { statistical.AVERAGEIF([]); }).should.throw();
+    });
+    test('returns div0 error for no values that pass filter', function () {
+      statistical.AVERAGEIF([4], '>5').should.equal(error.div0);
+    });
   });
 
   test('AVERAGEIFS', function () {
