@@ -232,8 +232,8 @@ suite('Utils', function () {
       utils.parseNumbersFromArguments([[true]]).should.eql([]);
       utils.parseNumbersFromArguments([[false]]).should.eql([]);
     });
-    test('throws for no args', function () {
-      (function () { utils.parseNumbersFromArguments([]); }).should.throw();
+    test('returns empty for empty', function () {
+      utils.parseNumbersFromArguments([]).should.eql([]);
     });
     test('returns first error item', function () {
       var e = new Error();

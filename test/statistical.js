@@ -6,14 +6,13 @@ var should = require('should');
 suite('Statistical', function () {
 
   /**
-   * Ensures that a function returns value error if no arguments or any argument does not represent
-   * a number or is not an array.
+   * Ensures that a function returns value error if any argument does not represent a number or is
+   * not an array.
    */
   should.Assertion.add('acceptStandardNumberArguments', function () {
     this.params = {
       operator: 'to accept number arguments'
     };
-    this.obj.should.throw();
     var badArgs = [['x'], ['x', 0]];
     for (var i = 0; i < badArgs.length; ++i) {
       var args = badArgs[i];
@@ -32,6 +31,7 @@ suite('Statistical', function () {
       statistical.AVEDEV.should.acceptStandardNumberArguments();
     });
     test('returns num error for no numbers', function () {
+      statistical.AVEDEV().should.equal(error.num);
       statistical.AVEDEV(['x']).should.equal(error.num);
     });
   });
@@ -45,6 +45,7 @@ suite('Statistical', function () {
       statistical.AVERAGE.should.acceptStandardNumberArguments();
     });
     test('returns div0 error for no numbers', function () {
+      statistical.AVERAGE().should.equal(error.div0);
       statistical.AVERAGE(['x']).should.equal(error.div0);
     });
   });
@@ -563,6 +564,7 @@ suite('Statistical', function () {
       statistical.MAX.should.acceptStandardNumberArguments();
     });
     test('returns 0 for no numbers', function () {
+      statistical.MAX().should.equal(0);
       statistical.MAX(['x']).should.equal(0);
     });
   });
@@ -579,6 +581,7 @@ suite('Statistical', function () {
       statistical.MEDIAN.should.acceptStandardNumberArguments();
     });
     test('returns num error for no numbers', function () {
+      statistical.MEDIAN().should.equal(error.num);
       statistical.MEDIAN(['x']).should.equal(error.num);
     });
     test('returns middle value', function () {
@@ -599,6 +602,7 @@ suite('Statistical', function () {
       statistical.MIN.should.acceptStandardNumberArguments();
     });
     test('returns 0 for no numbers', function () {
+      statistical.MIN().should.equal(0);
       statistical.MIN(['x']).should.equal(0);
     });
   });
