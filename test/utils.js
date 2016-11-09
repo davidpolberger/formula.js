@@ -3,39 +3,159 @@ var utils = require('../lib/utils');
 var error = require('../lib/error');
 
 suite('Utils', function () {
+  suite('parseCriteria returns function that', function () {
+    test('evaluates equal operator', function () {
+      utils.parseCriteria('=0')(1).should.be.false();
+      utils.parseCriteria('=1')(1).should.be.true();
+      utils.parseCriteria('=2')(1).should.be.false();
+    });
+    test('evaluates not-equal operator', function () {
+      utils.parseCriteria('<>0')(1).should.be.true();
+      utils.parseCriteria('<>1')(1).should.be.false();
+      utils.parseCriteria('<>2')(1).should.be.true();
+    });
+    test('evaluates greater-than operator', function () {
+      utils.parseCriteria('>0')(1).should.be.true();
+      utils.parseCriteria('>1')(1).should.be.false();
+      utils.parseCriteria('>2')(1).should.be.false();
+    });
+    test('evaluates less-than operator', function () {
+      utils.parseCriteria('<0')(1).should.be.false();
+      utils.parseCriteria('<1')(1).should.be.false();
+      utils.parseCriteria('<2')(1).should.be.true();
+    });
+    test('evaluates greater-than-or-equal operator', function () {
+      utils.parseCriteria('>=0')(1).should.be.true();
+      utils.parseCriteria('>=1')(1).should.be.true();
+      utils.parseCriteria('>=2')(1).should.be.false();
+    });
+    test('evaluates less-than-or-equal operator', function () {
+      utils.parseCriteria('<=0')(1).should.be.false();
+      utils.parseCriteria('<=1')(1).should.be.true();
+      utils.parseCriteria('<=2')(1).should.be.true();
+    });
+    test('uses equal operator if right not prefixed with operator', function () {
+      utils.parseCriteria('1')(1).should.be.true();
+      utils.parseCriteria('2')(1).should.be.false();
+    });
+
+    //TODO: inline this ... too busy to do that right now
+    function evalComparison(left, criteria) {
+      return utils.parseCriteria(criteria)(left);
+    }
+
+    test('equals compares number string as number', function () {
+      evalComparison(1, '=1.0').should.be.true();
+      evalComparison(1, '= 1.0 ').should.be.true();
+      evalComparison(1, '1.0').should.be.true();
+      evalComparison(1, ' 1.0 ').should.be.true();
+      evalComparison('1.0', 1).should.be.true();
+      evalComparison(' 1.0 ', 1).should.be.true();
+      evalComparison('1.0', '1.00').should.be.true();
+    });
+    test('not-equals compares number string as number', function () {
+      evalComparison(1, '<>1.0').should.be.false();
+      evalComparison(1, '<> 1.0 ').should.be.false();
+    });
+    test('compares boolean to boolean', function () {
+      evalComparison(true, true).should.be.true();
+      evalComparison(false, false).should.be.true();
+      evalComparison(true, false).should.be.false();
+      evalComparison(false, true).should.be.false();
+    });
+    test('matches strings', function () {
+      evalComparison('a', 'a').should.be.true();
+      evalComparison('a', '<>a').should.be.false();
+      evalComparison('a', 'b').should.be.false();
+      evalComparison('a', '<>b').should.be.true();
+    });
+    test('matches strings ignoring case', function () {
+      evalComparison('abc', 'AbC').should.be.true();
+    });
+    test('compares strings alphabetically', function () {
+      evalComparison('b', '>a').should.be.true();
+      evalComparison('a', '<b').should.be.true();
+      evalComparison('b', '>=a').should.be.true();
+      evalComparison('a', '<=b').should.be.true();
+    });
+    test('compares boolean string criteria value as boolean', function () {
+      evalComparison(true, 'true').should.be.true();
+      evalComparison(true, 'TrUe').should.be.true();
+      evalComparison(false, 'false').should.be.true();
+      evalComparison(false, 'FaLsE').should.be.true();
+    });
+    test('true/false strings do not equal self!!', function () {
+      //NOTE: this behavior occurs since the boolean string is converted to boolean (type) before 
+      // tested against string value.  This is Excel behavior!!
+      evalComparison('true', 'true').should.be.false();
+      evalComparison('false', 'false').should.be.false();
+    });
+    test('does _not_ compare common boolean synonyms left value as boolean', function () {
+      evalComparison('true', true).should.be.false();
+      evalComparison('false', false).should.be.false();
+      evalComparison(1, true).should.be.false();
+      evalComparison(0, false).should.be.false();
+    });
+    test('does _not_ convert 0/1 criteria value to boolean', function () {
+      evalComparison(true, 1).should.be.false();
+      evalComparison(false, 0).should.be.false();
+    });
+    test('compares (=) to blank for blank right', function () {
+      evalComparison('', '').should.be.true();
+      evalComparison('x', '').should.be.false();
+    });
+    test('compares to blank for just operator right', function () {
+      evalComparison('', '=').should.be.true();
+      evalComparison('x', '=').should.be.false();
+      evalComparison('', '<>').should.be.false();
+      evalComparison('x', '<>').should.be.true();
+    });
+    test('compares to blank for null criteria', function () {
+      evalComparison('', null).should.be.true();
+      evalComparison('x', null).should.be.false();
+    });
+    test('compares to blank for null left', function () {
+      evalComparison(null, '').should.be.true();
+      evalComparison(null, 'x').should.be.false();
+    });
+  });
+  suite('applyCriteriaToValues', function () {
+    test('returns result for each input value', function () {
+      utils.applyCriteriaToValues([], null).should.eql([]);
+      utils.applyCriteriaToValues([1, 2, 3], 2).should.eql([false, true, false]);
+    });
+  });
   test('argsToArray', function () {
     (function () {
       should.deepEqual(utils.argsToArray(arguments), [1, 2, 3]);
     })(1, 2, 3);
   });
-
   test('cleanFloat', function () {
     utils.cleanFloat(3.0999999999999996).should.equal(3.1);
   });
-
   suite('parseBool', function () {
     test('returns input boolean', function () {
-      utils.parseBool(true).should.equal(true);
-      utils.parseBool(false).should.equal(false);
+      utils.parseBool(true).should.be.true();
+      utils.parseBool(false).should.be.false();
     });
     test('returns false for null', function () {
-      utils.parseBool(null).should.equal(false);
+      utils.parseBool(null).should.be.false();
     });
     test('returns false for 0', function () {
-      utils.parseBool(0).should.equal(false);
+      utils.parseBool(0).should.be.false();
     });
     test('returns true for number != 0', function () {
-      utils.parseBool(1).should.equal(true);
-      utils.parseBool(-1).should.equal(true);
-      utils.parseBool(123).should.equal(true);
+      utils.parseBool(1).should.be.true();
+      utils.parseBool(-1).should.be.true();
+      utils.parseBool(123).should.be.true();
     });
     test('returns true for string true', function () {
-      utils.parseBool('TRUE').should.equal(true);
-      utils.parseBool('true').should.equal(true);
+      utils.parseBool('TRUE').should.be.true();
+      utils.parseBool('true').should.be.true();
     });
     test('returns false for string false', function () {
-      utils.parseBool('FALSE').should.equal(false);
-      utils.parseBool('false').should.equal(false);
+      utils.parseBool('FALSE').should.be.false();
+      utils.parseBool('false').should.be.false();
     });
     test('returns input error', function () {
       var err = new Error();
@@ -46,10 +166,9 @@ suite('Utils', function () {
     });
     test('returns true for NaN', function () {
       //TODO: I think the result should be value.error
-      utils.parseBool(NaN).should.equal(true);
+      utils.parseBool(NaN).should.be.true();
     });
   });
-
   suite('parseNumber', function () {
     test('returns input number', function () {
       utils.parseNumber(12.34).should.equal(12.34);
@@ -78,7 +197,6 @@ suite('Utils', function () {
       utils.parseNumber(error).should.equal(error);
     });
   });
-
   test('parseNumbers', function () {
     utils.parseNumbers(2).should.equal(error.value);
     utils.parseNumbers(error.na).should.equal(error.na);
@@ -91,13 +209,11 @@ suite('Utils', function () {
     utils.parseNumbers([undefined]).should.eql([]);
     utils.parseNumbers([error.na]).should.equal(error.na);
   });
-
   suite('selectNumbersFromArray', function () {
     test('excludes non-number values', function () {
       utils.selectNumbersFromArray([1, 'x', true, false, [3], 2]).should.eql([1, 2]);
     });
   });
-
   suite('parseNumbersFromArguments', function () {
     test('returns array with numeric args', function () {
       utils.parseNumbersFromArguments([1, 2, 3]).should.eql([1, 2, 3]);
@@ -124,7 +240,6 @@ suite('Utils', function () {
       utils.parseNumbersFromArguments([0, e, new Error()]).should.equal(e);
     });
   });
-
   test('parseNumbersA', function () {
     utils.parseNumbersA(2).should.equal(error.value);
     utils.parseNumbersA(error.na).should.equal(error.na);
@@ -137,7 +252,6 @@ suite('Utils', function () {
     utils.parseNumbersA([undefined]).should.eql([]);
     utils.parseNumbersA([error.na]).should.equal(error.na);
   });
-
   test('parseNumbersConvert', function () {
     utils.parseNumbersConvert(2).should.equal(error.value);
     utils.parseNumbersConvert(error.na).should.equal(error.na);
@@ -150,7 +264,6 @@ suite('Utils', function () {
     utils.parseNumbersConvert([undefined]).should.eql([0]);
     utils.parseNumbersConvert([error.na]).should.equal(error.na);
   });
-
   test('parseNumbersX', function () {
     utils.parseNumbersA(2, 2).should.equal(error.value);
     utils.parseNumbersA(error.na, error.na).should.equal(error.na);
@@ -163,11 +276,9 @@ suite('Utils', function () {
     utils.parseNumbersX([undefined], [undefined]).should.eql([[], []]);
     utils.parseNumbersX([error.na], [error.na]).should.equal(error.na);
   });
-
   test('parseMatrix', function () {
     utils.parseMatrix(1).should.eql([[1]]);
   });
-
   suite('parseText', function () {
     test('returns input string', function () {
       utils.parseText('string').should.equal('string');
@@ -195,10 +306,10 @@ suite('Utils', function () {
       utils.parseText([1]).should.equal(error.value);
     });
   });
-
   suite('createUTCDate', function () {
     test('returns Date object for now', function () {
       var date = new Date();
+      //TODO: this test fails sometimes since the clock progresses between calling createUTCDate() and Date().
       utils.createUTCDate().should.eql(new Date(date.getTime() - new Date().getTimezoneOffset() * 60000));
     });
     test('returns Date object for js timestamp', function () {
@@ -244,7 +355,6 @@ suite('Utils', function () {
       utils.createUTCDate('0/0/0').getTime().should.be.NaN();
     });
   });
-
   suite('parseDate', function () {
     test('returns Date object equal to input Date object', function () {
       utils.parseDate(new Date(2000, 2, 3)).should.eql(new Date(2000, 2, 3));
@@ -265,7 +375,6 @@ suite('Utils', function () {
       utils.parseDate('0/0/0').should.equal(error.value);
     });
   });
-
   suite('excelToJsTimestamp', function () {
       test('February 3, 2001', function () {
           utils.excelToJsTimestamp(36925).should.equal(Date.UTC(2001, 1, 3));
@@ -274,7 +383,6 @@ suite('Utils', function () {
           utils.excelToJsTimestamp(1).should.equal(Date.UTC(1900, 0, 1));
       });
   });
-
   suite('jsToExcelTimestamp', function () {
       test('February 3, 2001', function () {
           utils.jsToExcelTimestamp(Date.UTC(2001, 1, 3)).should.equal(36925);

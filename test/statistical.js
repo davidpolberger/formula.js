@@ -208,73 +208,51 @@ suite('Statistical', function () {
     statistical.CORREL([], []).should.equal(error.div0);
   });
 
-  test('COUNT', function () {
-    statistical.COUNT().should.equal(0);
-    statistical.COUNT(1, 2, 3, 4).should.equal(4);
-    statistical.COUNT([1, 2, 3, 4]).should.equal(4);
-    statistical.COUNT([1, 2], [3, 4]).should.equal(4);
-    statistical.COUNT([
-      [1, 2],
-      [3, 4]
-    ]).should.equal(4);
-    statistical.COUNT([
-      [1, 2],
-      [3, 2],
-      [null, null]
-    ]).should.equal(4);
-    statistical.COUNT([
-      [1, 2],
-      ['a', 'b'],
-      [null, null]
-    ]).should.equal(2);
-    statistical.COUNT([
-      [1, 2],
-      ['10', 'b'],
-      [null, null]
-    ]).should.equal(2);
-    statistical.COUNT('1', '2').should.equal(0);
+  suite('COUNT', function() {
+    test('includes all non-array args except for non-number strings', function () {
+      statistical.COUNT(1, 2, '3', 'x', true, false, null).should.equal(6);
+    });
+    test('includes array items only if number', function () {
+      statistical.COUNT([1, 2, '3', 'x', true, false, null, [11]]).should.equal(2);
+    });
+    test('return 0 for no args', function () {
+      statistical.COUNT().should.equal(0);
+    });
   });
 
-  test('COUNTA', function () {
-    statistical.COUNTA().should.equal(0);
-    statistical.COUNTA(1, null, 3, 'a', '', 'c').should.equal(5);
-    statistical.COUNTA([1, null, 3, 'a', '', 'c']).should.equal(5);
-    statistical.COUNTA([1, null, 3], ['a', '', 'c']).should.equal(5);
-    statistical.COUNTA([
-      [1, null, 3],
-      ['a', '', 'c']
-    ]).should.equal(5);
-    statistical.COUNTA(1).should.equal(1);
-    statistical.COUNTA('a').should.equal(1);
-    statistical.COUNTA('').should.equal(1);
-    statistical.COUNTA(true).should.equal(1);
-    statistical.COUNTA(error.value).should.equal(1);
-    statistical.COUNTA(null).should.equal(0);
-    statistical.COUNTA(undefined).should.equal(0);
+  suite('COUNTA', function () {
+    test('includes all args', function () {
+      statistical.COUNTA(1, 'x', true, null, [1, 'x', false, null]).should.equal(8);
+      statistical.COUNTA(1, [[2, 3]]).should.equal(3);
+    });
+    test('return 0 for no args', function () {
+      statistical.COUNTA().should.equal(0);
+    });
   });
 
-  test('COUNTBLANK', function () {
-    statistical.COUNTBLANK().should.equal(0);
-    statistical.COUNTBLANK(1, null, 3, 'a', '', 'c').should.equal(2);
-    statistical.COUNTBLANK([1, null, 3, 'a', '', 'c']).should.equal(2);
-    statistical.COUNTBLANK([1, null, 3], ['a', '', 'c']).should.equal(2);
-    statistical.COUNTBLANK([
-      [1, null, 3],
-      ['a', '', 'c']
-    ]).should.equal(2);
+  suite('COUNTBLANK', function () {
+    test('counts non-blank values', function() {
+      statistical.COUNTBLANK(['']).should.equal(1);
+      statistical.COUNTBLANK([0]).should.equal(0);
+      statistical.COUNTBLANK([1, null, 3, 'a', '']).should.equal(2);
+    });
+    test('treats value as single item array', function () {
+      statistical.COUNTBLANK('').should.equal(1);
+    });
+    test('throws for no args', function () {
+      statistical.COUNTBLANK.should.throw();
+    });
   });
 
-  test('COUNTIF', function () {
-    statistical.COUNTIF([1, null, 3, 'a', ''], '>1').should.equal(2);
-    statistical.COUNTIF([1, null, 'c', 'a', ''], '>1').should.equal(2);
-    statistical.COUNTIF([
-      [1, null, 3],
-      ['a', 4, 'c']
-    ], '>1').should.equal(4);
-    statistical.COUNTIF([
-      [1, null, 'a'],
-      ['a', 4, 'c']
-    ], 'a').should.equal(2);
+  suite('COUNTIF', function () {
+    test('returns count of passing comparisons', function () {
+      statistical.COUNTIF([1, null, 3, 'a', 4, 'c'], '>1').should.equal(2);
+      statistical.COUNTIF([1, null, 'a', 'a', 4, 'c'], 'a').should.equal(2);
+    });
+    test('throws for missing arg', function () {
+      statistical.COUNTIF.should.throw();
+      (function () { statistical.COUNTIF([]); }).should.throw();
+    });
   });
 
   test('COUNTIFS', function () {
