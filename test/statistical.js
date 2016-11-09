@@ -83,9 +83,7 @@ suite('Statistical', function () {
     });
     test('averages values selected by test values that pass filter', function () {
       statistical.AVERAGEIF([2, 4, 8, 16], '>5', [1, 2, 3, 4]).should.be.approximately(3.5, 1e-9);
-    });
-    test('selects by text matching', function () {
-      statistical.AVERAGEIF(['a', 'b', 'c'], '=b', [2, 3, 5]).should.be.approximately(3, 1e-9);
+      statistical.AVERAGEIF(['a', 'b', 'c'], 'b', [2, 3, 5]).should.be.approximately(3, 1e-9);
     });
     test('ignores non-numbers for calculating average', function () {
       statistical.AVERAGEIF([2, 'x', '8', true, false, 16], '>5').should.equal(16);
