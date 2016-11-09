@@ -194,8 +194,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	function parseNumbersForAverageA(args) {
-	  if (args.length === 0)
-	    throw new Error('Missing number argument.');
+	  utils.throwIfNoArguments(args);
 	  var numbers = [];
 	  for (var i = 0; i < args.length; i++) {
 	    var arg = args[i];
@@ -230,23 +229,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * be a non-array value which is treated the same as a one element array.
 	 */
 	exports.AVERAGEIF = function (range, criteria, average_range) {
-	  utils.validateRequiredArg(range, 'range');
-	  utils.validateRequiredArg(criteria, 'criteria');
+	  utils.throwIfMissingArgument(range, 'range');
+	  utils.throwIfMissingArgument(criteria, 'criteria');
 	  if (average_range === undefined)
 	    average_range = range;
 
-	  if (!(range instanceof Array))
-	    range = [range];
-	  if (!(average_range instanceof Array))
-	    average_range = [average_range];
+	  range = utils.arrayify(range);
+	  average_range = utils.arrayify(average_range);
 	  if (average_range.length !== range.length)
 	    throw new Error('range and average_range must have same number of elements.');
 
+	  var comparisons = utils.applyCriteriaToValues(range, criteria);
 	  var sum = 0;
 	  var count = 0;
 	  for (var i = 0; i < range.length; ++i) {
 	    if (typeof average_range[i] === 'number')
-	      if (evalExpr(range[i] + criteria)) {
+	      if (comparisons[i]) {
 	        sum += average_range[i];
 	        count++;
 	      }
@@ -260,7 +258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  var criterias = utils.argsToArray(arguments);
 	  var numbers = _.flatten(criterias.shift());
 
-	  var result = 0;
+	  var sum = 0;
 	  var count = 0;
 
 	  for (var i = 0; i < numbers.length; i++) {
@@ -294,7 +292,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	    if (valid) {
-	        result += numbers[i];
+	        sum += numbers[i];
 	        count++;
 	    }
 	  }
@@ -303,7 +301,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return error.div0;
 	  }
 
-	  return result / count;
+	  return sum / count;
 	};
 
 	exports.BETA = {};
@@ -601,46 +599,61 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return jStat.corrcoeff(parsed_x, parsed_y);
 	};
 
+	/**
+	 * Unlike Excel, this support not arguments ... returning 0.
+	 */
 	exports.COUNT = function () {
-	  var numbers = utils.parseNumbers(_.flatten(arguments));
-	  return numbers.length;
-	};
-
-	exports.COUNTA = function () {
-	  var numbers = _.flatten(arguments);
 	  var count = 0;
-	  for (var i = 0; i < numbers.length; i++) {
-	    if (numbers[i] !== null && numbers[i] !== undefined) {
-	      count++;
+	  for (var i = 0; i < arguments.length; i++) {
+	    var arg = arguments[i];
+	    if (arg instanceof Array) {
+	      count += utils.selectNumbersFromArray(arg).length;
+	    } else {
+	      var number = utils.parseNumber(arg);
+	      if (typeof number === 'number')
+	        ++count;
 	    }
 	  }
 	  return count;
 	};
 
-	exports.COUNTBLANK = function () {
-	  var numbers = _.flatten(arguments);
-	  var blanks = 0;
-	  for (var i = 0; i < numbers.length; i++) {
-	    if (numbers[i] === undefined || numbers[i] === null || numbers[i] === '') {
-	      blanks++;
-	    }
-	  }
-	  return blanks;
+	/**
+	 * Unlike Excel, this support not arguments ... returning 0.
+	 */
+	exports.COUNTA = function () {
+	  return _.flatten(arguments).length;
 	};
 
-	exports.COUNTIF = function(numbers, criteria) {
-	  numbers = _.flatten(numbers);
-	  if (!/[><=!]/.test(criteria)) {
-	    criteria = '=' + JSON.stringify(criteria);
-	  } else {
-	    criteria = criteria[0] + JSON.stringify(criteria.slice(1));
-	  }
+	/**
+	 * Excel does not allow this function to be entered into a cell with range
+	 * specified as a literal value.  It requires it to be a spreadsheet range.
+	 * None-the-less, this is implemented to operate on an array of values or a single value
+	 * which is treated the same as a one element array.
+	 */
+	exports.COUNTBLANK = function (range) {
+	  utils.throwIfMissingArgument(range, 'range');
+	  range = utils.arrayify(range);
 	  var count = 0;
-	  for (var i = 0; i < numbers.length; i++) {
-	    if (evalExpr(JSON.stringify(numbers[i]) + criteria)) {
-	      count++
-	    }
-	  }
+	  for (var i = 0; i < range.length; ++i)
+	    if (utils.parseText(range[i]) === '')
+	      ++count;
+	  return count;
+	};
+
+	/**
+	 * Excel does not allow this function to be entered into a cell with range
+	 * specified as a literal value.  It requires it to be a spreadsheet range.
+	 * None-the-less, this is implemented to operate on an array of values or a single value
+	 * which is treated the same as a one element array.
+	 */
+	exports.COUNTIF = function (range, criteria) {
+	  utils.throwIfMissingArgument(range, 'range');
+	  utils.throwIfMissingArgument(criteria, 'criteria');
+	  var comparisons = utils.applyCriteriaToValues(range, criteria);
+	  var count = 0;
+	  for (var i = 0; i < comparisons.length; i++)
+	    if (comparisons[i])
+	      count++;
 	  return count;
 	};
 
@@ -3577,9 +3590,120 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var error = __webpack_require__(5);
 
-	exports.argsToArray = function(args) {
+	/**
+	 * Evaluates the criteria parameter to an *IF function -- returning a function that accepts one 
+	 * value and returns the comparison result.
+	 *
+	 * The operator (=, <>, <, >, <=, >=) can be prefixed to the argument or omitted to select equals.  
+	 *
+	 * Comparison is type-sensitive for types: number, boolean, string, null.  And, some type 
+	 * conversion is performed ... sadly too complicated to describe :( ... checkout the code and tests.
+	 * 
+	 * String comparison is case insensitive and based on alphabetical ordering.
+	 * 
+	 * @param {string|number|boolean|null} criteria - Right operand plus optional operator prefix.
+	 * @returns {boolean function(value)} 
+	 */
+	exports.parseCriteria = function (criteria) {
+	  if (criteria === null) criteria = '';
+	  var ch0 = criteria[0];
+	  var operation;
+	  var rightArg;
+	  if (ch0 === '<') {
+	    var ch1 = criteria[1];
+	    if (ch1 === '>') {
+	      operation = function (left, right) { return left !== right; };
+	      rightArg = criteria.substring(2);
+	    }
+	    else if (ch1 === '=') {
+	      operation = function (left, right) { return left <= right; };
+	      rightArg = criteria.substring(2);
+	    }
+	    else {
+	      operation = function (left, right) { return left < right; };
+	      rightArg = criteria.substring(1);
+	    }
+	  } else if (ch0 === '>') {
+	    var ch1 = criteria[1];
+	    if (ch1 === '=') {
+	      operation = function (left, right) { return left >= right; };
+	      rightArg = criteria.substring(2);
+	    }
+	    else {
+	      operation = function (left, right) { return left > right; };
+	      rightArg = criteria.substring(1);
+	    }
+	  } else {
+	    rightArg = ch0 === '=' ? criteria.substring(1) : criteria;
+	    operation = function (left, right) { return left === right; };
+	  }
+	  var rightIsNumber;
+	  var rightNumber = parseFloat(rightArg);
+	  if (!isNaN(rightNumber)) {
+	    rightIsNumber = true;
+	    rightArg = rightNumber;
+	  }
+	  else {
+	    if (typeof rightArg === 'string') {
+	      var up = rightArg.toUpperCase();
+	      if (up === 'TRUE')
+	        rightArg = true;
+	      else if (up === 'FALSE')
+	        rightArg = false;
+	      else
+	        rightArg = rightArg.toUpperCase();
+	    }
+	  }
+	  return function (left) {
+	    if (left === null) left = '';
+	    if (rightIsNumber) {
+	      var leftNumber = parseFloat(left);
+	      if (!isNaN(leftNumber)) {
+	        return operation(leftNumber, rightArg);
+	      }
+	    }
+	    if (typeof left === 'string')
+	      left = left.toUpperCase();
+	    return operation(left, rightArg);
+	  }
+	}
+
+	/**
+	 * Implements the comparison algorithm for *IF functions.  Returns the evaluated value of each
+	 * value for the criteria.
+	 * @param {[string|number|boolean|null]} values - Array of values or a single value which is 
+	 *  treated as an array of one item.
+	 * @param {string|number|boolean|null} criteria
+	 * @returns {[boolean]} - contains item for each item of values.
+	 */
+	exports.applyCriteriaToValues = function (values, criteria) {
+	  var compare = exports.parseCriteria(criteria);
+	  var results = [];
+	  values = exports.arrayify(values);
+	  for (var i = 0; i < values.length; ++i)
+	    results.push(compare(values[i]));
+	  return results;
+	}
+
+	exports.arrayify = function (item) {
+	  if (item instanceof Array)
+	    return item;
+	  return [item];
+	}
+
+	exports.argsToArray = function (args) {
 	  return Array.prototype.slice.call(args, 0);
 	};
+
+	exports.throwIfMissingArgument = function (arg, name) {
+	  if (arg === undefined)
+	    throw new Error('Missing ' + (name || 'argument') + '.');
+	}
+
+	exports.throwIfNoArguments = function (args) {
+	  if (args.length === 0)
+	    throw new Error('Function requires at least one argument.');
+	}
 
 	exports.cleanFloat = function(number) {
 	  var power = 1e14;
@@ -3587,24 +3711,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.parseBool = function(value) {
-	  if (typeof value === 'boolean') {
+	  if (typeof value === 'boolean')
 	    return value;
-	  }
-	  if (value instanceof Error) {
-	    return value;
-	  }
-	  if (typeof value === 'number') {
+	  if (typeof value === 'number')
 	    return value !== 0;
-	  }
 	  if (typeof value === 'string') {
 	    var up = value.toUpperCase();
-	    if (up === 'TRUE') {
+	    if (up === 'TRUE')
 	      return true;
-	    }
-	    if (up === 'FALSE') {
+	    if (up === 'FALSE')
 	      return false;
-	    }
 	  }
+	  if (value === null)
+	    return false;
+	  if (value instanceof Error)
+	    return value;
 	  return error.value;
 	};
 
@@ -3614,22 +3735,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * returns error.value.
 	 */
 	exports.parseNumber = function(value) {
-	  if (typeof value === 'number' && !isNaN(value)) {
+	  if (typeof value === 'number' && !isNaN(value))
 	    return value;
-	  }
-	  if (value instanceof Error) {
-	    return value;
-	  }
-	  if (value === false) {
+	  if (value === false)
 	    return 0;
-	  }
-	  if (value === true) {
+	  if (value === true)
 	    return 1;
-	  }
+	  if (value === null)
+	    return 0;
+	  if (value instanceof Error)
+	    return value;
 	  var float = parseFloat(value);
-	  if (!isNaN(float)) {
+	  if (!isNaN(float))
 	    return float;
-	  }
 	  return error.value;
 	};
 
@@ -3654,13 +3772,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * not represent a number.  For an array argument, ignores all non-number elements -- even values 
 	 * that in other contexts are usually converted to numbers!  For example, ['0'] results in [0], 
 	 * ['x'] results in value error and both [['0']] and [['x']] result in [].
+	 * 
+	 * Usually, an excel function that takes variable length number arguments requires at least 
+	 * argument, but this does not enforce this minimum.  Therefore, the implementation in this
+	 * library can provide more functionality than the excel version.  This does not conflict with 
+	 * the excel version since Excel does not allow a cell to be loaded with a function that has
+	 * no arguments.  This is extended behavior -- not different behavior.
 	 *
-	 * Input to this function can be the global arguments object (and often is for a public Excel 
-	 * function), but can be an Array instead.
+	 * @param {[varies]} args - arguments object or Array.
+	 * @returns {[number]} 
 	 */
 	exports.parseNumbersFromArguments = function (args) {
-	  if (args.length === 0)
-	    throw new Error('Missing number argument.');
 	  var numbers = [];
 	  for (var i = 0; i < args.length; i++) {
 	    var arg = args[i];
@@ -3992,28 +4114,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.parseText = function(value) {
-	  if (typeof (value) === 'string') {
+	  if (typeof (value) === 'string')
 	    return value;
-	  }
-	  if (value instanceof Error) {
-	    return value;
-	  }
-	  if (value === undefined || value === null) {
-	    return '';
-	  }
-	  if (typeof(value) === 'number') {
+	  if (typeof(value) === 'number')
 	    return value.toString();
-	  }
-	  if (typeof(value) === 'boolean') {
+	  if (typeof(value) === 'boolean')
 	    return value.toString().toUpperCase();
-	  }
+	  if (value === undefined || value === null)
+	    return '';
+	  if (value instanceof Error)
+	    return value;
 	  return error.value;
 	};
-
-	exports.validateRequiredArg = function(arg, name) {
-	  if (arg === undefined)
-	    throw new Error('Missing ' + (name || 'argument') + '.');
-	}
 
 /***/ },
 /* 5 */
@@ -4229,13 +4341,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // NOTE: Excel treats undecorated text as a string literal -- not an identifier
 	    //return variables ? variables[node.name] : undefined;
 	  } else {
-	    throw new Error('Unsupported expr node', node);
+	    throw new Error('Unsupported expression node: ' + node + '.');
 	  }
 	}
 
-	module.exports = function evalExpr(expr, variables) {
+	/**
+	 * Evaluates a small Excel expression -- as found in ...IF functions.
+	 * @param {string} expr
+	 * @returns {object}
+	 */
+	module.exports = function evalExpr(expr) {
 	  var ast = jsep(expr);
-	  return do_eval(ast, variables);
+	  return do_eval(ast);
 	};
 
 
