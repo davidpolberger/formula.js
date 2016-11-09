@@ -92,8 +92,8 @@ suite('Statistical', function () {
       statistical.AVERAGEIF([2, 4], '>0', ['x', 2]).should.be.approximately(2, 1e-9);
     });
     test('supports single item', function () {
-      statistical.AVERAGEIF(6, '1').should.equal(6);
-      statistical.AVERAGEIF(6, '1', 4).should.equal(4);
+      statistical.AVERAGEIF(6, 6).should.equal(6);
+      statistical.AVERAGEIF(6, 6, 4).should.equal(4);
     });
     test('throws for array count mismatch', function () {
       (function () { statistical.AVERAGEIF([1, 2, 3], '>0', [1, 2]); }).should.throw();
