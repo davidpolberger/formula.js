@@ -588,16 +588,18 @@ suite('Math & Trig', function () {
     mathTrig.SUBTOTAL().should.equal(error.value);
   });
 
-  test('SUM', function () {
-    mathTrig.SUM(1, 2, 3).should.equal(6);
-    mathTrig.SUM([1, 2, 3]).should.equal(6);
-    mathTrig.SUM([1, 2, 3], 1, 2).should.equal(9);
-    mathTrig.SUM([1, 2, 3], [1, 2]).should.equal(9);
-    mathTrig.SUM([[1, 1], [2, 2], [3, 3]]).should.equal(12);
-    mathTrig.SUM([[1, 1], [2, 2], [3, 3]], 1, 2).should.equal(15);
-    mathTrig.SUM([[1, 1], [2, 2], [3, 3]], 1, 2).should.equal(15);
-    mathTrig.SUM([[1, 1], [2, 2], [3, 3]], [[1, 1], [2, 2], [3, 3]]).should.equal(24);
-    mathTrig.SUM(1, 'invalid').should.equal(1);
+  suite('SUM', function () {
+    test('sums values', function () {
+      mathTrig.SUM(1, 2, 3).should.equal(6);
+      mathTrig.SUM(1, [2, 3]).should.equal(6);
+    });
+    test('converts args (but not array items) to number if possible', function () {
+      mathTrig.SUM(true, false, '3').should.equal(4);
+      mathTrig.SUM([true, false, '3']).should.equal(0);
+    });
+    test('returns value error for any value not representing number', function () {
+      mathTrig.SUM(1, 'x').should.equal(error.value);
+    });
   });
 
   suite('SUMIF', function () {
