@@ -1,9 +1,17 @@
+var error = require('../lib/error');
 var should = require('should');
 var utils = require('../lib/utils');
-var error = require('../lib/error');
 
 suite('Utils', function () {
-  test('argsToArray', function () {
+  suite('arrayify', function () {
+    test('returns input if array', function () {
+      utils.arrayify([1, 2, 3]).should.eql([1, 2, 3]);
+    });
+    test('returns non-array as single item array', function () {
+      utils.arrayify(123).should.eql([123]);
+    });
+  });
+  test('argsToArray returns items from arguments object as an array', function () {
     (function () {
       should.deepEqual(utils.argsToArray(arguments), [1, 2, 3]);
     })(1, 2, 3);
