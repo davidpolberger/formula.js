@@ -6,7 +6,7 @@
     "Ismael Ghalimi <ismael@stoic.com>"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/davidpolberger/formulajs",
+  "homepage": "https://github.com/trudb/formulajs",
   "dependencies": {
     "bessel": "SheetJS/bessel#~0.2.0",
     "jstat": "1.5.2",
