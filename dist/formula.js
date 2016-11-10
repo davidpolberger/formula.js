@@ -11292,54 +11292,72 @@ return /******/ (function(modules) { // webpackBootstrap
 	var utils = __webpack_require__(4);
 	var _ = __webpack_require__(8);
 
-	// TODO
-	exports.ACCRINT = function () {
-	 throw new Error('ACCRINT is not implemented');
+	exports.ACCRINT = function (issue, first, settlement, rate, par, frequency, basis) {
+	  issue = utils.parseDate(issue);
+	  if (issue instanceof Error) return issue;
+	  first = utils.parseDate(first);
+	  if (first instanceof Error) return first;
+	  settlement = utils.parseDate(settlement);
+	  if (settlement instanceof Error) return settlement;
+
+	  if (rate <= 0 || par <= 0)
+	    return error.num;
+	  if ([1, 2, 4].indexOf(frequency) === -1)
+	    return error.num;
+	  if ([0, 1, 2, 3, 4].indexOf(basis) === -1)
+	    return error.num;
+	  if (settlement <= issue)
+	    return error.num;
+
+	  par = par || 0;
+	  basis = basis || 0;
+
+	  return par * rate * dateTime.YEARFRAC(issue, settlement, basis);
 	};
 
 	// TODO
 	exports.ACCRINTM = function () {
-	 throw new Error('ACCRINTM is not implemented');
+	  throw new Error('ACCRINTM is not implemented');
 	};
 
 	// TODO
 	exports.AMORDEGRC = function () {
-	 throw new Error('AMORDEGRC is not implemented');
+	  throw new Error('AMORDEGRC is not implemented');
 	};
 
 	// TODO
 	exports.AMORLINC = function () {
-	 throw new Error('AMORLINC is not implemented');
+	  throw new Error('AMORLINC is not implemented');
 	};
 
 	// TODO
 	exports.COUPDAYBS = function () {
-	 throw new Error('COUPDAYBS is not implemented');
+	  throw new Error('COUPDAYBS is not implemented');
 	};
 
 	// TODO
 	exports.COUPDAYS = function () {
-	 throw new Error('COUPDAYS is not implemented');
+	  throw new Error('COUPDAYS is not implemented');
 	};
 
 	// TODO
 	exports.COUPDAYSNC = function () {
-	 throw new Error('COUPDAYSNC is not implemented');
+	  throw new Error('COUPDAYSNC is not implemented');
 	};
 
 	// TODO
 	exports.COUPNCD = function () {
-	 throw new Error('COUPNCD is not implemented');
+	  throw new Error('COUPNCD is not implemented');
 	};
 
 	// TODO
 	exports.COUPNUM = function () {
-	 throw new Error('COUPNUM is not implemented');
+	  throw new Error('COUPNUM is not implemented');
 	};
 
 	// TODO
 	exports.COUPPCD = function () {
-	 throw new Error('COUPPCD is not implemented');
+	  throw new Error('COUPPCD is not implemented');
 	};
 
 	exports.CUMIPMT = function(rate, periods, value, start, end, type) {
@@ -11348,32 +11366,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Requires exports.FV() and exports.PMT() from exports.js [http://stoic.com/exports/]
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  value = utils.parseNumber(value);
-	  if (value instanceof Error) {
+	  if (value instanceof Error)
 	    return value;
-	  }
 
-	  // Return error if either rate, periods, or value are lower than or equal to zero
-	  if (rate <= 0 || periods <= 0 || value <= 0) {
+	  if (rate <= 0 || periods <= 0 || value <= 0)
 	    return error.num;
-	  }
-
-	  // Return error if start < 1, end < 1, or start > end
-	  if (start < 1 || end < 1 || start > end) {
+	  if (start < 1 || end < 1 || start > end)
 	    return error.num;
-	  }
-
-	  // Return error if type is neither 0 nor 1
-	  if (type !== 0 && type !== 1) {
+	  if (type !== 0 && type !== 1)
 	    return error.num;
-	  }
 
 	  // Compute cumulative interest
 	  var payment = exports.PMT(rate, periods, value, 0, type);
@@ -11395,7 +11402,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  interest *= rate;
 
-	  // Return cumulative interest
 	  return interest;
 	};
 
@@ -11404,32 +11410,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Credits: Hannes Stiebitzhofer for the translations of function and variable names
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  value = utils.parseNumber(value);
-	  if (value instanceof Error) {
+	  if (value instanceof Error)
 	    return value;
-	  }
-
-	  // Return error if either rate, periods, or value are lower than or equal to zero
-	  if (rate <= 0 || periods <= 0 || value <= 0) {
+	  if (rate <= 0 || periods <= 0 || value <= 0)
 	    return error.num;
-	  }
-
-	  // Return error if start < 1, end < 1, or start > end
-	  if (start < 1 || end < 1 || start > end) {
+	  if (start < 1 || end < 1 || start > end)
 	    return error.num;
-	  }
-
-	  // Return error if type is neither 0 nor 1
-	  if (type !== 0 && type !== 1) {
+	  if (type !== 0 && type !== 1)
 	    return error.num;
-	  }
 
 	  // Compute cumulative principal
 	  var payment = exports.PMT(rate, periods, value, 0, type);
@@ -11450,54 +11444,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
-	  // Return cumulative principal
 	  return principal;
 	};
 
 	exports.DB = function(cost, salvage, life, period, month) {
-	  // Initialize month
 	  month = (month === undefined) ? 12 : month;
-
 	  cost = utils.parseNumber(cost);
-	  if (cost instanceof Error) {
+	  if (cost instanceof Error)
 	    return cost;
-	  }
 	  salvage = utils.parseNumber(salvage);
-	  if (salvage instanceof Error) {
+	  if (salvage instanceof Error)
 	    return salvage;
-	  }
 	  life = utils.parseNumber(life);
-	  if (life instanceof Error) {
+	  if (life instanceof Error)
 	    return life;
-	  }
 	  period = utils.parseNumber(period);
-	  if (period instanceof Error) {
+	  if (period instanceof Error)
 	    return period;
-	  }
 	  month = utils.parseNumber(month);
-	  if (month instanceof Error) {
+	  if (month instanceof Error)
 	    return month;
-	  }
-
-	  // Return error if any of the parameters is negative
-	  if (cost < 0 || salvage < 0 || life < 0 || period < 0) {
+	  if (cost < 0 || salvage < 0 || life < 0 || period < 0)
 	    return error.num;
-	  }
-
-	  // Return error if month is not an integer between 1 and 12
-	  if ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].indexOf(month) === -1) {
+	  if ([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].indexOf(month) === -1)
 	    return error.num;
-	  }
-
-	  // Return error if period is greater than life
-	  if (period > life) {
+	  if (period > life)
 	    return error.num;
-	  }
-
-	  // Return 0 (zero) if salvage is greater than or equal to cost
-	  if (salvage >= cost) {
+	  if (salvage >= cost)
 	    return 0;
-	  }
 
 	  // Rate is rounded to three decimals places
 	  var rate = (1 - Math.pow(salvage / cost, 1 / life)).toFixed(3);
@@ -11527,44 +11501,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.DDB = function(cost, salvage, life, period, factor) {
-	  // Initialize factor
 	  factor = (factor === undefined) ? 2 : factor;
 
 	  cost = utils.parseNumber(cost);
-	  if (cost instanceof Error) {
+	  if (cost instanceof Error)
 	    return cost;
-	  }
 	  salvage = utils.parseNumber(salvage);
-	  if (salvage instanceof Error) {
+	  if (salvage instanceof Error)
 	    return salvage;
-	  }
 	  life = utils.parseNumber(life);
-	  if (life instanceof Error) {
+	  if (life instanceof Error)
 	    return life;
-	  }
 	  period = utils.parseNumber(period);
-	  if (period instanceof Error) {
+	  if (period instanceof Error)
 	    return period;
-	  }
 	  factor = utils.parseNumber(factor);
-	  if (factor instanceof Error) {
+	  if (factor instanceof Error)
 	    return factor;
-	  }
-
-	  // Return error if any of the parameters is negative or if factor is null
-	  if (cost < 0 || salvage < 0 || life < 0 || period < 0 || factor <= 0) {
+	  if (cost < 0 || salvage < 0 || life < 0 || period < 0 || factor <= 0)
 	    return error.num;
-	  }
-
-	  // Return error if period is greater than life
-	  if (period > life) {
+	  if (period > life)
 	    return error.num;
-	  }
-
-	  // Return 0 (zero) if salvage is greater than or equal to cost
-	  if (salvage >= cost) {
+	  if (salvage >= cost)
 	    return 0;
-	  }
 
 	  // Compute depreciation
 	  var total = 0;
@@ -11580,30 +11539,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.DISC = function () {
-	 throw new Error('DISC is not implemented');
+	  throw new Error('DISC is not implemented');
 	};
 
 	exports.DOLLARDE = function(dollar, fraction) {
 	  // Credits: algorithm inspired by Apache OpenOffice
 
 	  dollar = utils.parseNumber(dollar);
-	  if (dollar instanceof Error) {
+	  if (dollar instanceof Error)
 	    return dollar;
-	  }
 	  fraction = utils.parseNumber(fraction);
-	  if (fraction instanceof Error) {
+	  if (fraction instanceof Error)
 	    return fraction;
-	  }
-
-	  // Return error if fraction is negative
-	  if (fraction < 0) {
+	  if (fraction < 0)
 	    return error.num;
-	  }
-
-	  // Return error if fraction is greater than or equal to 0 and less than 1
-	  if (fraction >= 0 && fraction < 1) {
+	  if (fraction >= 0 && fraction < 1)
 	    return error.div0;
-	  }
 
 	  // Truncate fraction if it is not an integer
 	  fraction = parseInt(fraction, 10);
@@ -11626,23 +11577,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // Credits: algorithm inspired by Apache OpenOffice
 
 	  dollar = utils.parseNumber(dollar);
-	  if (dollar instanceof Error) {
+	  if (dollar instanceof Error)
 	    return dollar;
-	  }
 	  fraction = utils.parseNumber(fraction);
-	  if (fraction instanceof Error) {
+	  if (fraction instanceof Error)
 	    return fraction;
-	  }
-
-	  // Return error if fraction is negative
-	  if (fraction < 0) {
+	  if (fraction < 0)
 	    return error.num;
-	  }
-
-	  // Return error if fraction is greater than or equal to 0 and less than 1
-	  if (fraction >= 0 && fraction < 1) {
+	  if (fraction >= 0 && fraction < 1)
 	    return error.div0;
-	  }
 
 	  // Truncate fraction if it is not an integer
 	  fraction = parseInt(fraction, 10);
@@ -11659,7 +11602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.DURATION = function () {
-	 throw new Error('DURATION is not implemented');
+	  throw new Error('DURATION is not implemented');
 	};
 
 	exports.EFFECT = function(rate, periods) {
@@ -11691,27 +11634,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  type = type || 0;
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  payment = utils.parseNumber(payment);
-	  if (payment instanceof Error) {
+	  if (payment instanceof Error)
 	    return payment;
-	  }
 	  value = utils.parseNumber(value);
-	  if (value instanceof Error) {
+	  if (value instanceof Error)
 	    return value;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 
-	  // Return future value
 	  var result;
 	  if (rate === 0) {
 	    result = value + payment * periods;
@@ -11728,13 +11665,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.FVSCHEDULE = function(principal, schedule) {
 	  principal = utils.parseNumber(principal);
-	  if (principal instanceof Error) {
+	  if (principal instanceof Error)
 	    return principal;
-	  }
 	  schedule = utils.parseNumbers(_.flatten(schedule));
-	  if (schedule instanceof Error) {
+	  if (schedule instanceof Error)
 	    return schedule;
-	  }
 
 	  var n = schedule.length;
 	  var future = principal;
@@ -11751,7 +11686,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.INTRATE = function () {
-	 throw new Error('INTRATE is not implemented');
+	  throw new Error('INTRATE is not implemented');
 	};
 
 	exports.IPMT = function(rate, period, periods, present, future, type) {
@@ -11759,31 +11694,24 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  future = future || 0;
 	  type = type || 0;
-
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  period = utils.parseNumber(period);
-	  if (period instanceof Error) {
+	  if (period instanceof Error)
 	    return period;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 
 	  // Compute payment
 	  var payment = exports.PMT(rate, periods, present, future, type);
@@ -11813,13 +11741,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  guess = guess || 0;
 	  values = utils.parseNumbers(_.flatten(values));
-	  if (values instanceof Error) {
+	  if (values instanceof Error)
 	    return values;
-	  }
 	  guess = utils.parseNumber(guess);
-	  if (guess instanceof Error) {
+	  if (guess instanceof Error)
 	    return guess;
-	  }
 
 	  // Calculates the resulting amount
 	  var irrResult = function(values, dates, rate) {
@@ -11870,8 +11796,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // Implement Newton's method
 	  var newRate, epsRate, resultValue;
-	  var iteration = 0;
-	  var contLoop = true;
+	  var contLoop;
 	  do {
 	    resultValue = irrResult(values, dates, resultRate);
 	    newRate = resultRate - resultValue / irrResultDeriv(values, dates, resultRate);
@@ -11886,21 +11811,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.ISPMT = function(rate, period, periods, value) {
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  period = utils.parseNumber(period);
-	  if (period instanceof Error) {
+	  if (period instanceof Error)
 	    return period;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  value = utils.parseNumber(value);
-	  if (value instanceof Error) {
+	  if (value instanceof Error)
 	    return value;
-	  }
 
 	  // Return interest
 	  return value * rate * (period / periods - 1);
@@ -11908,22 +11829,19 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.MDURATION = function () {
-	 throw new Error('MDURATION is not implemented');
+	  throw new Error('MDURATION is not implemented');
 	};
 
 	exports.MIRR = function(values, finance_rate, reinvest_rate) {
 	  values = utils.parseNumbers(_.flatten(values));
-	  if (values instanceof Error) {
+	  if (values instanceof Error)
 	    return values;
-	  }
 	  finance_rate = utils.parseNumber(finance_rate);
-	  if (finance_rate instanceof Error) {
+	  if (finance_rate instanceof Error)
 	    return finance_rate;
-	  }
 	  reinvest_rate = utils.parseNumber(reinvest_rate);
-	  if (reinvest_rate instanceof Error) {
+	  if (reinvest_rate instanceof Error)
 	    return reinvest_rate;
-	  }
 
 	  // Initialize number of values
 	  var n = values.length;
@@ -11947,18 +11865,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.NOMINAL = function(rate, periods) {
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
-
-	  // Return error if rate <=0 or periods < 1
-	  if (rate <= 0 || periods < 1) {
+	  if (rate <= 0 || periods < 1)
 	    return error.num;
-	  }
 
 	  // Truncate periods if it is not an integer
 	  periods = parseInt(periods, 10);
@@ -11972,25 +11885,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  future = (future === undefined) ? 0 : future;
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  payment = utils.parseNumber(payment);
-	  if (payment instanceof Error) {
+	  if (payment instanceof Error)
 	    return payment;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 
 	  // Return number of periods
 	  var num = payment * (1 + rate * type) - future * rate;
@@ -12000,9 +11908,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.NPV = function(rate) {
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 
 	  var args = utils.parseNumbers(_.flatten(arguments));
 
@@ -12020,42 +11927,36 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.ODDFPRICE = function () {
-	 throw new Error('ODDFPRICE is not implemented');
+	  throw new Error('ODDFPRICE is not implemented');
 	};
 
 	// TODO
 	exports.ODDFYIELD = function () {
-	 throw new Error('ODDFYIELD is not implemented');
+	  throw new Error('ODDFYIELD is not implemented');
 	};
 
 	// TODO
 	exports.ODDLPRICE = function () {
-	 throw new Error('ODDLPRICE is not implemented');
+	  throw new Error('ODDLPRICE is not implemented');
 	};
 
 	// TODO
 	exports.ODDLYIELD = function () {
-	 throw new Error('ODDLYIELD is not implemented');
+	  throw new Error('ODDLYIELD is not implemented');
 	};
 
 	exports.PDURATION = function(rate, present, future) {
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
-
-	  // Return error if rate <=0
-	  if (rate <= 0) {
+	  if (rate <= 0)
 	    return error.num;
-	  }
 
 	  // Return number of periods
 	  return (Math.log(future) - Math.log(present)) / Math.log(1 + rate);
@@ -12068,27 +11969,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  type = type || 0;
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 
-	  // Return payment
 	  var result;
 	  if (rate === 0) {
 	    result = (present + future) / periods;
@@ -12108,42 +12003,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	  type = type || 0;
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 
 	  return exports.PMT(rate, periods, present, future, type) - exports.IPMT(rate, period, periods, present, future, type);
 	};
 
 	// TODO
 	exports.PRICE = function () {
-	 throw new Error('PRICE is not implemented');
+	  throw new Error('PRICE is not implemented');
 	};
 
 	// TODO
 	exports.PRICEDISC = function () {
-	 throw new Error('PRICEDISC is not implemented');
+	  throw new Error('PRICEDISC is not implemented');
 	};
 
 	// TODO
 	exports.PRICEMAT = function () {
-	 throw new Error('PRICEMAT is not implemented');
+	  throw new Error('PRICEMAT is not implemented');
 	};
 
 	exports.PV = function(rate, periods, payment, future, type) {
@@ -12151,27 +12041,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	  type = type || 0;
 
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  payment = utils.parseNumber(payment);
-	  if (payment instanceof Error) {
+	  if (payment instanceof Error)
 	    return payment;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 
-	  // Return present value
 	  if (rate === 0) {
 	    return -payment * periods - future;
 	  } else {
@@ -12187,29 +12071,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	  type = (type === undefined) ? 0 : type;
 
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  payment = utils.parseNumber(payment);
-	  if (payment instanceof Error) {
+	  if (payment instanceof Error)
 	    return payment;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 	  type = utils.parseNumber(type);
-	  if (type instanceof Error) {
+	  if (type instanceof Error)
 	    return type;
-	  }
 	  guess = utils.parseNumber(guess);
-	  if (guess instanceof Error) {
+	  if (guess instanceof Error)
 	    return guess;
-	  }
 
 	  // Set maximum epsilon for end of iteration
 	  var epsMax = 1e-10;
@@ -12251,27 +12129,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.RECEIVED = function () {
-	 throw new Error('RECEIVED is not implemented');
+	  throw new Error('RECEIVED is not implemented');
 	};
 
 	exports.RRI = function(periods, present, future) {
 	  periods = utils.parseNumber(periods);
-	  if (periods instanceof Error) {
+	  if (periods instanceof Error)
 	    return periods;
-	  }
 	  present = utils.parseNumber(present);
-	  if (present instanceof Error) {
+	  if (present instanceof Error)
 	    return present;
-	  }
 	  future = utils.parseNumber(future);
-	  if (future instanceof Error) {
+	  if (future instanceof Error)
 	    return future;
-	  }
 
-	  // Return error if periods or present is equal to 0 (zero)
-	  if (periods === 0 || present === 0) {
+	  if (periods === 0 || present === 0)
 	    return error.num;
-	  }
 
 	  // Return equivalent interest rate
 	  return Math.pow(future / present, 1 / periods) - 1;
@@ -12279,22 +12152,16 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.SLN = function(cost, salvage, life) {
 	  cost = utils.parseNumber(cost);
-	  if (cost instanceof Error) {
+	  if (cost instanceof Error)
 	    return cost;
-	  }
 	  salvage = utils.parseNumber(salvage);
-	  if (salvage instanceof Error) {
+	  if (salvage instanceof Error)
 	    return salvage;
-	  }
 	  life = utils.parseNumber(life);
-	  if (life instanceof Error) {
+	  if (life instanceof Error)
 	    return life;
-	  }
-
-	  // Return error if life equal to 0 (zero)
-	  if (life === 0) {
+	  if (life === 0)
 	    return error.num;
-	  }
 
 	  // Return straight-line depreciation
 	  return (cost - salvage) / life;
@@ -12303,31 +12170,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.SYD = function(cost, salvage, life, period) {
 	  // Return error if any of the parameters is not a number
 	  cost = utils.parseNumber(cost);
-	  if (cost instanceof Error) {
+	  if (cost instanceof Error)
 	    return cost;
-	  }
 	  salvage = utils.parseNumber(salvage);
-	  if (salvage instanceof Error) {
+	  if (salvage instanceof Error)
 	    return salvage;
-	  }
 	  life = utils.parseNumber(life);
-	  if (life instanceof Error) {
+	  if (life instanceof Error)
 	    return life;
-	  }
 	  period = utils.parseNumber(period);
-	  if (period instanceof Error) {
+	  if (period instanceof Error)
 	    return period;
-	  }
-
-	  // Return error if life equal to 0 (zero)
-	  if (life === 0) {
+	  if (life === 0)
 	    return error.num;
-	  }
-
-	  // Return error if period is lower than 1 or greater than life
-	  if (period < 1 || period > life) {
+	  if (period < 1 || period > life)
 	    return error.num;
-	  }
 
 	  // Truncate period if it is not an integer
 	  period = parseInt(period, 10);
@@ -12338,32 +12195,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.TBILLEQ = function(settlement, maturity, discount) {
 	  settlement = utils.parseDate(settlement);
-	  if (settlement instanceof Error) {
+	  if (settlement instanceof Error)
 	    return settlement;
-	  }
 	  maturity = utils.parseDate(maturity);
-	  if (maturity instanceof Error) {
+	  if (maturity instanceof Error)
 	    return maturity;
-	  }
 	  discount = utils.parseNumber(discount);
-	  if (discount instanceof Error) {
+	  if (discount instanceof Error)
 	    return discount;
-	  }
-
-	  // Return error if discount is lower than or equal to zero
-	  if (discount <= 0) {
+	  if (discount <= 0)
 	    return error.num;
-	  }
-
-	  // Return error if settlement is greater than maturity
-	  if (settlement > maturity) {
+	  if (settlement > maturity)
 	    return error.num;
-	  }
 
 	  // Return error if maturity is more than one year after settlement
-	  if (maturity - settlement > 365 * 24 * 60 * 60 * 1000) {
+	  if (maturity - settlement > 365 * 24 * 60 * 60 * 1000)
 	    return error.num;
-	  }
 
 	  // Return bond-equivalent yield
 	  return (365 * discount) / (360 - discount * dateTime.DAYS360(settlement, maturity, false));
@@ -12371,32 +12218,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.TBILLPRICE = function(settlement, maturity, discount) {
 	  settlement = utils.parseDate(settlement);
-	  if (settlement instanceof Error) {
+	  if (settlement instanceof Error)
 	    return settlement;
-	  }
 	  maturity = utils.parseDate(maturity);
-	  if (maturity instanceof Error) {
+	  if (maturity instanceof Error)
 	    return maturity;
-	  }
 	  discount = utils.parseNumber(discount);
-	  if (discount instanceof Error) {
+	  if (discount instanceof Error)
 	    return discount;
-	  }
-
-	  // Return error if discount is lower than or equal to zero
-	  if (discount <= 0) {
+	  if (discount <= 0)
 	    return error.num;
-	  }
-
-	  // Return error if settlement is greater than maturity
-	  if (settlement > maturity) {
+	  if (settlement > maturity)
 	    return error.num;
-	  }
 
 	  // Return error if maturity is more than one year after settlement
-	  if (maturity - settlement > 365 * 24 * 60 * 60 * 1000) {
+	  if (maturity - settlement > 365 * 24 * 60 * 60 * 1000)
 	    return error.num;
-	  }
 
 	  // Return bond-equivalent yield
 	  return 100 * (1 - discount * dateTime.DAYS360(settlement, maturity, false) / 360);
@@ -12404,32 +12241,22 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.TBILLYIELD = function(settlement, maturity, price) {
 	  settlement = utils.parseDate(settlement);
-	  if (settlement instanceof Error) {
+	  if (settlement instanceof Error)
 	    return settlement;
-	  }
 	  maturity = utils.parseDate(maturity);
-	  if (maturity instanceof Error) {
+	  if (maturity instanceof Error)
 	    return maturity;
-	  }
 	  price = utils.parseNumber(price);
-	  if (price instanceof Error) {
+	  if (price instanceof Error)
 	    return price;
-	  }
-
-	  // Return error if price is lower than or equal to zero
-	  if (price <= 0) {
+	  if (price <= 0)
 	    return error.num;
-	  }
-
-	  // Return error if settlement is greater than maturity
-	  if (settlement > maturity) {
+	  if (settlement > maturity)
 	    return error.num;
-	  }
 
 	  // Return error if maturity is more than one year after settlement
-	  if (maturity - settlement > 365 * 24 * 60 * 60 * 1000) {
+	  if (maturity - settlement > 365 * 24 * 60 * 60 * 1000)
 	    return error.num;
-	  }
 
 	  // Return bond-equivalent yield
 	  return (100 - price) * 360 / (price * dateTime.DAYS360(settlement, maturity, false));
@@ -12437,25 +12264,21 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.VDB = function () {
-	 throw new Error('VDB is not implemented');
+	  throw new Error('VDB is not implemented');
 	};
-
 
 	exports.XIRR = function(values, dates, guess) {
 	  // Credits: algorithm inspired by Apache OpenOffice
 
 	  values = utils.parseNumbers(_.flatten(values));
-	  if (values instanceof Error) {
+	  if (values instanceof Error)
 	    return values;
-	  }
 	  dates = utils.parseDates(_.flatten(dates));
-	  if (dates instanceof Error) {
+	  if (dates instanceof Error)
 	    return dates;
-	  }
 	  guess = utils.parseNumber(guess);
-	  if (guess instanceof Error) {
+	  if (guess instanceof Error)
 	    return guess;
-	  }
 
 	  // Calculates the resulting amount
 	  var irrResult = function(values, dates, rate) {
@@ -12504,8 +12327,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // Implement Newton's method
 	  var newRate, epsRate, resultValue;
-	  var iteration = 0;
-	  var contLoop = true;
+	  var contLoop;
 	  do {
 	    resultValue = irrResult(values, dates, resultRate);
 	    newRate = resultRate - resultValue / irrResultDeriv(values, dates, resultRate);
@@ -12520,17 +12342,14 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	exports.XNPV = function(rate, values, dates) {
 	  rate = utils.parseNumber(rate);
-	  if (rate instanceof Error) {
+	  if (rate instanceof Error)
 	    return rate;
-	  }
 	  values = utils.parseNumbers(_.flatten(values));
-	  if (values instanceof Error) {
+	  if (values instanceof Error)
 	    return values;
-	  }
 	  dates = utils.parseDates(_.flatten(dates));
-	  if (dates instanceof Error) {
+	  if (dates instanceof Error)
 	    return dates;
-	  }
 
 	  var result = 0;
 	  for (var i = 0; i < values.length; i++) {
@@ -12541,17 +12360,17 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	// TODO
 	exports.YIELD = function () {
-	 throw new Error('YIELD is not implemented');
+	  throw new Error('YIELD is not implemented');
 	};
 
 	// TODO
 	exports.YIELDDISC = function () {
-	 throw new Error('YIELDDISC is not implemented');
+	  throw new Error('YIELDDISC is not implemented');
 	};
 
 	// TODO
 	exports.YIELDMAT = function () {
-	 throw new Error('YIELDMAT is not implemented');
+	  throw new Error('YIELDMAT is not implemented');
 	};
 
 
