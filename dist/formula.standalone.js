@@ -83,7 +83,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  __webpack_require__(15),
 	  __webpack_require__(17),
 	  __webpack_require__(3),
-	  __webpack_require__(11),
+	  __webpack_require__(9),
 	  __webpack_require__(18),
 	  __webpack_require__(19),
 	  __webpack_require__(20),
@@ -162,12 +162,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var mathTrig = __webpack_require__(3);
-	var text = __webpack_require__(11);
-	var jStat = __webpack_require__(13).jStat;
+	var text = __webpack_require__(9);
+	var jStat = __webpack_require__(11).jStat;
 	var utils = __webpack_require__(4);
 	var error = __webpack_require__(5);
-	var evalExpr = __webpack_require__(7);
-	var _ = __webpack_require__(10);
+	var evalExpr = __webpack_require__(12);
+	var _ = __webpack_require__(8);
 
 	var SQRT2PI = 2.5066282746310002;
 
@@ -222,85 +222,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Excel does not allow this function to be entered into a cell with either range or average_range
-	 * specified as a literal value.  It requires each to be a spreadsheet range.
-	 * None-the-less, this is implemented to operate on literal values with each parameter
-	 * allowed to be an array of values -- ignoring any non-number values.  Does allow each to
-	 * be a non-array value which is treated the same as a one element array.
+	 * Excel only allows this function to be entered into a cell for spreadsheet ranges.
+	 * None-the-less, this is implemented to operate on literal values with each parameter allowed to 
+	 * be an array of values (ignoring any non-number values) or a non-array value which is treated 
+	 * like a one element array.
 	 */
-	exports.AVERAGEIF = function (range, criteria, average_range) {
-	  utils.throwIfMissingArgument(range, 'range');
-	  utils.throwIfMissingArgument(criteria, 'criteria');
-	  if (average_range === undefined)
-	    average_range = range;
-
-	  range = utils.arrayify(range);
-	  average_range = utils.arrayify(average_range);
-	  if (average_range.length !== range.length)
-	    throw new Error('range and average_range must have same number of elements.');
-
-	  var comparisons = utils.applyCriteriaToValues(range, criteria);
+	exports.AVERAGEIF = function () {
 	  var sum = 0;
 	  var count = 0;
-	  for (var i = 0; i < range.length; ++i) {
-	    if (typeof average_range[i] === 'number')
-	      if (comparisons[i]) {
-	        sum += average_range[i];
-	        count++;
-	      }
-	  }
+	  utils.performIf(arguments, function(value) {
+	    if (typeof value === 'number') {
+	      sum += value;
+	      count++;
+	    }
+	  });
 	  if (count === 0)
 	    return error.div0;
 	  return sum / count;
 	};
 
 	exports.AVERAGEIFS = function () {
-	  var criterias = utils.argsToArray(arguments);
-	  var numbers = _.flatten(criterias.shift());
-
 	  var sum = 0;
 	  var count = 0;
-
-	  for (var i = 0; i < numbers.length; i++) {
-	    if (typeof(numbers[i]) !== 'number') {
-	      continue;
+	  utils.performIfs(arguments, function (value) {
+	    if (typeof value === 'number') {
+	      sum += value;
+	      count++;
 	    }
-	    var valid = true;
-	    for (var c = 0; c < criterias.length; c += 2) {
-	      if (criterias[c].length !== numbers.length) {
-	        return error.value;
-	      }
-
-	      var criteria = criterias[c + 1];
-	      if (!/[><=!]/.test(criteria)) {
-	        if (!isNaN(parseFloat(criteria))) {
-	          criteria = '=' + criteria;
-	        } else {
-	          criteria = '=' + JSON.stringify(criteria);
-	        }
-	      } else {
-	        var sl = criteria.slice(1);
-	        if (!isNaN(parseFloat(sl))) {
-	          criteria = criteria[0] + sl;
-	        } else {
-	          criteria = criteria[0] + JSON.stringify(sl);
-	        }
-	      }
-	      if (!evalExpr(JSON.stringify(criterias[c][i]) + criteria)) {
-	        valid = false;
-	        break;
-	      }
-	    }
-	    if (valid) {
-	        sum += numbers[i];
-	        count++;
-	    }
-	  }
-
-	  if (count === 0) {
+	  });
+	  if (count === 0)
 	    return error.div0;
-	  }
-
 	  return sum / count;
 	};
 
@@ -641,51 +592,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Excel does not allow this function to be entered into a cell with range
-	 * specified as a literal value.  It requires it to be a spreadsheet range.
-	 * None-the-less, this is implemented to operate on an array of values or a single value
-	 * which is treated the same as a one element array.
+	 * Excel only allows this function to be entered into a cell for spreadsheet ranges.
+	 * None-the-less, this is implemented to operate on literal values with each parameter allowed to 
+	 * be an array of values (ignoring any non-number values) or a non-array value which is treated 
+	 * like a one element array.
 	 */
-	exports.COUNTIF = function (range, criteria) {
-	  utils.throwIfMissingArgument(range, 'range');
-	  utils.throwIfMissingArgument(criteria, 'criteria');
-	  var comparisons = utils.applyCriteriaToValues(range, criteria);
+	exports.COUNTIF = function () {
 	  var count = 0;
-	  for (var i = 0; i < comparisons.length; i++)
-	    if (comparisons[i])
-	      count++;
+	  utils.performIf(arguments, function() { ++count; });
 	  return count;
 	};
 
 	exports.COUNTIFS = function () {
-	  var args = utils.argsToArray(arguments);
-
 	  var count = 0;
-
-	  for (var c = 0; c < args.length; c += 2) {
-	    var numbers = _.flatten(args[c]);
-	    var criteria = args[c+1];
-	    if (!/[><=!]/.test(criteria)) {
-	      if (!isNaN(parseFloat(criteria))) {
-	        criteria = '=' + criteria;
-	      } else {
-	        criteria = '=' + JSON.stringify(criteria);
-	      }
-	    } else {
-	      var sl = criteria.slice(1);
-	      if (!isNaN(parseFloat(sl))) {
-	        criteria = criteria[0] + sl;
-	      } else {
-	        criteria = criteria[0] + JSON.stringify(sl);
-	      }
-	    }
-	    for (var i = 0; i < numbers.length; i++) {
-	      if (evalExpr(JSON.stringify(numbers[i]) + criteria)) {
-	        count++;
-	      }
-	    }
-	  }
-
+	  var args = [arguments[0]].concat(utils.argsToArray(arguments));
+	  utils.performIfs(args, function () { ++count; });
 	  return count;
 	};
 
@@ -2328,9 +2249,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var error = __webpack_require__(5);
 	var statistical = __webpack_require__(2);
 	var information = __webpack_require__(6);
-	var evalExpr = __webpack_require__(7);
-	var matrix = __webpack_require__(9);
-	var _ = __webpack_require__(10);
+	var matrix = __webpack_require__(7);
+	var _ = __webpack_require__(8);
 
 	exports.ABS = function(number) {
 	  number = utils.parseNumber(number);
@@ -3368,83 +3288,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	exports.SUM = function () {
-	  var numbers = utils.parseNumbers(_.flatten(arguments));
-	  var result = 0;
-	  var i = numbers.length;
-	  while (i--) {
-	    result += numbers[i];
-	  }
-
-	  return result;
+	  var numbers = utils.parseNumbersFromArguments(arguments);
+	  if (numbers instanceof Error)
+	    return numbers;
+	  var sum = 0;
+	  for (var i = 0; i < numbers.length; ++i)
+	    sum += numbers[i];
+	  return sum;
 	};
 
-	exports.SUMIF = function(range, criteria, sum_range) {
-	  range = _.flatten(range);
-	  sum_range = sum_range !== undefined ? _.flatten(sum_range) : range;
-	  if (sum_range instanceof Error) {
-	    return sum_range;
-	  }
-	  if (!/[><=!]/.test(criteria)) {
-	    criteria = '=' + JSON.stringify(criteria);
-	  } else {
-	    criteria = criteria[0] + JSON.stringify(criteria.slice(1));
-	  }
-	  var result = 0;
-	  for (var i = 0; i < sum_range.length; i++) {
-	    if (sum_range[i] instanceof Error) {
-	      return sum_range[i];
-	    }
-	    if (typeof(sum_range[i]) !== 'number') {
-	      continue;
-	    }
-	    if (evalExpr(JSON.stringify(range[i]) + criteria)) {
-	      result += sum_range[i];
-	    }
-	  }
-	  return result;
+	/**
+	 * Excel only allows this function to be entered into a cell for spreadsheet ranges.
+	 * None-the-less, this is implemented to operate on literal values with each parameter allowed to 
+	 * be an array of values (ignoring any non-number values) or a non-array value which is treated 
+	 * like a one element array.
+	 */
+	exports.SUMIF = function () {
+	  var sum = 0;
+	  utils.performIf(arguments, function(value) {
+	    if (typeof value === 'number')
+	      sum += value;
+	  });
+	  return sum;
 	};
 
 	exports.SUMIFS = function () {
-	  var criterias = utils.argsToArray(arguments);
-	  var numbers = _.flatten(criterias.shift());
-	  var result = 0;
-
-	  for (var i = 0; i < numbers.length; i++) {
-	    if (typeof(numbers[i]) !== 'number') {
-	      continue;
-	    }
-	    var valid = true;
-	    for (var c = 0; c < criterias.length; c += 2) {
-	      if (criterias[c].length !== numbers.length) {
-	        return error.value;
-	      }
-
-	      var criteria = criterias[c + 1];
-	      if (!/[><=!]/.test(criteria)) {
-	        if (!isNaN(parseFloat(criteria))) {
-	          criteria = '=' + criteria;
-	        } else {
-	          criteria = '=' + JSON.stringify(criteria);
-	        }
-	      } else {
-	        var sl = criteria.slice(1);
-	        if (!isNaN(parseFloat(sl))) {
-	          criteria = criteria[0] + sl;
-	        } else {
-	          criteria = criteria[0] + JSON.stringify(sl);
-	        }
-	      }
-	      if (!evalExpr(JSON.stringify(criterias[c][i]) + criteria)) {
-	        valid = false;
-	        break;
-	      }
-	    }
-	    if (valid) {
-	        result += numbers[i];
-	    }
-	  }
-
-	  return result;
+	  var sum = 0;
+	  utils.performIfs(arguments, function (value) {
+	    if (typeof value === 'number')
+	      sum += value;
+	  });
+	  return sum;
 	};
 
 	exports.SUMPRODUCT = function () {
@@ -3591,6 +3465,65 @@ return /******/ (function(modules) { // webpackBootstrap
 	var error = __webpack_require__(5);
 
 	/**
+	 * Implements an *IF function for its arguments and an action function.
+	 * @param {[varies]} args - arguments to the *IF function.
+	 * @param {function(value)} action - function to handle each value satisfying the criteria.
+	 */
+	exports.performIf = function (args, action) {
+	  var range = args[0];
+	  var criteria = args[1];
+	  var valueRange = args[2];
+	  exports.throwIfMissingArgument(range, 'range');
+	  exports.throwIfMissingArgument(criteria, 'criteria');
+	  if (valueRange === undefined) valueRange = range;
+
+	  range = exports.arrayify(range);
+	  valueRange = exports.arrayify(valueRange);
+	  if (valueRange.length !== range.length)
+	    throw new Error('Ranges must have same number of elements.');
+
+	  var comparisons = exports.applyCriteriaToValues(range, criteria);
+	  for (var i = 0; i < range.length; ++i)
+	    if (comparisons[i])
+	      action(valueRange[i]);
+	}
+
+	/**
+	 * Implements an *IFS function for its arguments and an action function.
+	 * @param {[varies]} args - arguments to the *IFS function.
+	 * @param {function(value)} action - function to handle each value satisfying the criteria.
+	 */
+	exports.performIfs = function (args, action) {
+	  var valueRange = args[0];
+	  var testRange1 = args[1];
+	  exports.throwIfMissingArgument(valueRange, 'sum_range');
+	  exports.throwIfMissingArgument(testRange1, 'range1');
+	  valueRange = exports.arrayify(valueRange);
+	  var ranges = [];
+	  var criterias = [];
+	  var argIndex = 1;
+	  while (args[argIndex] !== undefined) {
+	    var range = exports.arrayify(args[argIndex++]);
+	    if (range.length !== valueRange.length)
+	      throw new Error('Ranges must have same number of elements.');
+	    ranges.push(range);
+	    var criteria = args[argIndex++];
+	    if (criteria === undefined)
+	      throw new Error('Missing criteria for values.');
+	    criterias.push(criteria);
+	  }
+	  var comparisons = exports.applyCriteriaToValues(ranges[0], criterias[0]);
+	  for (var r = 0; r < ranges.length; ++r) {
+	    var nextComparisons = exports.applyCriteriaToValues(ranges[r], criterias[r]);
+	    for (var c = 0; c < nextComparisons.length; ++c)
+	      comparisons[c] = comparisons[c] && nextComparisons[c];
+	  }
+	  for (var i = 0; i < valueRange.length; ++i)
+	    if (comparisons[i])
+	      action(valueRange[i]);
+	}
+
+	/**
 	 * Evaluates the criteria parameter to an *IF function -- returning a function that accepts one 
 	 * value and returns the comparison result.
 	 *
@@ -3600,6 +3533,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * conversion is performed ... sadly too complicated to describe :( ... checkout the code and tests.
 	 * 
 	 * String comparison is case insensitive and based on alphabetical ordering.
+	 * 
+	 * TODO: Support wildcard (* and ?) matching and support escaping the wildcard chars (with ~).
 	 * 
 	 * @param {string|number|boolean|null} criteria - Right operand plus optional operator prefix.
 	 * @returns {boolean function(value)} 
@@ -3678,10 +3613,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	exports.applyCriteriaToValues = function (values, criteria) {
 	  var compare = exports.parseCriteria(criteria);
-	  var results = [];
 	  values = exports.arrayify(values);
+	  var results = new Array(values.length);
 	  for (var i = 0; i < values.length; ++i)
-	    results.push(compare(values[i]));
+	    results[i] = compare(values[i]);
 	  return results;
 	}
 
@@ -4286,700 +4221,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var jsep = __webpack_require__(8);
-
-	jsep.addBinaryOp('=', 6);
-
-	var binops = {
-	  '+' : function(a, b) { return a + b; },
-	  '-' : function(a, b) { return a - b; },
-	  '*' : function(a, b) { return a * b; },
-	  '/' : function(a, b) { return a / b; },
-	  '%' : function(a, b) { return a % b; },
-	  '>' : function(a, b) { return a > b; },
-	  '>=' : function(a, b) { return a >= b; },
-	  '<' : function(a, b) { return a < b; },
-	  '<=' : function(a, b) { return a <= b; },
-	  '=' : function(a, b) { return a == b; },
-	  '==' : function(a, b) { return a == b; },
-	  '!=' : function(a, b) { return a !== b; }
-	};
-	var unops = {
-	  '-' : function(a) { return -a; },
-	  '!' : function(a) { return !a; }
-	};
-	var logops = {
-	  '&&' : function(a, b) { return a && b; },
-	  '||' : function(a, b) { return a || b; }
-	};
-
-	function do_eval(node, variables) {
-	  if (node.type === 'BinaryExpression') {
-	    var binop = binops[node.operator];
-	    if (!binop) {
-	      throw new Error('Unknown binary operator ' + node.operator);
-	    }
-	    return binop(do_eval(node.left), do_eval(node.right));
-	  } else if (node.type === 'UnaryExpression') {
-	    var unop = unops[node.operator];
-	    if (!unop) {
-	      throw new Error('Unknown unary operator ' + node.operator);
-	    }
-	    return unop(do_eval(node.argument));
-	  } else if (node.type === 'LogicalExpression') {
-	    var logop = logops[node.operator];
-	    if (!logop) {
-	      throw new Error('Unknown logical operator ' + node.operator);
-	    }
-	    return logop(do_eval(node.left), do_eval(node.right));
-	  } else if (node.type === 'Literal') {
-	    return node.value;
-	  } else if (node.type === 'Identifier') {
-	    return node.name;
-	    // NOTE: Excel treats undecorated text as a string literal -- not an identifier
-	    //return variables ? variables[node.name] : undefined;
-	  } else {
-	    throw new Error('Unsupported expression node: ' + node + '.');
-	  }
-	}
-
-	/**
-	 * Evaluates a small Excel expression -- as found in ...IF functions.
-	 * @param {string} expr
-	 * @returns {object}
-	 */
-	module.exports = function evalExpr(expr) {
-	  var ast = jsep(expr);
-	  return do_eval(ast);
-	};
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	//     JavaScript Expression Parser (JSEP) 0.2.9
-	//     JSEP may be freely distributed under the MIT License
-	//     http://jsep.from.so/
-
-	/*global module: true, exports: true, console: true */
-	(function (root) {
-		'use strict';
-		// Node Types
-		// ----------
-		
-		// This is the full set of types that any JSEP node can be.
-		// Store them here to save space when minified
-		var COMPOUND = 'Compound',
-			IDENTIFIER = 'Identifier',
-			MEMBER_EXP = 'MemberExpression',
-			LITERAL = 'Literal',
-			THIS_EXP = 'ThisExpression',
-			CALL_EXP = 'CallExpression',
-			UNARY_EXP = 'UnaryExpression',
-			BINARY_EXP = 'BinaryExpression',
-			LOGICAL_EXP = 'LogicalExpression',
-			CONDITIONAL_EXP = 'ConditionalExpression',
-			ARRAY_EXP = 'Array',
-
-			PERIOD_CODE = 46, // '.'
-			COMMA_CODE  = 44, // ','
-			SQUOTE_CODE = 39, // single quote
-			DQUOTE_CODE = 34, // double quotes
-			OPAREN_CODE = 40, // (
-			CPAREN_CODE = 41, // )
-			OBRACK_CODE = 91, // [
-			CBRACK_CODE = 93, // ]
-			QUMARK_CODE = 63, // ?
-			SEMCOL_CODE = 59, // ;
-			COLON_CODE  = 58, // :
-
-			throwError = function(message, index) {
-				var error = new Error(message + ' at character ' + index);
-				error.index = index;
-				error.dedscription = message;
-				throw error;
-			},
-
-		// Operations
-		// ----------
-		
-		// Set `t` to `true` to save space (when minified, not gzipped)
-			t = true,
-		// Use a quickly-accessible map to store all of the unary operators
-		// Values are set to `true` (it really doesn't matter)
-			unary_ops = {'-': t, '!': t, '~': t, '+': t},
-		// Also use a map for the binary operations but set their values to their
-		// binary precedence for quick reference:
-		// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
-			binary_ops = {
-				'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
-				'==': 6, '!=': 6, '===': 6, '!==': 6,
-				'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
-				'<<':8,  '>>': 8, '>>>': 8,
-				'+': 9, '-': 9,
-				'*': 10, '/': 10, '%': 10
-			},
-		// Get return the longest key length of any object
-			getMaxKeyLen = function(obj) {
-				var max_len = 0, len;
-				for(var key in obj) {
-					if((len = key.length) > max_len && obj.hasOwnProperty(key)) {
-						max_len = len;
-					}
-				}
-				return max_len;
-			},
-			max_unop_len = getMaxKeyLen(unary_ops),
-			max_binop_len = getMaxKeyLen(binary_ops),
-		// Literals
-		// ----------
-		// Store the values to return for the various literals we may encounter
-			literals = {
-				'true': true,
-				'false': false,
-				'null': null
-			},
-		// Except for `this`, which is special. This could be changed to something like `'self'` as well
-			this_str = 'this',
-		// Returns the precedence of a binary operator or `0` if it isn't a binary operator
-			binaryPrecedence = function(op_val) {
-				return binary_ops[op_val] || 0;
-			},
-		// Utility function (gets called from multiple places)
-		// Also note that `a && b` and `a || b` are *logical* expressions, not binary expressions
-			createBinaryExpression = function (operator, left, right) {
-				var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
-				return {
-					type: type,
-					operator: operator,
-					left: left,
-					right: right
-				};
-			},
-			// `ch` is a character code in the next three functions
-			isDecimalDigit = function(ch) {
-				return (ch >= 48 && ch <= 57); // 0...9
-			},
-			isIdentifierStart = function(ch) {
-				return (ch === 36) || (ch === 95) || // `$` and `_`
-						(ch >= 65 && ch <= 90) || // A...Z
-						(ch >= 97 && ch <= 122); // a...z
-			},
-			isIdentifierPart = function(ch) {
-				return (ch === 36) || (ch === 95) || // `$` and `_`
-						(ch >= 65 && ch <= 90) || // A...Z
-						(ch >= 97 && ch <= 122) || // a...z
-						(ch >= 48 && ch <= 57); // 0...9
-			},
-
-			// Parsing
-			// -------
-			// `expr` is a string with the passed in expression
-			jsep = function(expr) {
-				// `index` stores the character number we are currently at while `length` is a constant
-				// All of the gobbles below will modify `index` as we move along
-				var index = 0,
-					charAtFunc = expr.charAt,
-					charCodeAtFunc = expr.charCodeAt,
-					exprI = function(i) { return charAtFunc.call(expr, i); },
-					exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
-					length = expr.length,
-
-					// Push `index` up to the next non-space character
-					gobbleSpaces = function() {
-						var ch = exprICode(index);
-						// space or tab
-						while(ch === 32 || ch === 9) {
-							ch = exprICode(++index);
-						}
-					},
-					
-					// The main parsing function. Much of this code is dedicated to ternary expressions
-					gobbleExpression = function() {
-						var test = gobbleBinaryExpression(),
-							consequent, alternate;
-						
-						gobbleSpaces();
-						// Ternary expression: test ? consequent : alternate
-						if(exprICode(index) === QUMARK_CODE) {
-							index++;
-							consequent = gobbleExpression();
-							if(!consequent) {
-								throwError('Expected expression', index);
-							}
-							gobbleSpaces();
-							if(exprICode(index) === COLON_CODE) {
-								index++;
-								alternate = gobbleExpression();
-								if(!alternate) {
-									throwError('Expected expression', index);
-								}
-								return {
-									type: CONDITIONAL_EXP,
-									test: test,
-									consequent: consequent,
-									alternate: alternate
-								};
-							} else {
-								throwError('Expected :', index);
-							}
-						} else {
-							return test;
-						}
-					},
-
-					// Search for the operation portion of the string (e.g. `+`, `===`)
-					// Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `>>>`)
-					// and move down from 3 to 2 to 1 character until a matching binary operation is found
-					// then, return that binary operation
-					gobbleBinaryOp = function() {
-						gobbleSpaces();
-						var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
-						while(tc_len > 0) {
-							if(binary_ops.hasOwnProperty(to_check)) {
-								index += tc_len;
-								return to_check;
-							}
-							to_check = to_check.substr(0, --tc_len);
-						}
-						return false;
-					},
-
-					// This function is responsible for gobbling an individual expression,
-					// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
-					gobbleBinaryExpression = function() {
-						var ch_i, node, biop, prec, stack, biop_info, left, right, i;
-
-						// First, try to get the leftmost thing
-						// Then, check to see if there's a binary operator operating on that leftmost thing
-						left = gobbleToken();
-						biop = gobbleBinaryOp();
-
-						// If there wasn't a binary operator, just return the leftmost node
-						if(!biop) {
-							return left;
-						}
-
-						// Otherwise, we need to start a stack to properly place the binary operations in their
-						// precedence structure
-						biop_info = { value: biop, prec: binaryPrecedence(biop)};
-
-						right = gobbleToken();
-						if(!right) {
-							throwError("Expected expression after " + biop, index);
-						}
-						stack = [left, biop_info, right];
-
-						// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
-						while((biop = gobbleBinaryOp())) {
-							prec = binaryPrecedence(biop);
-
-							if(prec === 0) {
-								break;
-							}
-							biop_info = { value: biop, prec: prec };
-
-							// Reduce: make a binary expression from the three topmost entries.
-							while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
-								right = stack.pop();
-								biop = stack.pop().value;
-								left = stack.pop();
-								node = createBinaryExpression(biop, left, right);
-								stack.push(node);
-							}
-
-							node = gobbleToken();
-							if(!node) {
-								throwError("Expected expression after " + biop, index);
-							}
-							stack.push(biop_info, node);
-						}
-
-						i = stack.length - 1;
-						node = stack[i];
-						while(i > 1) {
-							node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
-							i -= 2;
-						}
-						return node;
-					},
-
-					// An individual part of a binary expression:
-					// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
-					gobbleToken = function() {
-						var ch, curr_node, unop, to_check, tc_len;
-						
-						gobbleSpaces();
-						ch = exprICode(index);
-
-						if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
-							// Char code 46 is a dot `.` which can start off a numeric literal
-							return gobbleNumericLiteral();
-						} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
-							// Single or double quotes
-							return gobbleStringLiteral();
-						} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
-							// `foo`, `bar.baz`
-							return gobbleVariable();
-						} else {
-							to_check = expr.substr(index, max_unop_len);
-							tc_len = to_check.length;
-							while(tc_len > 0) {
-								if(unary_ops.hasOwnProperty(to_check)) {
-									index += tc_len;
-									return {
-										type: UNARY_EXP,
-										operator: to_check,
-										argument: gobbleToken(),
-										prefix: true
-									};
-								}
-								to_check = to_check.substr(0, --tc_len);
-							}
-							
-							return false;
-						}
-					},
-					// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
-					// keep track of everything in the numeric literal and then calling `parseFloat` on that string
-					gobbleNumericLiteral = function() {
-						var number = '', ch;
-						while(isDecimalDigit(exprICode(index))) {
-							number += exprI(index++);
-						}
-
-						if(exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
-							number += exprI(index++);
-
-							while(isDecimalDigit(exprICode(index))) {
-								number += exprI(index++);
-							}
-						}
-						
-						ch = exprI(index);
-						if(ch === 'e' || ch === 'E') { // exponent marker
-							number += exprI(index++);
-							ch = exprI(index);
-							if(ch === '+' || ch === '-') { // exponent sign
-								number += exprI(index++);
-							}
-							while(isDecimalDigit(exprICode(index))) { //exponent itself
-								number += exprI(index++);
-							}
-							if(!isDecimalDigit(exprICode(index-1)) ) {
-								throwError('Expected exponent (' + number + exprI(index) + ')', index);
-							}
-						}
-						
-
-						// Check to make sure this isn't a variable name that start with a number (123abc)
-						if(isIdentifierStart(exprICode(index))) {
-							throwError( 'Variable names cannot start with a number (' +
-										number + exprI(index) + ')', index);
-						}
-
-						return {
-							type: LITERAL,
-							value: parseFloat(number),
-							raw: number
-						};
-					},
-
-					// Parses a string literal, staring with single or double quotes with basic support for escape codes
-					// e.g. `"hello world"`, `'this is\nJSEP'`
-					gobbleStringLiteral = function() {
-						var str = '', quote = exprI(index++), closed = false, ch;
-
-						while(index < length) {
-							ch = exprI(index++);
-							if(ch === quote) {
-								closed = true;
-								break;
-							} else if(ch === '\\') {
-								// Check for all of the common escape codes
-								ch = exprI(index++);
-								switch(ch) {
-									case 'n': str += '\n'; break;
-									case 'r': str += '\r'; break;
-									case 't': str += '\t'; break;
-									case 'b': str += '\b'; break;
-									case 'f': str += '\f'; break;
-									case 'v': str += '\x0B'; break;
-								}
-							} else {
-								str += ch;
-							}
-						}
-
-						if(!closed) {
-							throwError('Unclosed quote after "'+str+'"', index);
-						}
-
-						return {
-							type: LITERAL,
-							value: str,
-							raw: quote + str + quote
-						};
-					},
-					
-					// Gobbles only identifiers
-					// e.g.: `foo`, `_value`, `$x1`
-					// Also, this function checks if that identifier is a literal:
-					// (e.g. `true`, `false`, `null`) or `this`
-					gobbleIdentifier = function() {
-						var ch = exprICode(index), start = index, identifier;
-
-						if(isIdentifierStart(ch)) {
-							index++;
-						} else {
-							throwError('Unexpected ' + exprI(index), index);
-						}
-
-						while(index < length) {
-							ch = exprICode(index);
-							if(isIdentifierPart(ch)) {
-								index++;
-							} else {
-								break;
-							}
-						}
-						identifier = expr.slice(start, index);
-
-						if(literals.hasOwnProperty(identifier)) {
-							return {
-								type: LITERAL,
-								value: literals[identifier],
-								raw: identifier
-							};
-						} else if(identifier === this_str) {
-							return { type: THIS_EXP };
-						} else {
-							return {
-								type: IDENTIFIER,
-								name: identifier
-							};
-						}
-					},
-
-					// Gobbles a list of arguments within the context of a function call
-					// or array literal. This function also assumes that the opening character
-					// `(` or `[` has already been gobbled, and gobbles expressions and commas
-					// until the terminator character `)` or `]` is encountered.
-					// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
-					gobbleArguments = function(termination) {
-						var ch_i, args = [], node;
-						while(index < length) {
-							gobbleSpaces();
-							ch_i = exprICode(index);
-							if(ch_i === termination) { // done parsing
-								index++;
-								break;
-							} else if (ch_i === COMMA_CODE) { // between expressions
-								index++;
-							} else {
-								node = gobbleExpression();
-								if(!node || node.type === COMPOUND) {
-									throwError('Expected comma', index);
-								}
-								args.push(node);
-							}
-						}
-						return args;
-					},
-
-					// Gobble a non-literal variable name. This variable name may include properties
-					// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
-					// It also gobbles function calls:
-					// e.g. `Math.acos(obj.angle)`
-					gobbleVariable = function() {
-						var ch_i, node;
-						ch_i = exprICode(index);
-							
-						if(ch_i === OPAREN_CODE) {
-							node = gobbleGroup();
-						} else {
-							node = gobbleIdentifier();
-						}
-						gobbleSpaces();
-						ch_i = exprICode(index);
-						while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
-							index++;
-							if(ch_i === PERIOD_CODE) {
-								gobbleSpaces();
-								node = {
-									type: MEMBER_EXP,
-									computed: false,
-									object: node,
-									property: gobbleIdentifier()
-								};
-							} else if(ch_i === OBRACK_CODE) {
-								node = {
-									type: MEMBER_EXP,
-									computed: true,
-									object: node,
-									property: gobbleExpression()
-								};
-								gobbleSpaces();
-								ch_i = exprICode(index);
-								if(ch_i !== CBRACK_CODE) {
-									throwError('Unclosed [', index);
-								}
-								index++;
-							} else if(ch_i === OPAREN_CODE) {
-								// A function call is being made; gobble all the arguments
-								node = {
-									type: CALL_EXP,
-									'arguments': gobbleArguments(CPAREN_CODE),
-									callee: node
-								};
-							}
-							gobbleSpaces();
-							ch_i = exprICode(index);
-						}
-						return node;
-					},
-
-					// Responsible for parsing a group of things within parentheses `()`
-					// This function assumes that it needs to gobble the opening parenthesis
-					// and then tries to gobble everything within that parenthesis, assuming
-					// that the next thing it should see is the close parenthesis. If not,
-					// then the expression probably doesn't have a `)`
-					gobbleGroup = function() {
-						index++;
-						var node = gobbleExpression();
-						gobbleSpaces();
-						if(exprICode(index) === CPAREN_CODE) {
-							index++;
-							return node;
-						} else {
-							throwError('Unclosed (', index);
-						}
-					},
-
-					// Responsible for parsing Array literals `[1, 2, 3]`
-					// This function assumes that it needs to gobble the opening bracket
-					// and then tries to gobble the expressions as arguments.
-					gobbleArray = function() {
-						index++;
-						return {
-							type: ARRAY_EXP,
-							body: gobbleArguments(CBRACK_CODE)
-						};
-					},
-
-					nodes = [], ch_i, node;
-					
-				while(index < length) {
-					ch_i = exprICode(index);
-
-					// Expressions can be separated by semicolons, commas, or just inferred without any
-					// separators
-					if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
-						index++; // ignore separators
-					} else if (ch_i === OBRACK_CODE && (node = gobbleArray())) {
-						nodes.push(node);
-					} else {
-						// Try to gobble each expression individually
-						if((node = gobbleExpression())) {
-							nodes.push(node);
-						// If we weren't able to find a binary expression and are out of room, then
-						// the expression passed in probably has too much
-						} else if(index < length) {
-							throwError('Unexpected "' + exprI(index) + '"', index);
-						}
-					}
-				}
-
-				// If there's only one expression just try returning the expression
-				if(nodes.length === 1) {
-					return nodes[0];
-				} else {
-					return {
-						type: COMPOUND,
-						body: nodes
-					};
-				}
-			};
-
-		// To be filled in by the template
-		jsep.version = '0.2.9';
-		jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
-
-		/**
-		 * @method jsep.addUnaryOp
-		 * @param {string} op_name The name of the unary op to add
-		 * @return jsep
-		 */
-		jsep.addUnaryOp = function(op_name) {
-			unary_ops[op_name] = t; return this;
-		};
-
-		/**
-		 * @method jsep.addBinaryOp
-		 * @param {string} op_name The name of the binary op to add
-		 * @param {number} precedence The precedence of the binary op (can be a float)
-		 * @return jsep
-		 */
-		jsep.addBinaryOp = function(op_name, precedence) {
-			max_binop_len = Math.max(op_name.length, max_binop_len);
-			binary_ops[op_name] = precedence;
-			return this;
-		};
-
-		/**
-		 * @method jsep.removeUnaryOp
-		 * @param {string} op_name The name of the unary op to remove
-		 * @return jsep
-		 */
-		jsep.removeUnaryOp = function(op_name) {
-			delete unary_ops[op_name];
-			if(op_name.length === max_unop_len) {
-				max_unop_len = getMaxKeyLen(unary_ops);
-			}
-			return this;
-		};
-
-		/**
-		 * @method jsep.removeBinaryOp
-		 * @param {string} op_name The name of the binary op to remove
-		 * @return jsep
-		 */
-		jsep.removeBinaryOp = function(op_name) {
-			delete binary_ops[op_name];
-			if(op_name.length === max_binop_len) {
-				max_binop_len = getMaxKeyLen(binary_ops);
-			}
-			return this;
-		};
-
-		// In desktop environments, have a way to restore the old value for `jsep`
-		if (false) {
-			var old_jsep = root.jsep;
-			// The star of the show! It's a function!
-			root.jsep = jsep;
-			// And a courteous function willing to move out of the way for other similarly-named objects!
-			jsep.noConflict = function() {
-				if(root.jsep === jsep) {
-					root.jsep = old_jsep;
-				}
-				return jsep;
-			};
-		} else {
-			// In Node.JS environments
-			if (typeof module !== 'undefined' && module.exports) {
-				exports = module.exports = jsep;
-			} else {
-				exports.parse = jsep;
-			}
-		}
-	}(this));
-
-
-/***/ },
-/* 9 */
 /***/ function(module, exports) {
 
 	function _dim(x) {
@@ -5167,7 +4408,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 10 */
+/* 8 */
 /***/ function(module, exports) {
 
 	exports.flatten = function(array, shallow) {
@@ -5264,13 +4505,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 11 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var utils = __webpack_require__(4);
 	var error = __webpack_require__(5);
-	var numeral = __webpack_require__(12);
-	var _ = __webpack_require__(10);
+	var numeral = __webpack_require__(10);
+	var _ = __webpack_require__(8);
 
 	//TODO
 	exports.ASC = function () {
@@ -5641,7 +4882,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 12 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -6326,7 +5567,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports) {
 
 	this.j$ = this.jStat = (function(Math, undefined) {
@@ -9586,6 +8827,700 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var jsep = __webpack_require__(13);
+
+	jsep.addBinaryOp('=', 6);
+
+	var binops = {
+	  '+' : function(a, b) { return a + b; },
+	  '-' : function(a, b) { return a - b; },
+	  '*' : function(a, b) { return a * b; },
+	  '/' : function(a, b) { return a / b; },
+	  '%' : function(a, b) { return a % b; },
+	  '>' : function(a, b) { return a > b; },
+	  '>=' : function(a, b) { return a >= b; },
+	  '<' : function(a, b) { return a < b; },
+	  '<=' : function(a, b) { return a <= b; },
+	  '=' : function(a, b) { return a == b; },
+	  '==' : function(a, b) { return a == b; },
+	  '!=' : function(a, b) { return a !== b; }
+	};
+	var unops = {
+	  '-' : function(a) { return -a; },
+	  '!' : function(a) { return !a; }
+	};
+	var logops = {
+	  '&&' : function(a, b) { return a && b; },
+	  '||' : function(a, b) { return a || b; }
+	};
+
+	function do_eval(node, variables) {
+	  if (node.type === 'BinaryExpression') {
+	    var binop = binops[node.operator];
+	    if (!binop) {
+	      throw new Error('Unknown binary operator ' + node.operator);
+	    }
+	    return binop(do_eval(node.left), do_eval(node.right));
+	  } else if (node.type === 'UnaryExpression') {
+	    var unop = unops[node.operator];
+	    if (!unop) {
+	      throw new Error('Unknown unary operator ' + node.operator);
+	    }
+	    return unop(do_eval(node.argument));
+	  } else if (node.type === 'LogicalExpression') {
+	    var logop = logops[node.operator];
+	    if (!logop) {
+	      throw new Error('Unknown logical operator ' + node.operator);
+	    }
+	    return logop(do_eval(node.left), do_eval(node.right));
+	  } else if (node.type === 'Literal') {
+	    return node.value;
+	  } else if (node.type === 'Identifier') {
+	    return node.name;
+	    // NOTE: Excel treats undecorated text as a string literal -- not an identifier
+	    //return variables ? variables[node.name] : undefined;
+	  } else {
+	    throw new Error('Unsupported expression node: ' + node + '.');
+	  }
+	}
+
+	/**
+	 * Evaluates a small Excel expression -- as found in ...IF functions.
+	 * @param {string} expr
+	 * @returns {object}
+	 */
+	module.exports = function evalExpr(expr) {
+	  var ast = jsep(expr);
+	  return do_eval(ast);
+	};
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	//     JavaScript Expression Parser (JSEP) 0.2.9
+	//     JSEP may be freely distributed under the MIT License
+	//     http://jsep.from.so/
+
+	/*global module: true, exports: true, console: true */
+	(function (root) {
+		'use strict';
+		// Node Types
+		// ----------
+		
+		// This is the full set of types that any JSEP node can be.
+		// Store them here to save space when minified
+		var COMPOUND = 'Compound',
+			IDENTIFIER = 'Identifier',
+			MEMBER_EXP = 'MemberExpression',
+			LITERAL = 'Literal',
+			THIS_EXP = 'ThisExpression',
+			CALL_EXP = 'CallExpression',
+			UNARY_EXP = 'UnaryExpression',
+			BINARY_EXP = 'BinaryExpression',
+			LOGICAL_EXP = 'LogicalExpression',
+			CONDITIONAL_EXP = 'ConditionalExpression',
+			ARRAY_EXP = 'Array',
+
+			PERIOD_CODE = 46, // '.'
+			COMMA_CODE  = 44, // ','
+			SQUOTE_CODE = 39, // single quote
+			DQUOTE_CODE = 34, // double quotes
+			OPAREN_CODE = 40, // (
+			CPAREN_CODE = 41, // )
+			OBRACK_CODE = 91, // [
+			CBRACK_CODE = 93, // ]
+			QUMARK_CODE = 63, // ?
+			SEMCOL_CODE = 59, // ;
+			COLON_CODE  = 58, // :
+
+			throwError = function(message, index) {
+				var error = new Error(message + ' at character ' + index);
+				error.index = index;
+				error.dedscription = message;
+				throw error;
+			},
+
+		// Operations
+		// ----------
+		
+		// Set `t` to `true` to save space (when minified, not gzipped)
+			t = true,
+		// Use a quickly-accessible map to store all of the unary operators
+		// Values are set to `true` (it really doesn't matter)
+			unary_ops = {'-': t, '!': t, '~': t, '+': t},
+		// Also use a map for the binary operations but set their values to their
+		// binary precedence for quick reference:
+		// see [Order of operations](http://en.wikipedia.org/wiki/Order_of_operations#Programming_language)
+			binary_ops = {
+				'||': 1, '&&': 2, '|': 3,  '^': 4,  '&': 5,
+				'==': 6, '!=': 6, '===': 6, '!==': 6,
+				'<': 7,  '>': 7,  '<=': 7,  '>=': 7, 
+				'<<':8,  '>>': 8, '>>>': 8,
+				'+': 9, '-': 9,
+				'*': 10, '/': 10, '%': 10
+			},
+		// Get return the longest key length of any object
+			getMaxKeyLen = function(obj) {
+				var max_len = 0, len;
+				for(var key in obj) {
+					if((len = key.length) > max_len && obj.hasOwnProperty(key)) {
+						max_len = len;
+					}
+				}
+				return max_len;
+			},
+			max_unop_len = getMaxKeyLen(unary_ops),
+			max_binop_len = getMaxKeyLen(binary_ops),
+		// Literals
+		// ----------
+		// Store the values to return for the various literals we may encounter
+			literals = {
+				'true': true,
+				'false': false,
+				'null': null
+			},
+		// Except for `this`, which is special. This could be changed to something like `'self'` as well
+			this_str = 'this',
+		// Returns the precedence of a binary operator or `0` if it isn't a binary operator
+			binaryPrecedence = function(op_val) {
+				return binary_ops[op_val] || 0;
+			},
+		// Utility function (gets called from multiple places)
+		// Also note that `a && b` and `a || b` are *logical* expressions, not binary expressions
+			createBinaryExpression = function (operator, left, right) {
+				var type = (operator === '||' || operator === '&&') ? LOGICAL_EXP : BINARY_EXP;
+				return {
+					type: type,
+					operator: operator,
+					left: left,
+					right: right
+				};
+			},
+			// `ch` is a character code in the next three functions
+			isDecimalDigit = function(ch) {
+				return (ch >= 48 && ch <= 57); // 0...9
+			},
+			isIdentifierStart = function(ch) {
+				return (ch === 36) || (ch === 95) || // `$` and `_`
+						(ch >= 65 && ch <= 90) || // A...Z
+						(ch >= 97 && ch <= 122); // a...z
+			},
+			isIdentifierPart = function(ch) {
+				return (ch === 36) || (ch === 95) || // `$` and `_`
+						(ch >= 65 && ch <= 90) || // A...Z
+						(ch >= 97 && ch <= 122) || // a...z
+						(ch >= 48 && ch <= 57); // 0...9
+			},
+
+			// Parsing
+			// -------
+			// `expr` is a string with the passed in expression
+			jsep = function(expr) {
+				// `index` stores the character number we are currently at while `length` is a constant
+				// All of the gobbles below will modify `index` as we move along
+				var index = 0,
+					charAtFunc = expr.charAt,
+					charCodeAtFunc = expr.charCodeAt,
+					exprI = function(i) { return charAtFunc.call(expr, i); },
+					exprICode = function(i) { return charCodeAtFunc.call(expr, i); },
+					length = expr.length,
+
+					// Push `index` up to the next non-space character
+					gobbleSpaces = function() {
+						var ch = exprICode(index);
+						// space or tab
+						while(ch === 32 || ch === 9) {
+							ch = exprICode(++index);
+						}
+					},
+					
+					// The main parsing function. Much of this code is dedicated to ternary expressions
+					gobbleExpression = function() {
+						var test = gobbleBinaryExpression(),
+							consequent, alternate;
+						
+						gobbleSpaces();
+						// Ternary expression: test ? consequent : alternate
+						if(exprICode(index) === QUMARK_CODE) {
+							index++;
+							consequent = gobbleExpression();
+							if(!consequent) {
+								throwError('Expected expression', index);
+							}
+							gobbleSpaces();
+							if(exprICode(index) === COLON_CODE) {
+								index++;
+								alternate = gobbleExpression();
+								if(!alternate) {
+									throwError('Expected expression', index);
+								}
+								return {
+									type: CONDITIONAL_EXP,
+									test: test,
+									consequent: consequent,
+									alternate: alternate
+								};
+							} else {
+								throwError('Expected :', index);
+							}
+						} else {
+							return test;
+						}
+					},
+
+					// Search for the operation portion of the string (e.g. `+`, `===`)
+					// Start by taking the longest possible binary operations (3 characters: `===`, `!==`, `>>>`)
+					// and move down from 3 to 2 to 1 character until a matching binary operation is found
+					// then, return that binary operation
+					gobbleBinaryOp = function() {
+						gobbleSpaces();
+						var biop, to_check = expr.substr(index, max_binop_len), tc_len = to_check.length;
+						while(tc_len > 0) {
+							if(binary_ops.hasOwnProperty(to_check)) {
+								index += tc_len;
+								return to_check;
+							}
+							to_check = to_check.substr(0, --tc_len);
+						}
+						return false;
+					},
+
+					// This function is responsible for gobbling an individual expression,
+					// e.g. `1`, `1+2`, `a+(b*2)-Math.sqrt(2)`
+					gobbleBinaryExpression = function() {
+						var ch_i, node, biop, prec, stack, biop_info, left, right, i;
+
+						// First, try to get the leftmost thing
+						// Then, check to see if there's a binary operator operating on that leftmost thing
+						left = gobbleToken();
+						biop = gobbleBinaryOp();
+
+						// If there wasn't a binary operator, just return the leftmost node
+						if(!biop) {
+							return left;
+						}
+
+						// Otherwise, we need to start a stack to properly place the binary operations in their
+						// precedence structure
+						biop_info = { value: biop, prec: binaryPrecedence(biop)};
+
+						right = gobbleToken();
+						if(!right) {
+							throwError("Expected expression after " + biop, index);
+						}
+						stack = [left, biop_info, right];
+
+						// Properly deal with precedence using [recursive descent](http://www.engr.mun.ca/~theo/Misc/exp_parsing.htm)
+						while((biop = gobbleBinaryOp())) {
+							prec = binaryPrecedence(biop);
+
+							if(prec === 0) {
+								break;
+							}
+							biop_info = { value: biop, prec: prec };
+
+							// Reduce: make a binary expression from the three topmost entries.
+							while ((stack.length > 2) && (prec <= stack[stack.length - 2].prec)) {
+								right = stack.pop();
+								biop = stack.pop().value;
+								left = stack.pop();
+								node = createBinaryExpression(biop, left, right);
+								stack.push(node);
+							}
+
+							node = gobbleToken();
+							if(!node) {
+								throwError("Expected expression after " + biop, index);
+							}
+							stack.push(biop_info, node);
+						}
+
+						i = stack.length - 1;
+						node = stack[i];
+						while(i > 1) {
+							node = createBinaryExpression(stack[i - 1].value, stack[i - 2], node); 
+							i -= 2;
+						}
+						return node;
+					},
+
+					// An individual part of a binary expression:
+					// e.g. `foo.bar(baz)`, `1`, `"abc"`, `(a % 2)` (because it's in parenthesis)
+					gobbleToken = function() {
+						var ch, curr_node, unop, to_check, tc_len;
+						
+						gobbleSpaces();
+						ch = exprICode(index);
+
+						if(isDecimalDigit(ch) || ch === PERIOD_CODE) {
+							// Char code 46 is a dot `.` which can start off a numeric literal
+							return gobbleNumericLiteral();
+						} else if(ch === SQUOTE_CODE || ch === DQUOTE_CODE) {
+							// Single or double quotes
+							return gobbleStringLiteral();
+						} else if(isIdentifierStart(ch) || ch === OPAREN_CODE) { // open parenthesis
+							// `foo`, `bar.baz`
+							return gobbleVariable();
+						} else {
+							to_check = expr.substr(index, max_unop_len);
+							tc_len = to_check.length;
+							while(tc_len > 0) {
+								if(unary_ops.hasOwnProperty(to_check)) {
+									index += tc_len;
+									return {
+										type: UNARY_EXP,
+										operator: to_check,
+										argument: gobbleToken(),
+										prefix: true
+									};
+								}
+								to_check = to_check.substr(0, --tc_len);
+							}
+							
+							return false;
+						}
+					},
+					// Parse simple numeric literals: `12`, `3.4`, `.5`. Do this by using a string to
+					// keep track of everything in the numeric literal and then calling `parseFloat` on that string
+					gobbleNumericLiteral = function() {
+						var number = '', ch;
+						while(isDecimalDigit(exprICode(index))) {
+							number += exprI(index++);
+						}
+
+						if(exprICode(index) === PERIOD_CODE) { // can start with a decimal marker
+							number += exprI(index++);
+
+							while(isDecimalDigit(exprICode(index))) {
+								number += exprI(index++);
+							}
+						}
+						
+						ch = exprI(index);
+						if(ch === 'e' || ch === 'E') { // exponent marker
+							number += exprI(index++);
+							ch = exprI(index);
+							if(ch === '+' || ch === '-') { // exponent sign
+								number += exprI(index++);
+							}
+							while(isDecimalDigit(exprICode(index))) { //exponent itself
+								number += exprI(index++);
+							}
+							if(!isDecimalDigit(exprICode(index-1)) ) {
+								throwError('Expected exponent (' + number + exprI(index) + ')', index);
+							}
+						}
+						
+
+						// Check to make sure this isn't a variable name that start with a number (123abc)
+						if(isIdentifierStart(exprICode(index))) {
+							throwError( 'Variable names cannot start with a number (' +
+										number + exprI(index) + ')', index);
+						}
+
+						return {
+							type: LITERAL,
+							value: parseFloat(number),
+							raw: number
+						};
+					},
+
+					// Parses a string literal, staring with single or double quotes with basic support for escape codes
+					// e.g. `"hello world"`, `'this is\nJSEP'`
+					gobbleStringLiteral = function() {
+						var str = '', quote = exprI(index++), closed = false, ch;
+
+						while(index < length) {
+							ch = exprI(index++);
+							if(ch === quote) {
+								closed = true;
+								break;
+							} else if(ch === '\\') {
+								// Check for all of the common escape codes
+								ch = exprI(index++);
+								switch(ch) {
+									case 'n': str += '\n'; break;
+									case 'r': str += '\r'; break;
+									case 't': str += '\t'; break;
+									case 'b': str += '\b'; break;
+									case 'f': str += '\f'; break;
+									case 'v': str += '\x0B'; break;
+								}
+							} else {
+								str += ch;
+							}
+						}
+
+						if(!closed) {
+							throwError('Unclosed quote after "'+str+'"', index);
+						}
+
+						return {
+							type: LITERAL,
+							value: str,
+							raw: quote + str + quote
+						};
+					},
+					
+					// Gobbles only identifiers
+					// e.g.: `foo`, `_value`, `$x1`
+					// Also, this function checks if that identifier is a literal:
+					// (e.g. `true`, `false`, `null`) or `this`
+					gobbleIdentifier = function() {
+						var ch = exprICode(index), start = index, identifier;
+
+						if(isIdentifierStart(ch)) {
+							index++;
+						} else {
+							throwError('Unexpected ' + exprI(index), index);
+						}
+
+						while(index < length) {
+							ch = exprICode(index);
+							if(isIdentifierPart(ch)) {
+								index++;
+							} else {
+								break;
+							}
+						}
+						identifier = expr.slice(start, index);
+
+						if(literals.hasOwnProperty(identifier)) {
+							return {
+								type: LITERAL,
+								value: literals[identifier],
+								raw: identifier
+							};
+						} else if(identifier === this_str) {
+							return { type: THIS_EXP };
+						} else {
+							return {
+								type: IDENTIFIER,
+								name: identifier
+							};
+						}
+					},
+
+					// Gobbles a list of arguments within the context of a function call
+					// or array literal. This function also assumes that the opening character
+					// `(` or `[` has already been gobbled, and gobbles expressions and commas
+					// until the terminator character `)` or `]` is encountered.
+					// e.g. `foo(bar, baz)`, `my_func()`, or `[bar, baz]`
+					gobbleArguments = function(termination) {
+						var ch_i, args = [], node;
+						while(index < length) {
+							gobbleSpaces();
+							ch_i = exprICode(index);
+							if(ch_i === termination) { // done parsing
+								index++;
+								break;
+							} else if (ch_i === COMMA_CODE) { // between expressions
+								index++;
+							} else {
+								node = gobbleExpression();
+								if(!node || node.type === COMPOUND) {
+									throwError('Expected comma', index);
+								}
+								args.push(node);
+							}
+						}
+						return args;
+					},
+
+					// Gobble a non-literal variable name. This variable name may include properties
+					// e.g. `foo`, `bar.baz`, `foo['bar'].baz`
+					// It also gobbles function calls:
+					// e.g. `Math.acos(obj.angle)`
+					gobbleVariable = function() {
+						var ch_i, node;
+						ch_i = exprICode(index);
+							
+						if(ch_i === OPAREN_CODE) {
+							node = gobbleGroup();
+						} else {
+							node = gobbleIdentifier();
+						}
+						gobbleSpaces();
+						ch_i = exprICode(index);
+						while(ch_i === PERIOD_CODE || ch_i === OBRACK_CODE || ch_i === OPAREN_CODE) {
+							index++;
+							if(ch_i === PERIOD_CODE) {
+								gobbleSpaces();
+								node = {
+									type: MEMBER_EXP,
+									computed: false,
+									object: node,
+									property: gobbleIdentifier()
+								};
+							} else if(ch_i === OBRACK_CODE) {
+								node = {
+									type: MEMBER_EXP,
+									computed: true,
+									object: node,
+									property: gobbleExpression()
+								};
+								gobbleSpaces();
+								ch_i = exprICode(index);
+								if(ch_i !== CBRACK_CODE) {
+									throwError('Unclosed [', index);
+								}
+								index++;
+							} else if(ch_i === OPAREN_CODE) {
+								// A function call is being made; gobble all the arguments
+								node = {
+									type: CALL_EXP,
+									'arguments': gobbleArguments(CPAREN_CODE),
+									callee: node
+								};
+							}
+							gobbleSpaces();
+							ch_i = exprICode(index);
+						}
+						return node;
+					},
+
+					// Responsible for parsing a group of things within parentheses `()`
+					// This function assumes that it needs to gobble the opening parenthesis
+					// and then tries to gobble everything within that parenthesis, assuming
+					// that the next thing it should see is the close parenthesis. If not,
+					// then the expression probably doesn't have a `)`
+					gobbleGroup = function() {
+						index++;
+						var node = gobbleExpression();
+						gobbleSpaces();
+						if(exprICode(index) === CPAREN_CODE) {
+							index++;
+							return node;
+						} else {
+							throwError('Unclosed (', index);
+						}
+					},
+
+					// Responsible for parsing Array literals `[1, 2, 3]`
+					// This function assumes that it needs to gobble the opening bracket
+					// and then tries to gobble the expressions as arguments.
+					gobbleArray = function() {
+						index++;
+						return {
+							type: ARRAY_EXP,
+							body: gobbleArguments(CBRACK_CODE)
+						};
+					},
+
+					nodes = [], ch_i, node;
+					
+				while(index < length) {
+					ch_i = exprICode(index);
+
+					// Expressions can be separated by semicolons, commas, or just inferred without any
+					// separators
+					if(ch_i === SEMCOL_CODE || ch_i === COMMA_CODE) {
+						index++; // ignore separators
+					} else if (ch_i === OBRACK_CODE && (node = gobbleArray())) {
+						nodes.push(node);
+					} else {
+						// Try to gobble each expression individually
+						if((node = gobbleExpression())) {
+							nodes.push(node);
+						// If we weren't able to find a binary expression and are out of room, then
+						// the expression passed in probably has too much
+						} else if(index < length) {
+							throwError('Unexpected "' + exprI(index) + '"', index);
+						}
+					}
+				}
+
+				// If there's only one expression just try returning the expression
+				if(nodes.length === 1) {
+					return nodes[0];
+				} else {
+					return {
+						type: COMPOUND,
+						body: nodes
+					};
+				}
+			};
+
+		// To be filled in by the template
+		jsep.version = '0.2.9';
+		jsep.toString = function() { return 'JavaScript Expression Parser (JSEP) v' + jsep.version; };
+
+		/**
+		 * @method jsep.addUnaryOp
+		 * @param {string} op_name The name of the unary op to add
+		 * @return jsep
+		 */
+		jsep.addUnaryOp = function(op_name) {
+			unary_ops[op_name] = t; return this;
+		};
+
+		/**
+		 * @method jsep.addBinaryOp
+		 * @param {string} op_name The name of the binary op to add
+		 * @param {number} precedence The precedence of the binary op (can be a float)
+		 * @return jsep
+		 */
+		jsep.addBinaryOp = function(op_name, precedence) {
+			max_binop_len = Math.max(op_name.length, max_binop_len);
+			binary_ops[op_name] = precedence;
+			return this;
+		};
+
+		/**
+		 * @method jsep.removeUnaryOp
+		 * @param {string} op_name The name of the unary op to remove
+		 * @return jsep
+		 */
+		jsep.removeUnaryOp = function(op_name) {
+			delete unary_ops[op_name];
+			if(op_name.length === max_unop_len) {
+				max_unop_len = getMaxKeyLen(unary_ops);
+			}
+			return this;
+		};
+
+		/**
+		 * @method jsep.removeBinaryOp
+		 * @param {string} op_name The name of the binary op to remove
+		 * @return jsep
+		 */
+		jsep.removeBinaryOp = function(op_name) {
+			delete binary_ops[op_name];
+			if(op_name.length === max_binop_len) {
+				max_binop_len = getMaxKeyLen(binary_ops);
+			}
+			return this;
+		};
+
+		// In desktop environments, have a way to restore the old value for `jsep`
+		if (false) {
+			var old_jsep = root.jsep;
+			// The star of the show! It's a function!
+			root.jsep = jsep;
+			// And a courteous function willing to move out of the way for other similarly-named objects!
+			jsep.noConflict = function() {
+				if(root.jsep === jsep) {
+					root.jsep = old_jsep;
+				}
+				return jsep;
+			};
+		} else {
+			// In Node.JS environments
+			if (typeof module !== 'undefined' && module.exports) {
+				exports = module.exports = jsep;
+			} else {
+				exports.parse = jsep;
+			}
+		}
+	}(this));
+
+
+/***/ },
 /* 14 */
 /***/ function(module, exports) {
 
@@ -9596,11 +9531,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
-	var jStat = __webpack_require__(13).jStat;
-	var text = __webpack_require__(11);
+	var jStat = __webpack_require__(11).jStat;
+	var text = __webpack_require__(9);
 	var utils = __webpack_require__(4);
 	var bessel = __webpack_require__(16);
-	var _ = __webpack_require__(10);
+	var _ = __webpack_require__(8);
 
 	function isValidBinaryNumber(number) {
 	  return (/^[01]{1,10}$/).test(number);
@@ -11449,7 +11384,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var error = __webpack_require__(5);
 	var utils = __webpack_require__(4);
 	var information = __webpack_require__(6);
-	var _ = __webpack_require__(10);
+	var _ = __webpack_require__(8);
 
 	exports.AND = function () {
 	  var args = _.flatten(arguments);
@@ -12050,7 +11985,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var error = __webpack_require__(5);
 	var dateTime = __webpack_require__(19);
 	var utils = __webpack_require__(4);
-	var _ = __webpack_require__(10);
+	var _ = __webpack_require__(8);
 
 	// TODO
 	exports.ACCRINT = function () {
@@ -13319,7 +13254,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _ = __webpack_require__(10);
+	var _ = __webpack_require__(8);
 	var utils = __webpack_require__(4);
 	var error = __webpack_require__(5);
 
