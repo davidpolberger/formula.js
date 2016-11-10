@@ -10,7 +10,6 @@
   "dependencies": {
     "bessel": "SheetJS/bessel#~0.2.0",
     "jstat": "1.5.2",
-    "jsep": "^0.2.9",
     "numeral": "1.5.3",
     "moment": "~2.12.0"
   },

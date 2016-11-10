@@ -975,7 +975,6 @@ suite('Statistical', function () {
     statistical.WEIBULL.DIST(105, 20, 100, 'invalid').should.equal(error.value);
   });
 
-
   test('Z.TEST', function () {
     var data = [3, 6, 7, 8, 6, 5, 4, 2, 1, 9];
     statistical.Z.TEST(data, 4).should.be.approximately(0.09057419685136381, 1e-9);
