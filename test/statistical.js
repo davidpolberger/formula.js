@@ -1,6 +1,6 @@
-var statistical = require('../lib/statistical');
-var mathTrig = require('../lib/math-trig');
 var error = require('../lib/error');
+var mathTrig = require('../lib/math-trig');
+var statistical = require('../lib/statistical');
 var should = require('should');
 
 suite('Statistical', function () {
