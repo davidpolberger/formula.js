@@ -605,8 +605,6 @@ suite('Math & Trig', function () {
   suite('SUMIF', function () {
     test('sums values that pass filter', function () {
       mathTrig.SUMIF([2, 4, 8, 16], '>5').should.equal(24);
-    });
-    test('sums values selected by test values that pass filter', function () {
       mathTrig.SUMIF([2, 4, 8, 16], '>5', [1, 2, 3, 4]).should.equal(7);
       mathTrig.SUMIF(['a', 'b', 'c'], 'b', [2, 3, 5]).should.equal(3);
     });
@@ -614,32 +612,23 @@ suite('Math & Trig', function () {
       mathTrig.SUMIF([2, 'x', '8', true, false, 16], '>5').should.equal(16);
       mathTrig.SUMIF([2, 4], '>0', ['x', 2]).should.equal(2);
     });
-    test('supports single item', function () {
-      mathTrig.SUMIF(6, 6).should.equal(6);
-      mathTrig.SUMIF(6, 6, 4).should.equal(4);
-    });
-    test('throws for array count mismatch', function () {
-      (function () { mathTrig.SUMIF([1, 2, 3], '>0', [1, 2]); }).should.throw();
-      (function () { mathTrig.SUMIF(1, '>0', [1, 2]); }).should.throw();
-      (function () { mathTrig.SUMIF([1, 2], '>0', 1); }).should.throw();
-    });
-    test('throws for missing arg', function () {
-      mathTrig.SUMIF.should.throw();
-      (function () { mathTrig.SUMIF([]); }).should.throw();
-    });
     test('returns 0 for no values that pass filter', function () {
       mathTrig.SUMIF([4], '>5').should.equal(0);
     });
   });
 
-  test('SUMIFS', function () {
-    mathTrig.SUMIFS([1, 2, 3], [1, 2, 3], 1).should.equal(1);
-    mathTrig.SUMIFS([1, 2, 3], [1, 2, 3], '>1').should.equal(5);
-    mathTrig.SUMIFS([1, 2, 3], ['a', 'b', 'c'], 'b').should.equal(2);
-    mathTrig.SUMIFS([1, 2, 3], ['a', 'b', 'c'], 'b', [1, 2, 3], 3).should.equal(0);
-    mathTrig.SUMIFS([1, 2, 3], ['1', '2', '3'], '>"1"').should.equal(5);
-    mathTrig.SUMIFS(['invalid', 'invalid', 'invalid'], ['1', '2', '3'], '>"1"').should.equal(0);
-    mathTrig.SUMIFS([1, 2, 3], [1, 2], 1).should.equal(error.value);
+  suite('SUMIFS', function () {
+    test('sums values selected by test values that pass filter', function () {
+      mathTrig.SUMIFS([1, 2, 3, 4], [2, 4, 8, 16], '>5').should.equal(7);
+      mathTrig.SUMIFS([2, 3, 5], ['a', 'b', 'c'], 'b').should.equal(3);
+      mathTrig.SUMIFS([1, 2, 3, 4], [2, 4, 8, 16], '>5', ['a', 'b', 'a', 'd'], 'a').should.equal(3);
+    });
+    test('ignores non-numbers for calculating sum', function () {
+      mathTrig.SUMIFS(['x', '8', true, false, 2], [1, 1, 1, 1, 1], '>0').should.equal(2);
+    });
+    test('returns 0 for no values that pass filter', function () {
+      mathTrig.SUMIFS([6], [4], '>5').should.equal(0);
+    });
   });
 
   test('SUMPRODUCT', function () {

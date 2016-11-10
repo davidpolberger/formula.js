@@ -80,27 +80,12 @@ suite('Statistical', function () {
   suite('AVERAGEIF', function () {
     test('averages values that pass filter', function () {
       statistical.AVERAGEIF([2, 4, 8, 16], '>5').should.equal(12);
-    });
-    test('averages values selected by test values that pass filter', function () {
       statistical.AVERAGEIF([2, 4, 8, 16], '>5', [1, 2, 3, 4]).should.be.approximately(3.5, 1e-9);
       statistical.AVERAGEIF(['a', 'b', 'c'], 'b', [2, 3, 5]).should.be.approximately(3, 1e-9);
     });
     test('ignores non-numbers for calculating average', function () {
       statistical.AVERAGEIF([2, 'x', '8', true, false, 16], '>5').should.equal(16);
       statistical.AVERAGEIF([2, 4], '>0', ['x', 2]).should.be.approximately(2, 1e-9);
-    });
-    test('supports single item', function () {
-      statistical.AVERAGEIF(6, 6).should.equal(6);
-      statistical.AVERAGEIF(6, 6, 4).should.equal(4);
-    });
-    test('throws for array count mismatch', function () {
-      (function () { statistical.AVERAGEIF([1, 2, 3], '>0', [1, 2]); }).should.throw();
-      (function () { statistical.AVERAGEIF(1, '>0', [1, 2]); }).should.throw();
-      (function () { statistical.AVERAGEIF([1, 2], '>0', 1); }).should.throw();
-    });
-    test('throws for missing arg', function () {
-      statistical.AVERAGEIF.should.throw();
-      (function () { statistical.AVERAGEIF([]); }).should.throw();
     });
     test('returns div0 error for no values that pass filter', function () {
       statistical.AVERAGEIF([4], '>5').should.equal(error.div0);
@@ -110,8 +95,7 @@ suite('Statistical', function () {
   test('AVERAGEIFS', function () {
     statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2').should.equal(12);
     statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2', [1, 2, 3, 4], '>2').should.equal(12);
-    statistical.AVERAGEIFS([2, 4, 8, 16], [1, 2, 3, 4], '>2', [1, 1, 1, 1], '>2').should.equal(error.div0);
-    statistical.AVERAGEIFS([true, true, true, true], [1, 2, 3, 4], '>2', [1, 2, 3, 4], '>1').should.equal(error.div0);
+    statistical.AVERAGEIFS([2, 4], [1, 1], 2).should.equal(error.div0);
   });
 
   test('BETA.DIST', function () {
@@ -248,19 +232,11 @@ suite('Statistical', function () {
       statistical.COUNTIF([1, null, 3, 'a', 4, 'c'], '>1').should.equal(2);
       statistical.COUNTIF([1, null, 'a', 'a', 4, 'c'], 'a').should.equal(2);
     });
-    test('throws for missing arg', function () {
-      statistical.COUNTIF.should.throw();
-      (function () { statistical.COUNTIF([]); }).should.throw();
-    });
   });
 
   test('COUNTIFS', function () {
-    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '>1').should.equal(1);
-    statistical.COUNTIFS([1, null, 'c', 'a', ''], ">'1'").should.equal(2);
-    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '=1').should.equal(1);
-    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '=a').should.equal(1);
-    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], '="a"').should.equal(1);
-    statistical.COUNTIFS([1, null, 3, 'a', '', 'c'], 1).should.equal(1);
+    statistical.COUNTIFS([1, null, 3, 'a', ''], '>1').should.equal(1);
+    statistical.COUNTIFS([1, 2, 3], '>1', ['a', 'b', 'c'], 'c').should.equal(1);
   });
 
   test('COVARIANCE.P', function () {

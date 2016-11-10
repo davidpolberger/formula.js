@@ -125,6 +125,64 @@ suite('Utils', function () {
       utils.applyCriteriaToValues([1, 2, 3], 2).should.eql([false, true, false]);
     });
   });
+  suite('performIf', function () {
+    test('calls action with values that pass filter', function () {
+      var values = [];
+      utils.performIf([[2, 4, 8, 16], '>5'], function(value) { values.push(value); });
+      values.should.eql([8, 16]);
+    });
+    test('calls action with values selected by test values that pass filter', function () {
+      var values = [];
+      utils.performIf([[2, 4, 8, 16], '>5', [1, 2, 3, 4]], function(v) { values.push(v); });
+      values.should.eql([3, 4]);
+    });
+    test('supports single item', function () {
+      var values = [];
+      utils.performIf([6, 6], function(v) { values.push(v); });
+      values.should.eql([6]);
+      values = [];
+      utils.performIf([6, 6, 4], function (v) { values.push(v); });
+      values.should.eql([4]);
+    });
+    test('throws for array count mismatch', function () {
+      (function () { utils.performIf([[1, 2, 3], 0, [1, 2]]); }).should.throw();
+      (function () { utils.performIf([1, 0, [1, 2]]); }).should.throw();
+      (function () { utils.performIf([[1, 2], 0, 1]); }).should.throw();
+    });
+    test('throws for missing arg', function () {
+      (function () { utils.performIf([]); }).should.throw();
+      (function () { utils.performIf([[]]); }).should.throw();
+    });
+  });
+  suite('performIfs', function () {
+    test('calls action with values selected by test values that pass filter', function () {
+      var values = [];
+      utils.performIfs([[1, 2, 3, 4], [2, 4, 8, 16], '>5'], function(v) { values.push(v); });
+      values.should.eql([3, 4]);
+    });
+    test('calls action with values selected by test values that pass two filters', function () {
+      var values = [];
+      utils.performIfs([[1, 2, 3, 4], [2, 4, 8, 16], '>5', ['a', 'b', 'a', 'd'], 'a'], function (v) { values.push(v); });
+      values.should.eql([3]);
+    });
+    test('supports single item', function () {
+      var values = [];
+      utils.performIfs([4, 6, 6], function(v) { values.push(v); });
+      values.should.eql([4]);
+    });
+    test('throws for array count mismatch', function () {
+      (function () { utils.performIfs([[1, 2], [1, 2, 3], 0]); }).should.throw();
+      (function () { utils.performIfs([[1, 2], 1, 0]); }).should.throw();
+      (function () { utils.performIfs([1, [1, 2], 0]); }).should.throw();
+      (function () { utils.performIfs([[1, 2], [1, 2], 0, [3], 1]); }).should.throw();
+    });
+    test('throws for missing arg', function () {
+      (function () { utils.performIfs([]); }).should.throw();
+      (function () { utils.performIfs([[]]); }).should.throw();
+      (function () { utils.performIfs([[], []]); }).should.throw();
+      (function () { utils.performIfs([[], [], 0, []]); }).should.throw();
+    });
+  });
   test('argsToArray', function () {
     (function () {
       should.deepEqual(utils.argsToArray(arguments), [1, 2, 3]);
