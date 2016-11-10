@@ -79,18 +79,18 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var categories = [
 	  __webpack_require__(1),
-	  __webpack_require__(12),
 	  __webpack_require__(13),
-	  __webpack_require__(15),
-	  __webpack_require__(3),
-	  __webpack_require__(9),
+	  __webpack_require__(14),
 	  __webpack_require__(16),
+	  __webpack_require__(8),
+	  __webpack_require__(11),
 	  __webpack_require__(17),
 	  __webpack_require__(18),
-	  __webpack_require__(6),
 	  __webpack_require__(19),
-	  __webpack_require__(2),
+	  __webpack_require__(9),
 	  __webpack_require__(20),
+	  __webpack_require__(2),
+	  __webpack_require__(21),
 	  __webpack_require__(5),
 	];
 
@@ -161,12 +161,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var mathTrig = __webpack_require__(3);
-	var text = __webpack_require__(9);
-	var jStat = __webpack_require__(11).jStat;
-	var utils = __webpack_require__(4);
+	var _ = __webpack_require__(3);
+	var criteriaEval = __webpack_require__(4);
 	var error = __webpack_require__(5);
-	var _ = __webpack_require__(8);
+	var jStat = __webpack_require__(7).jStat;
+	var mathTrig = __webpack_require__(8);
+	var text = __webpack_require__(11);
+	var utils = __webpack_require__(6);
 
 	var SQRT2PI = 2.5066282746310002;
 
@@ -229,7 +230,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.AVERAGEIF = function () {
 	  var sum = 0;
 	  var count = 0;
-	  utils.performIf(arguments, function(value) {
+	  criteriaEval.performIf(arguments, function(value) {
 	    if (typeof value === 'number') {
 	      sum += value;
 	      count++;
@@ -243,7 +244,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.AVERAGEIFS = function () {
 	  var sum = 0;
 	  var count = 0;
-	  utils.performIfs(arguments, function (value) {
+	  criteriaEval.performIfs(arguments, function (value) {
 	    if (typeof value === 'number') {
 	      sum += value;
 	      count++;
@@ -598,14 +599,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	exports.COUNTIF = function () {
 	  var count = 0;
-	  utils.performIf(arguments, function() { ++count; });
+	  criteriaEval.performIf(arguments, function() { ++count; });
 	  return count;
 	};
 
 	exports.COUNTIFS = function () {
 	  var count = 0;
 	  var args = [arguments[0]].concat(utils.argsToArray(arguments));
-	  utils.performIfs(args, function () { ++count; });
+	  criteriaEval.performIfs(args, function () { ++count; });
 	  return count;
 	};
 
@@ -2242,1285 +2243,107 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var utils = __webpack_require__(4);
-	var error = __webpack_require__(5);
-	var statistical = __webpack_require__(2);
-	var information = __webpack_require__(6);
-	var matrix = __webpack_require__(7);
-	var _ = __webpack_require__(8);
-
-	exports.ABS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.abs(utils.parseNumber(number));
+	exports.flatten = function(array, shallow) {
+	  return _flatten(array, shallow, false, []);
 	};
 
-	exports.ACOS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-
-	  if ((number < -1) || (number > 1)) {
-	    return error.num;
-	  }
-
-	  return Math.acos(number);
+	exports.initial = function (array) {
+	  var length = array ? array.length : 0;
+	  return slice(array, 0, length ? length - 1 : 0);
 	};
 
-	exports.ACOSH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-
-	  if (number < 1) {
-	    return error.num;
-	  }
-
-	  return Math.log(number + Math.sqrt(number * number - 1));
+	exports.rest = function (array) {
+	  return slice(array, 1);
 	};
 
-	exports.ACOT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.atan(1 / number);
-	};
 
-	exports.ACOTH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
+	function every (obj, predicate, context) {
+	  if (obj === null) {
+	    return true;
 	  }
-	  return 0.5 * Math.log((number + 1) / (number - 1));
-	};
+	  predicate = _.iteratee(predicate, context);
+	  var keys = obj.length !== +obj.length && _.keys(obj);
+	  var length = (keys || obj).length;
+	  var index, currentKey;
+	  for (index = 0; index < length; index++) {
+	    currentKey = keys ? keys[index] : index;
+	    if (!predicate(obj[currentKey], currentKey, obj)) return false;
+	  }
+	  return true;
+	}
 
-	//TODO: use options
-	exports.AGGREGATE = function(function_num, options, ref1, ref2) {
-	  function_num = utils.parseNumber(function_num);
-	  if (function_num instanceof Error) {
-	    return function_num;
-	  }
-	  options = utils.parseNumber(function_num);
-	  if (options instanceof Error) {
-	    return options;
-	  }
-	  switch (function_num) {
-	    case 1:
-	      return statistical.AVERAGE(ref1);
-	    case 2:
-	      return statistical.COUNT(ref1);
-	    case 3:
-	      return statistical.COUNTA(ref1);
-	    case 4:
-	      return statistical.MAX(ref1);
-	    case 5:
-	      return statistical.MIN(ref1);
-	    case 6:
-	      return exports.PRODUCT(ref1);
-	    case 7:
-	      return statistical.STDEV.S(ref1);
-	    case 8:
-	      return statistical.STDEV.P(ref1);
-	    case 9:
-	      return exports.SUM(ref1);
-	    case 10:
-	      return statistical.VAR.S(ref1);
-	    case 11:
-	      return statistical.VAR.P(ref1);
-	    case 12:
-	      return statistical.MEDIAN(ref1);
-	    case 13:
-	      return statistical.MODE.SNGL(ref1);
-	    case 14:
-	      return statistical.LARGE(ref1, ref2);
-	    case 15:
-	      return statistical.SMALL(ref1, ref2);
-	    case 16:
-	      return statistical.PERCENTILE.INC(ref1, ref2);
-	    case 17:
-	      return statistical.QUARTILE.INC(ref1, ref2);
-	    case 18:
-	      return statistical.PERCENTILE.EXC(ref1, ref2);
-	    case 19:
-	      return statistical.QUARTILE.EXC(ref1, ref2);
-	  }
-	};
+	function isArguments (args) {
+	  return args && args.toString() === '[object Arguments]';
+	}
 
-	exports.ARABIC = function(text) {
-	  text = text.trim().toUpperCase();
-
-	  // Credits: Rafa? Kukawski
-	  if (!/^-?M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/.test(text)) {
-	    return error.value;
+	var _flatten = function _flatten (input, shallow, strict, output) {
+	  if (shallow && every(input, Array.isArray)) {
+	    return concat.apply(output, input);
 	  }
-	  var result = 0;
-	  text.replace(/[MDLV]|C[MD]?|X[CL]?|I[XV]?/g, function(i) {
-	    result += {
-	      M: 1000,
-	      CM: 900,
-	      D: 500,
-	      CD: 400,
-	      C: 100,
-	      XC: 90,
-	      L: 50,
-	      XL: 40,
-	      X: 10,
-	      IX: 9,
-	      V: 5,
-	      IV: 4,
-	      I: 1
-	    }[i];
-	  });
-	  if (text[0] === '-') {
-	    result *= -1;
-	  }
-	  return result;
-	};
-
-	exports.ASIN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-
-	  if ((number < -1) || (number > 1)) {
-	    return error.num;
-	  }
-
-	  return Math.asin(number);
-	};
-
-	exports.ASINH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.log(number + Math.sqrt(number * number + 1));
-	};
-
-	exports.ATAN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.atan(number);
-	};
-
-	exports.ATAN2 = function(number_x, number_y) {
-	  number_x = utils.parseNumber(number_x);
-	  if (number_x instanceof Error) {
-	    return number_x;
-	  }
-	  number_y = utils.parseNumber(number_y);
-	  if (number_y instanceof Error) {
-	    return number_y;
-	  }
-	  return Math.atan2(number_x, number_y);
-	};
-
-	exports.ATANH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-
-	  if ((number <= -1) || (number >= 1)) {
-	    return error.num;
-	  }
-
-	  return Math.log((1 + number) / (1 - number)) / 2;
-	};
-
-	exports.BASE = function(number, radix, min_length) {
-	  if (min_length === undefined || min_length === null) {
-	    min_length = 0;
-	  }
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0 || number >= 2e53) {
-	    return error.num;
-	  }
-	  radix = utils.parseNumber(radix);
-	  if (radix instanceof Error) {
-	    return radix;
-	  }
-	  if (radix < 2 || radix > 36) {
-	    return error.num;
-	  }
-	  min_length = utils.parseNumber(min_length);
-	  if (min_length instanceof Error) {
-	    return min_length;
-	  }
-	  if (min_length < 0) {
-	    return error.num;
-	  }
-	  var result = number.toString(radix);
-	  return new Array(Math.max(min_length + 1 - result.length, 0)).join('0') + result;
-	};
-
-	exports.CEILING = function(number, significance) {
-	  return exports.CEILING.MATH(number,
-	                              Math.abs(significance),
-	                              significance >= 0 ? 0 : -1);
-	};
-
-	exports.CEILING.MATH = function(number, significance, mode) {
-	  significance = (significance === undefined) ? 1 : Math.abs(significance);
-	  mode = mode || 0;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  significance = utils.parseNumber(significance);
-	  if (significance instanceof Error) {
-	    return significance;
-	  }
-	  mode = utils.parseNumber(mode);
-	  if (mode instanceof Error) {
-	    return mode;
-	  }
-	  if (significance === 0) {
-	    return 0;
-	  }
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
-	  if (number >= 0) {
-	    return exports.ROUND(Math.ceil(number / significance) * significance, precision);
-	  } else {
-	    if (mode === 0) {
-	      return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	  for (var i = 0, length = input.length; i < length; i++) {
+	    var value = input[i];
+	    if (!Array.isArray(value) && !isArguments(value)) {
+	      if (!strict) output.push(value);
+	    } else if (shallow) {
+	      push.apply(output, value);
 	    } else {
-	      return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	      _flatten(value, shallow, strict, output);
 	    }
 	  }
+	  return output;
 	};
 
-	exports.CEILING.PRECISE = function(number, significance) {
-	    significance = (significance === undefined) ? 1 : Math.abs(significance);
-	    return exports.CEILING(number, significance);
-	};
-
-	exports.COMBIN = function(number, number_chosen) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  number_chosen = utils.parseNumber(number_chosen);
-	  if (number_chosen instanceof Error) {
-	    return number_chosen;
-	  }
-	  return exports.FACT(number) / (exports.FACT(number_chosen) * exports.FACT(number - number_chosen));
-	};
-
-	exports.COMBINA = function(number, number_chosen) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  number_chosen = utils.parseNumber(number_chosen);
-	  if (number_chosen instanceof Error) {
-	    return number_chosen;
-	  }
-	  return (number === 0 && number_chosen === 0) ? 1 : exports.COMBIN(number + number_chosen - 1, number - 1);
-	};
-
-	exports.COS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.cos(number);
-	};
-
-	exports.COSH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.exp(number) + Math.exp(-number)) / 2;
-	};
-
-	exports.COT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 1 / Math.tan(number);
-	};
-
-	exports.COTH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  var e2 = Math.exp(2 * number);
-	  return (e2 + 1) / (e2 - 1);
-	};
-
-	exports.CSC = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 1 / Math.sin(number);
-	};
-
-	exports.CSCH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 2 / (Math.exp(number) - Math.exp(-number));
-	};
-
-	exports.DECIMAL = function(number, radix) {
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  radix = utils.parseNumber(radix);
-	  if (radix instanceof Error) {
-	    return radix;
-	  }
-	  if (radix < 2 || radix > 36) {
-	    return error.num;
-	  }
-	  number = parseInt(number, radix);
-	  if (isNaN(number)) {
-	    return error.num;
-	  }
-	  return number;
-	};
-
-	exports.DEGREES = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return number * 180 / Math.PI;
-	};
-
-	exports.EVEN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return exports.CEILING(number, -2, -1);
-	};
-
-	exports.EXP = Math.exp;
-
-	var MEMOIZED_FACT = [];
-	exports.FACT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  var n = Math.floor(number);
-	  if (n === 0 || n === 1) {
-	    return 1;
-	  } else if (MEMOIZED_FACT[n] > 0) {
-	    return MEMOIZED_FACT[n];
-	  } else {
-	    MEMOIZED_FACT[n] = exports.FACT(n - 1) * n;
-	    return MEMOIZED_FACT[n];
-	  }
-	};
-
-	exports.FACTDOUBLE = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  var n = Math.floor(number);
-	  if (n <= 1) {
-	    return 1;
-	  } else {
-	    return n * exports.FACTDOUBLE(n - 2);
-	  }
-	};
-
-	exports.FLOOR = function(number, significance) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  significance = utils.parseNumber(significance);
-	  if (significance instanceof Error) {
-	    return significance;
-	  }
-	  if (significance === 0) {
-	    return 0;
-	  }
-
-	  if (!(number > 0 && significance > 0) && !(number < 0 && significance < 0)) {
-	    return error.num;
-	  }
-
-	  significance = Math.abs(significance);
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
-	  if (number >= 0) {
-	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
-	  } else {
-	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance), precision);
-	  }
-	};
-
-	//TODO: Verify
-	exports.FLOOR.MATH = function(number, significance, mode) {
-	  significance = (significance === undefined) ? 1 : significance;
-	  mode = (mode === undefined) ? 0 : mode;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  significance = utils.parseNumber(significance);
-	  if (significance instanceof Error) {
-	    return significance;
-	  }
-	  mode = utils.parseNumber(mode);
-	  if (mode instanceof Error) {
-	    return mode;
-	  }
-	  if (significance === 0) {
-	    return 0;
-	  }
-
-	  significance = significance ? Math.abs(significance) : 1;
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
-	  if (number >= 0) {
-	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
-	  } else if (mode === 0 || mode === undefined) {
-	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
-	  }
-	  return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
-	};
-
-	// Deprecated
-	exports.FLOOR.PRECISE = exports.FLOOR.MATH;
-
-	// adapted http://rosettacode.org/wiki/Greatest_common_divisor#JavaScript
-	exports.GCD = function () {
-	  var numbers = utils.parseNumbersConvert(_.flatten(arguments));
-	  if (numbers instanceof Error) {
-	    return numbers;
-	  }
-	  if (numbers.length === 0) {
-	    return error.value;
-	  }
-	  var r0 = numbers[0];
-	  var x = r0 < 0 ? -r0 : r0;
-	  for (var i = 1; i < numbers.length; i++) {
-	    var ri = numbers[i];
-	    var y = ri < 0 ? -ri : ri;
-	    while (x && y) {
-	      if (x > y) {
-	        x %= y;
-	      } else {
-	        y %= x;
-	      }
-	    }
-	    x += y;
-	  }
-	  return x;
-	};
-
-
-	exports.INT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.floor(number);
-	};
-
-	exports.ISO = {
-	  CEILING: exports.CEILING.PRECISE
-	};
-
-	exports.LCM = function () {
-	  var o = _.flatten(arguments);
-	  var n = o.length;
-	  while (n--) {
-	    o[n] = utils.parseNumber(o[n]);
-	    if (o[n] instanceof Error) {
-	      return o[n];
-	    }
-	    if (o[n] === 0) {
-	      return 0;
-	    }
-	    if (o[n] < 0) {
-	      return error.num;
-	    }
-	  }
-
-	  function lcm(numbers) {
-	    return numbers.reduce(function(a, b) {
-	      return Math.abs(a * b) / exports.GCD(a, b);
-	    });
-	  }
-	  return lcm(o);
-	};
-
-	exports.LN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number <= 0) {
-	    return error.num;
-	  }
-	  return Math.log(number);
-	};
-
-	exports.LOG = function(number, base) {
-	  base = (base === undefined) ? 10 : base;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number <= 0) {
-	    return error.num;
-	  }
-	  base = utils.parseNumber(base);
-	  if (base instanceof Error) {
-	    return base;
-	  }
-	  if (base <= 0) {
-	    return error.num;
-	  }
-	  var b = Math.log(base);
-	  if (b === 0) {
-	    return error.div0;
-	  }
-	  return Math.log(number) / b;
-	};
-
-	exports.LOG10 = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number <= 0) {
-	    return error.num;
-	  }
-	  return Math.log(number) / Math.log(10);
-	};
-
-	exports.MDETERM = function(x) {
-	  x = utils.parseMatrix(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-
-	  var s = matrix.dim(x);
-	  if(s.length !== 2 || s[0] !== s[1]) {
-	    throw new Error('can only calculate determinant on square matrices');
-	  }
-	  var n = s[0], ret = 1,i,j,k,A = x,Aj,Ai,alpha,temp,k1,k2,k3;
-	  for(j=0;j<n-1;j++) {
-	    k=j;
-	    for(i=j+1;i<n;i++) {
-	      if(Math.abs(A[i][j]) > Math.abs(A[k][j])) {
-	        k = i;
-	      }
-	    }
-	    if(k !== j) {
-	      temp = A[k]; A[k] = A[j]; A[j] = temp;
-	      ret *= -1;
-	    }
-	    Aj = A[j];
-	    for(i=j+1;i<n;i++) {
-	      Ai = A[i];
-	      alpha = Ai[j]/Aj[j];
-	      for(k=j+1;k<n-1;k+=2) {
-	        k1 = k+1;
-	        Ai[k] -= Aj[k]*alpha;
-	        Ai[k1] -= Aj[k1]*alpha;
-	      }
-	      if(k!==n) {
-	        Ai[k] -= Aj[k]*alpha;
-	      }
-	    }
-	    if(Aj[j] === 0) {
-	      return 0;
-	    }
-	    ret *= Aj[j];
-	  }
-	  return ret*A[j][j];
-
-	};
-
-	exports.MINVERSE = function(x) {
-	  x = utils.parseMatrix(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-	  var s = matrix.dim(x), m = s[0], n = s[1];
-	  var A = x, Ai, Aj;
-	  var I = matrix.identity(m), Ii, Ij;
-	  var i,j,k;
-	  for(j=0;j<n;++j) {
-	    var i0 = -1;
-	    var v0 = -1;
-	    for(i=j;i!==m;++i) {
-	      k = Math.abs(A[i][j]);
-	      if(k>v0) {
-	        i0 = i; v0 = k;
-	      }
-	    }
-	    Aj = A[i0]; A[i0] = A[j]; A[j] = Aj;
-	    Ij = I[i0]; I[i0] = I[j]; I[j] = Ij;
-	    x = Aj[j];
-	    for(k=j;k!==n;++k) {
-	      Aj[k] /= x;
-	    }
-	    for(k=n-1;k!==-1;--k) {
-	      Ij[k] /= x;
-	    }
-	    for(i=m-1;i!==-1;--i) {
-	      if(i!==j) {
-	        Ai = A[i];
-	        Ii = I[i];
-	        x = Ai[j];
-	        for(k=j+1;k!==n;++k) {
-	          Ai[k] -= Aj[k]*x;
-	        }
-	        for(k=n-1;k>0;--k) {
-	          Ii[k] -= Ij[k]*x; --k; Ii[k] -= Ij[k]*x;
-	        }
-	        if(k===0) {
-	          Ii[0] -= Ij[0]*x;
-	        }
-	      }
-	    }
-	  }
-	  return I;
-	};
-
-	exports.MMULT = function(x, y) {
-	  x = utils.parseMatrix(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-	  y = utils.parseMatrix(y);
-	  if (y instanceof Error) {
-	    return y;
-	  }
-	  var matrix = [];
-
-	  for (var col = 0; col < y.length; col++) {
-	    matrix[col] = [];
-
-	    for (var row = 0; row < x[0].length; row++) {
-	      var sum = 0;
-	      for (var i = 0; i < x.length; i++) {
-	          sum += x[i][row] * y[col][i];
-	      }
-	      matrix[col][row] = sum;
-	    }
-	  }
-	  return matrix;
-	};
-
-	exports.MOD = function(dividend, divisor) {
-	  dividend = utils.parseNumber(dividend);
-	  if (dividend instanceof Error) {
-	    return dividend;
-	  }
-	  divisor = utils.parseNumber(divisor);
-	  if (divisor instanceof Error) {
-	    return divisor;
-	  }
-	  if (divisor === 0) {
-	    return error.div0;
-	  }
-	  var modulus = Math.abs(dividend % divisor);
-	  return (divisor > 0) ? modulus : -modulus;
-	};
-
-	exports.MROUND = function(number, multiple) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  multiple = utils.parseNumber(multiple);
-	  if (multiple instanceof Error) {
-	    return multiple;
-	  }
-	  if (number * multiple < 0) {
-	    return error.num;
-	  }
-
-	  return Math.round(number / multiple) * multiple;
-	};
-
-	exports.MULTINOMIAL = function () {
-	  var args = _.flatten(arguments);
-	  var n = args.length;
-	  for (var i = 0; i < n; i++) {
-	    args[i] = utils.parseNumber(args[i]);
-	    if (args[i] instanceof Error) {
-	      return args[i];
-	    }
-	  }
-	  var sum = 0;
-	  var divisor = 1;
-	  for (var i = 0; i < args.length; i++) {
-	    sum += args[i];
-	    divisor *= exports.FACT(args[i]);
-	  }
-	  return exports.FACT(sum) / divisor;
-	};
-
-	exports.MUNIT = function(dimension) {
-	  dimension = utils.parseNumber(dimension);
-	  if (dimension instanceof Error) {
-	    return dimension;
-	  }
-	  return matrix.identity(dimension);
-	};
-
-	exports.ODD = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  var temp = Math.ceil(Math.abs(number));
-	  temp = (temp & 1) ? temp : temp + 1;
-	  return (number > 0) ? temp : -temp;
-	};
-
-	exports.PI = function () {
-	  return Math.PI;
-	};
-
-	exports.POWER = function(number, power) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  power = utils.parseNumber(power);
-	  if (power instanceof Error) {
-	    return power;
-	  }
-	  var result = Math.pow(number, power);
-	  if (isNaN(result)) {
-	    return error.num;
-	  }
-
-	  return result;
-	};
-
-	exports.PRODUCT = function () {
-	  var args = utils.parseNumbers(_.flatten(arguments));
-	  if (args instanceof Error) {
-	    return args;
-	  }
-	  var result = 1;
-	  for (var i = 0; i < args.length; i++) {
-	    result *= args[i];
-	  }
-	  return result;
-	};
-
-	exports.QUOTIENT = function(numerator, denominator) {
-	  numerator = utils.parseNumber(numerator);
-	  if (numerator instanceof Error) {
-	    return numerator;
-	  }
-	  denominator = utils.parseNumber(denominator);
-	  if (denominator instanceof Error) {
-	    return denominator;
-	  }
-	  if (denominator === 0) {
-	    return error.div0;
-	  }
-	  return parseInt(numerator / denominator, 10);
-	};
-
-	exports.RADIANS = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return number * Math.PI / 180;
-	};
-
-	exports.RAND = function () {
-	  return Math.random();
-	};
-
-	exports.RANDBETWEEN = function(bottom, top) {
-	  bottom = utils.parseNumber(bottom);
-	  if (bottom instanceof Error) {
-	    return bottom;
-	  }
-	  top = utils.parseNumber(top);
-	  if (top instanceof Error) {
-	    return top;
-	  }
-	  // Creative Commons Attribution 3.0 License
-	  // Copyright (c) 2012 eqcode
-	  return bottom + Math.ceil((top - bottom + 1) * Math.random()) - 1;
-	};
-
-	// TODO
-	exports.ROMAN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  // The MIT License
-	  // Copyright (c) 2008 Steven Levithan
-	  var digits = String(number).split('');
-	  var key = ['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM', '', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC', '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
-	  var roman = '';
-	  var i = 3;
-	  while (i--) {
-	    roman = (key[+digits.pop() + (i * 10)] || '') + roman;
-	  }
-	  return new Array(+digits.join('') + 1).join('M') + roman;
-	};
-
-	exports.ROUND = function(number, digits) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.round(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-	exports.ROUNDDOWN = function(number, digits) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-	exports.ROUNDUP = function(number, digits) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
-	exports.SEC = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 1 / Math.cos(number);
-	};
-
-	exports.SECH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return 2 / (Math.exp(number) + Math.exp(-number));
-	};
-
-	exports.SERIESSUM = function(x, n, m, coefficients) {
-	  x = utils.parseNumber(x);
-	  if (x instanceof Error) {
-	    return x;
-	  }
-	  n = utils.parseNumber(n);
-	  if (n instanceof Error) {
-	    return n;
-	  }
-	  m = utils.parseNumber(m);
-	  if (m instanceof Error) {
-	    return m;
-	  }
-	  coefficients = utils.parseNumbers(coefficients);
-	  if (coefficients instanceof Error) {
-	    return coefficients;
-	  }
-	  var result = coefficients[0] * Math.pow(x, n);
-	  for (var i = 1; i < coefficients.length; i++) {
-	    result += coefficients[i] * Math.pow(x, n + i * m);
-	  }
-	  return result;
-	};
-
-	exports.SIGN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return -1;
-	  } else if (number === 0) {
-	    return 0;
-	  } else {
-	    return 1;
-	  }
-	};
-
-	exports.SIN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.sin(number);
-	};
-
-	exports.SINH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.exp(number) - Math.exp(-number)) / 2;
-	};
-
-	exports.SQRT = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  return Math.sqrt(number);
-	};
-
-	exports.SQRTPI = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.num;
-	  }
-	  return Math.sqrt(number * Math.PI);
-	};
-
-	exports.SUBTOTAL = function () {
-	  var args = utils.argsToArray(arguments);
-	  var function_code = utils.parseNumber(args.shift());
-	  if (function_code instanceof Error) {
-	    return function_code;
-	  }
-	  switch (function_code) {
-	    case 1:
-	      return statistical.AVERAGE.apply(null, args);
-	    case 2:
-	      return statistical.COUNT.apply(null, args);
-	    case 3:
-	      return statistical.COUNTA.apply(null, args);
-	    case 4:
-	      return statistical.MAX.apply(null, args);
-	    case 5:
-	      return statistical.MIN.apply(null, args);
-	    case 6:
-	      return exports.PRODUCT.apply(null, args);
-	    case 7:
-	      return statistical.STDEV.S.apply(null, args);
-	    case 8:
-	      return statistical.STDEV.P.apply(null, args);
-	    case 9:
-	      return exports.SUM.apply(null, args);
-	    case 10:
-	      return statistical.VAR.S.apply(null, args);
-	    case 11:
-	      return statistical.VAR.P.apply(null, args);
-	      // no hidden values for us
-	    case 101:
-	      return statistical.AVERAGE.apply(null, args);
-	    case 102:
-	      return statistical.COUNT.apply(null, args);
-	    case 103:
-	      return statistical.COUNTA.apply(null, args);
-	    case 104:
-	      return statistical.MAX.apply(null, args);
-	    case 105:
-	      return statistical.MIN.apply(null, args);
-	    case 106:
-	      return exports.PRODUCT.apply(null, args);
-	    case 107:
-	      return statistical.STDEV.S.apply(null, args);
-	    case 108:
-	      return statistical.STDEV.P.apply(null, args);
-	    case 109:
-	      return exports.SUM.apply(null, args);
-	    case 110:
-	      return statistical.VAR.S.apply(null, args);
-	    case 111:
-	      return statistical.VAR.P.apply(null, args);
-	  }
-	};
-
-	exports.SUM = function () {
-	  var numbers = utils.parseNumbersFromArguments(arguments);
-	  if (numbers instanceof Error)
-	    return numbers;
-	  var sum = 0;
-	  for (var i = 0; i < numbers.length; ++i)
-	    sum += numbers[i];
-	  return sum;
-	};
-
-	/**
-	 * Excel only allows this function to be entered into a cell for spreadsheet ranges.
-	 * None-the-less, this is implemented to operate on literal values with each parameter allowed to 
-	 * be an array of values (ignoring any non-number values) or a non-array value which is treated 
-	 * like a one element array.
-	 */
-	exports.SUMIF = function () {
-	  var sum = 0;
-	  utils.performIf(arguments, function(value) {
-	    if (typeof value === 'number')
-	      sum += value;
-	  });
-	  return sum;
-	};
-
-	exports.SUMIFS = function () {
-	  var sum = 0;
-	  utils.performIfs(arguments, function (value) {
-	    if (typeof value === 'number')
-	      sum += value;
-	  });
-	  return sum;
-	};
-
-	exports.SUMPRODUCT = function () {
-	  if (!arguments || arguments.length === 0) {
-	    return error.value;
-	  }
-	  var arrays = arguments.length + 1;
-	  var result = 0;
-	  var product;
-	  var i;
-	  if (!(arguments[0] instanceof Array)) {
-	    product = 1;
-	    for (i = 0; i < arguments.length; i++) {
-	      if (typeof arguments[i] === 'number') {
-	        product *= arguments[i];
-	      } else {
-	        return error.value;
-	      }
-	    }
-	    return product;
-	  }
-	  var k;
-	  var _i;
-	  var _ij;
-	  for (i = 0; i < arguments[0].length; i++) {
-	    if (!(arguments[0][i] instanceof Array)) {
-	      product = 1;
-	      for (k = 1; k < arrays; k++) {
-	        _i = utils.parseNumber(arguments[k - 1][i]);
-	        if (_i instanceof Error) {
-	          return _i;
-	        }
-	        product *= _i;
-	      }
-	      result += product;
-	    } else {
-	      for (var j = 0; j < arguments[0][i].length; j++) {
-	        product = 1;
-	        for (k = 1; k < arrays; k++) {
-	          _ij = utils.parseNumber(arguments[k - 1][i][j]);
-	          if (_ij instanceof Error) {
-	            return _ij;
-	          }
-	          product *= _ij;
-	        }
-	        result += product;
-	      }
+	function isBoolean (bool) {
+	  return bool === true || bool === false;
+	}
+
+	exports.uniq = function uniq (array) {
+	  if (array === null) {
+	    return [];
+	  }
+	  var result = [];
+	  var seen = [];
+	  for (var i = 0, length = array.length; i < length; i++) {
+	    var value = array[i];
+	    if (result.indexOf(value) < 0) {
+	      result.push(value);
 	    }
 	  }
 	  return result;
 	};
 
-	exports.SUMSQ = function () {
-	  var numbers = utils.parseNumbers(_.flatten(arguments));
-	  if (numbers instanceof Error) {
-	    return numbers;
+	function slice(array, start, end) {
+	  var index = -1;
+	  var length = array ? array.length : 0;
+
+	  start = start === null ? 0 : (+start || 0);
+	  if (start < 0) {
+	    start = -start > length ? 0 : (length + start);
 	  }
-	  var result = 0;
-	  var length = numbers.length;
-	  for (var i = 0; i < length; i++) {
-	    result += (information.ISNUMBER(numbers[i])) ? numbers[i] * numbers[i] : 0;
+	  end = (end === undefined || end > length) ? length : (+end || 0);
+	  if (end < 0) {
+	    end += length;
+	  }
+	  if (end && end == length && !start) {
+	    return baseSlice(array);
+	  }
+	  length = start > end ? 0 : (end - start);
+
+	  var result = Array(length);
+	  while (++index < length) {
+	    result[index] = array[index + start];
 	  }
 	  return result;
-	};
-
-	exports.SUMX2MY2 = function(array_x, array_y) {
-	  var parsed = utils.parseNumbersX(array_x, array_y);
-	  if (parsed instanceof Error) {
-	    return parsed;
-	  }
-	  var parsed_x = parsed[0];
-	  var parsed_y = parsed[1];
-	  var result = 0;
-	  for (var i = 0; i < parsed_x.length; i++) {
-	    result += parsed_x[i] * parsed_x[i] - parsed_y[i] * parsed_y[i];
-	  }
-	  return result;
-	};
-
-	exports.SUMX2PY2 = function(array_x, array_y) {
-	  var parsed = utils.parseNumbersX(array_x, array_y);
-	  if (parsed instanceof Error) {
-	    return parsed;
-	  }
-	  var parsed_x = parsed[0];
-	  var parsed_y = parsed[1];
-	  var result = 0;
-	  for (var i = 0; i < parsed_x.length; i++) {
-	    result += parsed_x[i] * parsed_x[i] + parsed_y[i] * parsed_y[i];
-	  }
-	  return result;
-	};
-
-	exports.SUMXMY2 = function(array_x, array_y) {
-	  var parsed = utils.parseNumbersX(array_x, array_y);
-	  if (parsed instanceof Error) {
-	    return parsed;
-	  }
-	  var parsed_x = parsed[0];
-	  var parsed_y = parsed[1];
-	  var result = 0;
-	  for (var i = 0; i < parsed_x.length; i++) {
-	    result += Math.pow(parsed_x[i] - parsed_y[i], 2);
-	  }
-	  return result;
-	};
-
-	exports.TAN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return Math.tan(number);
-	};
-
-	exports.TANH = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  var e2 = Math.exp(2 * number);
-	  return (e2 - 1) / (e2 + 1);
-	};
-
-	exports.TRUNC = function(number, digits) {
-	  digits = (digits === undefined) ? 0 : digits;
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  digits = utils.parseNumber(digits);
-	  if (digits instanceof Error) {
-	    return digits;
-	  }
-	  var sign = (number > 0) ? 1 : -1;
-	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
-	};
-
+	}
 
 /***/ },
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
-
-	/**
-	 * Implements an *IF function for its arguments and an action function.
-	 * @param {[varies]} args - arguments to the *IF function.
-	 * @param {function(value)} action - function to handle each value satisfying the criteria.
-	 */
-	exports.performIf = function (args, action) {
-	  var range = args[0];
-	  var criteria = args[1];
-	  var valueRange = args[2];
-	  exports.throwIfMissingArgument(range, 'range');
-	  exports.throwIfMissingArgument(criteria, 'criteria');
-	  if (valueRange === undefined) valueRange = range;
-
-	  range = exports.arrayify(range);
-	  valueRange = exports.arrayify(valueRange);
-	  if (valueRange.length !== range.length)
-	    throw new Error('Ranges must have same number of elements.');
-
-	  var comparisons = exports.applyCriteriaToValues(range, criteria);
-	  for (var i = 0; i < range.length; ++i)
-	    if (comparisons[i])
-	      action(valueRange[i]);
-	}
-
-	/**
-	 * Implements an *IFS function for its arguments and an action function.
-	 * @param {[varies]} args - arguments to the *IFS function.
-	 * @param {function(value)} action - function to handle each value satisfying the criteria.
-	 */
-	exports.performIfs = function (args, action) {
-	  var valueRange = args[0];
-	  var testRange1 = args[1];
-	  exports.throwIfMissingArgument(valueRange, 'sum_range');
-	  exports.throwIfMissingArgument(testRange1, 'range1');
-	  valueRange = exports.arrayify(valueRange);
-	  var ranges = [];
-	  var criterias = [];
-	  var argIndex = 1;
-	  while (args[argIndex] !== undefined) {
-	    var range = exports.arrayify(args[argIndex++]);
-	    if (range.length !== valueRange.length)
-	      throw new Error('Ranges must have same number of elements.');
-	    ranges.push(range);
-	    var criteria = args[argIndex++];
-	    if (criteria === undefined)
-	      throw new Error('Missing criteria for values.');
-	    criterias.push(criteria);
-	  }
-	  var comparisons = exports.applyCriteriaToValues(ranges[0], criterias[0]);
-	  for (var r = 0; r < ranges.length; ++r) {
-	    var nextComparisons = exports.applyCriteriaToValues(ranges[r], criterias[r]);
-	    for (var c = 0; c < nextComparisons.length; ++c)
-	      comparisons[c] = comparisons[c] && nextComparisons[c];
-	  }
-	  for (var i = 0; i < valueRange.length; ++i)
-	    if (comparisons[i])
-	      action(valueRange[i]);
-	}
+	var utils = __webpack_require__(6);
 
 	/**
 	 * Evaluates the criteria parameter to an *IF function -- returning a function that accepts one 
@@ -3612,13 +2435,98 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	exports.applyCriteriaToValues = function (values, criteria) {
 	  var compare = exports.parseCriteria(criteria);
-	  values = exports.arrayify(values);
+	  values = utils.arrayify(values);
 	  var results = new Array(values.length);
 	  for (var i = 0; i < values.length; ++i)
 	    results[i] = compare(values[i]);
 	  return results;
 	}
 
+	/**
+	 * Implements an *IF function for its arguments and an action function.
+	 * @param {[varies]} args - arguments to the *IF function.
+	 * @param {function(value)} action - function to handle each value satisfying the criteria.
+	 */
+	exports.performIf = function (args, action) {
+	  var range = args[0];
+	  var criteria = args[1];
+	  var valueRange = args[2];
+	  utils.throwIfMissingArgument(range, 'range');
+	  utils.throwIfMissingArgument(criteria, 'criteria');
+	  if (valueRange === undefined) valueRange = range;
+
+	  range = utils.arrayify(range);
+	  valueRange = utils.arrayify(valueRange);
+	  if (valueRange.length !== range.length)
+	    throw new Error('Ranges must have same number of elements.');
+
+	  var comparisons = exports.applyCriteriaToValues(range, criteria);
+	  for (var i = 0; i < range.length; ++i)
+	    if (comparisons[i])
+	      action(valueRange[i]);
+	}
+
+	/**
+	 * Implements an *IFS function for its arguments and an action function.
+	 * @param {[varies]} args - arguments to the *IFS function.
+	 * @param {function(value)} action - function to handle each value satisfying the criteria.
+	 */
+	exports.performIfs = function (args, action) {
+	  var valueRange = args[0];
+	  var testRange1 = args[1];
+	  utils.throwIfMissingArgument(valueRange, 'sum_range');
+	  utils.throwIfMissingArgument(testRange1, 'range1');
+	  valueRange = utils.arrayify(valueRange);
+	  var ranges = [];
+	  var criterias = [];
+	  var argIndex = 1;
+	  while (args[argIndex] !== undefined) {
+	    var range = utils.arrayify(args[argIndex++]);
+	    if (range.length !== valueRange.length)
+	      throw new Error('Ranges must have same number of elements.');
+	    ranges.push(range);
+	    var criteria = args[argIndex++];
+	    if (criteria === undefined)
+	      throw new Error('Missing criteria for values.');
+	    criterias.push(criteria);
+	  }
+	  var comparisons = exports.applyCriteriaToValues(ranges[0], criterias[0]);
+	  for (var r = 0; r < ranges.length; ++r) {
+	    var nextComparisons = exports.applyCriteriaToValues(ranges[r], criterias[r]);
+	    for (var c = 0; c < nextComparisons.length; ++c)
+	      comparisons[c] = comparisons[c] && nextComparisons[c];
+	  }
+	  for (var i = 0; i < valueRange.length; ++i)
+	    if (comparisons[i])
+	      action(valueRange[i]);
+	}
+
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	exports.nil = new Error('#NULL!');
+	exports.div0 = new Error('#DIV/0!');
+	exports.value = new Error('#VALUE!');
+	exports.ref = new Error('#REF!');
+	exports.name = new Error('#NAME?');
+	exports.num = new Error('#NUM!');
+	exports.na = new Error('#N/A');
+	exports.data = new Error('#GETTING_DATA');
+
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var error = __webpack_require__(5);
+
+	/**
+	 * Returns item if it is an array.  Otherwise returns the item as a single element array.
+	 * @param {varies} item 
+	 * @returns {[varies]} 
+	 */
 	exports.arrayify = function (item) {
 	  if (item instanceof Array)
 	    return item;
@@ -3644,6 +2552,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return Math.round(number * power) / power;
 	};
 
+	/**
+	 * Returns the boolean value represented by a value or value error if it does not represent a 
+	 * boolean value.
+	 * @param {varies} value 
+	 * @returns {boolean} 
+	 */
 	exports.parseBool = function(value) {
 	  if (typeof value === 'boolean')
 	    return value;
@@ -3666,7 +2580,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Returns the input (non-NaN) number or the input error or the number represented by a string or 
 	 * 1/0 for true/false.  Otherwise (i.e. undefined, null, NaN, string not representing a number ...)
-	 * returns error.value.
+	 * returns value error.
 	 */
 	exports.parseNumber = function(value) {
 	  if (typeof value === 'number' && !isNaN(value))
@@ -3707,10 +2621,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * that in other contexts are usually converted to numbers!  For example, ['0'] results in [0], 
 	 * ['x'] results in value error and both [['0']] and [['x']] result in [].
 	 * 
-	 * Usually, an excel function that takes variable length number arguments requires at least 
+	 * Usually, an Excel function that takes variable length number arguments requires at least 
 	 * argument, but this does not enforce this minimum.  Therefore, the implementation in this
-	 * library can provide more functionality than the excel version.  This does not conflict with 
-	 * the excel version since Excel does not allow a cell to be loaded with a function that has
+	 * library can provide more functionality than the Excel version.  This does not conflict with 
+	 * the Excel version since Excel does not allow a cell to be loaded with a function that has
 	 * no arguments.  This is extended behavior -- not different behavior.
 	 *
 	 * @param {[varies]} args - arguments object or Array.
@@ -3918,7 +2832,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Returns an excel (OLE Automation) date/time value from a javascript timestamp.
+	 * Returns an Excel (OLE Automation) date/time value from a javascript timestamp.
 	 */
 	exports.excelToJsTimestamp = function(timestamp) {
 	  if (timestamp < 60) {
@@ -3928,7 +2842,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Returns a javascript timestamp from an excel (OLE Automation) date/time value.
+	 * Returns a javascript timestamp from an Excel (OLE Automation) date/time value.
 	 */
 	exports.jsToExcelTimestamp = function (timestamp) {
 	  timestamp = (timestamp / 86400000) + 25569;
@@ -3951,8 +2865,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Unlike Date, Excel can parse a string that contains time without date (i.e. 
 	 * '2:30').  Further, without a date part, the resulting timestamp does include
 	 * date information, but it's strange: 0-jan-1900.  This corresponds to the 
-	 * excel timestamp value of 0.  The date 31-dec-1899 is used instead since its
-	 * somewhat close.  But do note that this date actually corresponds to an excel
+	 * Excel timestamp value of 0.  The date 31-dec-1899 is used instead since its
+	 * somewhat close.  But do note that this date actually corresponds to an Excel
 	 * timestamp of -1 -- which is invalid ... as all negative timestamp values are
 	 * invalid.  The real solution is to avoid using Date at all.  But that's 
 	 * undesirable since Date provides alot of utility.
@@ -4062,1511 +2976,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 5 */
-/***/ function(module, exports) {
-
-	exports.nil = new Error('#NULL!');
-	exports.div0 = new Error('#DIV/0!');
-	exports.value = new Error('#VALUE!');
-	exports.ref = new Error('#REF!');
-	exports.name = new Error('#NAME?');
-	exports.num = new Error('#NUM!');
-	exports.na = new Error('#N/A');
-	exports.data = new Error('#GETTING_DATA');
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var utils = __webpack_require__(4);
-	var error = __webpack_require__(5);
-
-	// TODO
-	exports.CELL = function () {
-	 throw new Error('CELL is not implemented');
-	};
-
-	exports.ERROR = {};
-	exports.ERROR.TYPE = function(error_val) {
-	  switch (error_val) {
-	    case error.nil: return 1;
-	    case error.div0: return 2;
-	    case error.value: return 3;
-	    case error.ref: return 4;
-	    case error.name: return 5;
-	    case error.num: return 6;
-	    case error.na: return 7;
-	    case error.data: return 8;
-	  }
-	  return error.na;
-	};
-
-	// TODO
-	exports.INFO = function () {
-	 throw new Error('INFO is not implemented');
-	};
-
-	exports.ISBLANK = function(value) {
-	  return value === null;
-	};
-
-	exports.ISERR = function(value) {
-	  return ([error.value, error.ref, error.div0, error.num, error.name, error.nil]).indexOf(value) >= 0 ||
-	    (typeof value === 'number' && (isNaN(value) || !isFinite(value)));
-	};
-
-	exports.ISERROR = function(value) {
-	  return exports.ISERR(value) || value === error.na;
-	};
-
-	exports.ISEVEN = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.floor(Math.abs(number)) & 1) ? false : true;
-	};
-
-	// TODO
-	exports.ISFORMULA = function () {
-	  throw new Error('ISFORMULA is not implemented');
-	};
-
-	exports.ISLOGICAL = function(value) {
-	  return value === true || value === false;
-	};
-
-	exports.ISNA = function(value) {
-	  return value === error.na;
-	};
-
-	exports.ISNONTEXT = function(value) {
-	  return typeof(value) !== 'string';
-	};
-
-	exports.ISNUMBER = function(value) {
-	  return typeof(value) === 'number' && !isNaN(value) && isFinite(value);
-	};
-
-	exports.ISODD = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  return (Math.floor(Math.abs(number)) & 1) ? true : false;
-	};
-
-	// TODO
-	exports.ISREF = function () {
-	  throw new Error('ISREF is not implemented');
-	};
-
-	exports.ISTEXT = function(value) {
-	  return typeof(value) === 'string';
-	};
-
-	exports.N = function(value) {
-	  if (exports.ISNUMBER(value)) {
-	    return value;
-	  }
-	  if (value instanceof Date) {
-	    return utils.jsToExcelTimestamp(value.getTime());
-	  }
-	  if (value === true) {
-	    return 1;
-	  }
-	  if (value === false) {
-	    return 0;
-	  }
-	  if (exports.ISERROR(value)) {
-	    return value;
-	  }
-	  return 0;
-	};
-
-	exports.NA = function () {
-	  return error.na;
-	};
-
-	// TODO
-	exports.SHEET = function () {
-	  throw new Error('SHEET is not implemented');
-	};
-
-	// TODO
-	exports.SHEETS = function () {
-	  throw new Error('SHEETS is not implemented');
-	};
-
-	exports.TYPE = function(value) {
-	  if (exports.ISNUMBER(value)) {
-	    return 1;
-	  }
-	  if (exports.ISTEXT(value)) {
-	    return 2;
-	  }
-	  if (exports.ISLOGICAL(value)) {
-	    return 4;
-	  }
-	  if (exports.ISERROR(value)) {
-	    return 16;
-	  }
-	  if (Array.isArray(value)) {
-	    return 64;
-	  }
-	};
-
-
-/***/ },
 /* 7 */
-/***/ function(module, exports) {
-
-	function _dim(x) {
-	  var ret = [];
-	  while(typeof x === "object") {
-	    ret.push(x.length); x = x[0];
-	  }
-	  return ret;
-	};
-
-	exports.dim = function dim(x) {
-	  var y,z;
-	  if(typeof x === "object") {
-	    y = x[0];
-	    if(typeof y === "object") {
-	      z = y[0];
-	      if(typeof z === "object") {
-	        return _dim(x);
-	      }
-	      return [x.length,y.length];
-	    }
-	    return [x.length];
-	  }
-	  return [];
-	};
-
-	exports.diag = function diag(d) {
-	  var i,i1,j,n = d.length, A = Array(n), Ai;
-	  for(i=n-1;i>=0;i--) {
-	    Ai = Array(n);
-	    i1 = i+2;
-	    for(j=n-1;j>=i1;j-=2) {
-	      Ai[j] = 0;
-	      Ai[j-1] = 0;
-	    }
-	    if(j>i) { Ai[j] = 0; }
-	    Ai[i] = d[i];
-	    for(j=i-1;j>=1;j-=2) {
-	      Ai[j] = 0;
-	      Ai[j-1] = 0;
-	    }
-	    if(j===0) {
-	      Ai[0] = 0;
-	    }
-	    A[i] = Ai;
-	  }
-	  return A;
-	};
-
-	exports.rep = function rep(s,v,k) {
-	  if(k === undefined) {
-	    k=0;
-	  }
-	  var n = s[k], ret = Array(n), i;
-	  if(k === s.length-1) {
-	    for(i=n-2;i>=0;i-=2) {
-	      ret[i+1] = v; ret[i] = v;
-	    }
-	    if(i===-1) {
-	      ret[0] = v;
-	    }
-	    return ret;
-	  }
-	  for(i=n-1;i>=0;i--) {
-	    ret[i] = exports.rep(s,v,k+1);
-	  }
-	  return ret;
-	};
-
-	exports.identity = function identity(n) {
-	  return exports.diag(exports.rep([n],1));
-	};
-
-	exports.dotMMsmall = function dotMMsmall (x,y) {
-	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0;
-	  p = x.length; q = y.length; r = y[0].length;
-	  ret = Array(p);
-	  for(i=p-1;i>=0;i--) {
-	    foo = Array(r);
-	    bar = x[i];
-	    for(k=r-1;k>=0;k--) {
-	      woo = bar[q-1]*y[q-1][k];
-	      for(j=q-2;j>=1;j-=2) {
-	          i0 = j-1;
-	          woo += bar[j]*y[j][k] + bar[i0]*y[i0][k];
-	      }
-	      if(j===0) {
-	        woo += bar[0]*y[0][k];
-	      }
-	      foo[k] = woo;
-	    }
-	    ret[i] = foo;
-	  }
-	  return ret;
-	};
-
-	exports.dotMMbig = function dotMMbig (x,y) {
-	  function gc(A,j,x) {
-	      var n = A.length, i;
-	      for(i=n-1;i>0;--i) {
-	          x[i] = A[i][j];
-	          --i;
-	          x[i] = A[i][j];
-	      }
-	      if(i===0) x[0] = A[0][j];
-	  }
-	  var p = y.length, v = Array(p);
-	  var m = x.length, n = y[0].length, A = new Array(m), xj;
-	  var VV = exports.dotVV;
-	  var i,j,k,z;
-	  --p;
-	  --m;
-	  for(i=m;i!==-1;--i) A[i] = Array(n);
-	  --n;
-	  for(i=n;i!==-1;--i) {
-	      gc(y,i,v);
-	      for(j=m;j!==-1;--j) {
-	          z=0;
-	          xj = x[j];
-	          A[j][i] = VV(xj,v);
-	      }
-	  }
-	  return A;
-	};
-
-	exports.dotMV = function dotMV (x,y) {
-	  var p = x.length, q = y.length,i;
-	  var ret = Array(p), dotVV = exports.dotVV;
-	  for(i=p-1;i>=0;i--) {
-	    ret[i] = dotVV(x[i],y);
-	  }
-	  return ret;
-	};
-
-	exports.dotVM = function dotVM (x,y) {
-	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0,s1,s2,s3,baz,accum;
-	  p = x.length; q = y[0].length;
-	  ret = Array(q);
-	  for(k=q-1;k>=0;k--) {
-	    woo = x[p-1]*y[p-1][k];
-	    for(j=p-2;j>=1;j-=2) {
-	      i0 = j-1;
-	      woo += x[j]*y[j][k] + x[i0]*y[i0][k];
-	    }
-	    if(j===0) {
-	      woo += x[0]*y[0][k];
-	    }
-	    ret[k] = woo;
-	  }
-	  return ret;
-	};
-
-	exports.dotVV = function dotVV (x,y) {
-	  var i,n=x.length,i1,ret = x[n-1]*y[n-1];
-	  for(i=n-2;i>=1;i-=2) {
-	    i1 = i-1;
-	    ret += x[i]*y[i] + x[i1]*y[i1];
-	  }
-	  if(i===0) {
-	    ret += x[0]*y[0];
-	  }
-	  return ret;
-	};
-
-	exports.mulVS = function mulVS (x,y) {
-	  var _n = x.length;
-	  var i, ret = Array(_n);
-
-	  for(i=_n-1;i!==-1;--i) {
-	    ret[i] = x[i] * y;
-	  }
-	  return ret;
-	};
-
-	exports.mulSV = function mulSV (x,y) {
-	  var _n = y.length;
-	  var i, ret = Array(_n);
-
-	  for(i=_n-1;i!==-1;--i) {
-	    ret[i] = x * y[i];
-	  }
-
-	  return ret;
-	};
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	exports.flatten = function(array, shallow) {
-	  return _flatten(array, shallow, false, []);
-	};
-
-	exports.initial = function (array) {
-	  var length = array ? array.length : 0;
-	  return slice(array, 0, length ? length - 1 : 0);
-	};
-
-	exports.rest = function (array) {
-	  return slice(array, 1);
-	};
-
-
-	function every (obj, predicate, context) {
-	  if (obj === null) {
-	    return true;
-	  }
-	  predicate = _.iteratee(predicate, context);
-	  var keys = obj.length !== +obj.length && _.keys(obj);
-	  var length = (keys || obj).length;
-	  var index, currentKey;
-	  for (index = 0; index < length; index++) {
-	    currentKey = keys ? keys[index] : index;
-	    if (!predicate(obj[currentKey], currentKey, obj)) return false;
-	  }
-	  return true;
-	}
-
-	function isArguments (args) {
-	  return args && args.toString() === '[object Arguments]';
-	}
-
-	var _flatten = function _flatten (input, shallow, strict, output) {
-	  if (shallow && every(input, Array.isArray)) {
-	    return concat.apply(output, input);
-	  }
-	  for (var i = 0, length = input.length; i < length; i++) {
-	    var value = input[i];
-	    if (!Array.isArray(value) && !isArguments(value)) {
-	      if (!strict) output.push(value);
-	    } else if (shallow) {
-	      push.apply(output, value);
-	    } else {
-	      _flatten(value, shallow, strict, output);
-	    }
-	  }
-	  return output;
-	};
-
-	function isBoolean (bool) {
-	  return bool === true || bool === false;
-	}
-
-	exports.uniq = function uniq (array) {
-	  if (array === null) {
-	    return [];
-	  }
-	  var result = [];
-	  var seen = [];
-	  for (var i = 0, length = array.length; i < length; i++) {
-	    var value = array[i];
-	    if (result.indexOf(value) < 0) {
-	      result.push(value);
-	    }
-	  }
-	  return result;
-	};
-
-	function slice(array, start, end) {
-	  var index = -1;
-	  var length = array ? array.length : 0;
-
-	  start = start === null ? 0 : (+start || 0);
-	  if (start < 0) {
-	    start = -start > length ? 0 : (length + start);
-	  }
-	  end = (end === undefined || end > length) ? length : (+end || 0);
-	  if (end < 0) {
-	    end += length;
-	  }
-	  if (end && end == length && !start) {
-	    return baseSlice(array);
-	  }
-	  length = start > end ? 0 : (end - start);
-
-	  var result = Array(length);
-	  while (++index < length) {
-	    result[index] = array[index + start];
-	  }
-	  return result;
-	}
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var utils = __webpack_require__(4);
-	var error = __webpack_require__(5);
-	var numeral = __webpack_require__(10);
-	var _ = __webpack_require__(8);
-
-	//TODO
-	exports.ASC = function () {
-	 throw new Error('ASC is not implemented');
-	};
-
-	//TODO
-	exports.BAHTTEXT = function () {
-	 throw new Error('BAHTTEXT is not implemented');
-	};
-
-	exports.CHAR = function(number) {
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 1 || number > 255) {
-	    return error.value;
-	  }
-	  return String.fromCharCode(number);
-	};
-
-	exports.CLEAN = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return text.replace(/[\0-\x1F]/g, "");
-	};
-
-	exports.CODE = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return text.charCodeAt(0);
-	};
-
-	exports.CONCATENATE = function () {
-	  var args = _.flatten(arguments);
-
-	  for (var i = 0; i < args.length; i++) {
-	    var text = utils.parseText(args[i]);
-	    if (text instanceof Error) {
-	      return text;
-	    }
-	    args[i] = text;
-	  }
-
-	  return args.join('');
-	};
-
-	//TODO
-	exports.DBCS = function () {
-	 throw new Error('DBCS is not implemented');
-	};
-
-	exports.DOLLAR = function(number, decimals) {
-	  decimals = (decimals === undefined) ? 2 : decimals;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  decimals = utils.parseNumber(decimals);
-	  if (decimals instanceof Error) {
-	    return decimals;
-	  }
-	  var format = '';
-	  if (decimals <= 0) {
-	    number = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
-	    format = '($0,0)';
-	  } else if (decimals > 0) {
-	    format = '($0,0.' + new Array(decimals + 1).join('0') + ')';
-	  }
-	  return numeral(number).format(format);
-	};
-
-	exports.EXACT = function(text1, text2) {
-	  text1 = utils.parseText(text1);
-	  if (text1 instanceof Error) {
-	    return text1;
-	  }
-	  text2 = utils.parseText(text2);
-	  if (text2 instanceof Error) {
-	    return text2;
-	  }
-	  return text1 === text2;
-	};
-
-	exports.FIND = function(find_text, within_text, position) {
-	  position = (position === undefined) ? 0 : position;
-
-	  find_text = utils.parseText(find_text);
-	  if (find_text instanceof Error) {
-	    return find_text;
-	  }
-	  within_text = utils.parseText(within_text);
-	  if (within_text instanceof Error) {
-	    return within_text;
-	  }
-	  position = utils.parseNumber(position);
-	  if (position instanceof Error) {
-	    return position;
-	  }
-	  if (position < 0 || position > within_text.length) {
-	    return error.value;
-	  }
-	  var result = within_text.indexOf(find_text, position - 1) + 1;
-	  if (result === 0) {
-	    return error.value;
-	  }
-	  return result;
-	};
-
-	exports.FIXED = function(number, decimals, no_commas) {
-	  decimals = (decimals === undefined) ? 2 : decimals;
-	  no_commas = (no_commas === undefined) ? false : no_commas;
-
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  decimals = utils.parseNumber(decimals);
-	  if (decimals instanceof Error) {
-	    return decimals;
-	  }
-
-	  var format = no_commas ? '0' : '0,0';
-	  if (decimals <= 0) {
-	    number = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
-	  } else if (decimals > 0) {
-	    format += '.' + new Array(decimals + 1).join('0');
-	  }
-	  return numeral(number).format(format);
-	};
-
-	exports.LEFT = function(text, number) {
-	  number = (number === undefined) ? 1 : number;
-
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.value;
-	  }
-	  return text.substring(0, number);
-	};
-
-	exports.LEN = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return text.length;
-	};
-
-	exports.LOWER = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return text.toLowerCase();
-	};
-
-	exports.MID = function(text, start, number) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  start = utils.parseNumber(start);
-	  if (start instanceof Error) {
-	    return start;
-	  }
-	  if (start < 1) {
-	    return error.value;
-	  }
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.value;
-	  }
-	  return text.substring(start - 1, number);
-	};
-
-	// TODO
-	exports.NUMBERVALUE = function () {
-	 throw new Error('NUMBERVALUE is not implemented');
-	};
-
-	// TODO
-	exports.PRONETIC = function () {
-	 throw new Error('PRONETIC is not implemented');
-	};
-
-	exports.PROPER = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-
-	  return text.replace(/\w\S*/g, function(txt) {
-	    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-	  });
-	};
-
-	exports.REPLACE = function(text, position, length, new_text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  position = utils.parseNumber(position);
-	  if (position instanceof Error) {
-	    return position;
-	  }
-	  if (position < 1) {
-	    return error.value;
-	  }
-	  length = utils.parseNumber(length);
-	  if (length instanceof Error) {
-	    return length;
-	  }
-	  if (length < 0) {
-	    return error.value;
-	  }
-	  new_text = utils.parseText(new_text);
-	  if (new_text instanceof Error) {
-	    return new_text;
-	  }
-	  return text.substr(0, position - 1) + new_text + text.substr(position - 1 + length);
-	};
-
-	exports.REPT = function(text, number) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  number = Math.floor(number);
-	  if (number < 0) {
-	    return error.value;
-	  }
-	  return new Array(number + 1).join(text);
-	};
-
-	exports.RIGHT = function(text, number) {
-	  if (number === undefined || number === null) {
-	    number = 1;
-	  }
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  number = utils.parseNumber(number);
-	  if (number instanceof Error) {
-	    return number;
-	  }
-	  if (number < 0) {
-	    return error.value;
-	  }
-	  return text.substring(text.length - number);
-	};
-
-	// TODO: wildcards
-	exports.SEARCH = function(find_text, within_text, position) {
-	  position = (position === undefined) ? 0 : position;
-
-	  find_text = utils.parseText(find_text);
-	  if (find_text instanceof Error) {
-	    return find_text;
-	  }
-	  within_text = utils.parseText(within_text);
-	  if (within_text instanceof Error) {
-	    return within_text;
-	  }
-	  position = utils.parseNumber(position);
-	  if (position instanceof Error) {
-	    return position;
-	  }
-	  if (position < 0 || position > within_text.length) {
-	    return error.value;
-	  }
-	  var result = within_text.toLowerCase().indexOf(find_text.toLowerCase(), position - 1) + 1;
-	  if (result === 0) {
-	    return error.value;
-	  }
-	  return result;
-	};
-
-	exports.SUBSTITUTE = function(text, old_text, new_text, occurrence) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  old_text = utils.parseText(old_text);
-	  if (old_text instanceof Error) {
-	    return old_text;
-	  }
-	  new_text = utils.parseText(new_text);
-	  if (new_text instanceof Error) {
-	    return new_text;
-	  }
-	  if (occurrence === undefined) {
-	    return text.replace(new RegExp(old_text, 'g'), new_text);
-	  }
-	  occurrence = utils.parseNumber(occurrence);
-	  if (occurrence instanceof Error) {
-	    return occurrence;
-	  }
-	  if (occurrence < 1) {
-	    return error.value;
-	  }
-	  for (var i = 1, index = 0; i <= occurrence; i++, index++) {
-	    index = text.indexOf(old_text, index);
-	  }
-	  return text.substring(0, index - 1) + new_text + text.substring(index - 1 + old_text.length);
-	};
-
-	exports.T = function(value) {
-	  if (value instanceof Error) {
-	    return value;
-	  }
-	  return (typeof(value) === 'string') ? value : '';
-	};
-
-	// TODO
-	exports.TEXT = function () {
-	  throw new Error('TEXT is not implemented');
-	};
-
-	exports.TRIM = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return text.replace(/ +/g, ' ').trim();
-	};
-
-	exports.UNICHAR = exports.CHAR;
-
-	exports.UNICODE = exports.CODE;
-
-	exports.UPPER = function(text) {
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return text.toUpperCase();
-	};
-
-	// TODO: improve invalid formats
-	exports.VALUE = function(text) {
-	  text = utils.parseText(text);
-	  if (text instanceof Error) {
-	    return text;
-	  }
-	  return numeral().unformat(text);
-	};
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
-	 * numeral.js
-	 * version : 1.5.3
-	 * author : Adam Draper
-	 * license : MIT
-	 * http://adamwdraper.github.com/Numeral-js/
-	 */
-
-	(function () {
-
-	    /************************************
-	        Constants
-	    ************************************/
-
-	    var numeral,
-	        VERSION = '1.5.3',
-	        // internal storage for language config files
-	        languages = {},
-	        currentLanguage = 'en',
-	        zeroFormat = null,
-	        defaultFormat = '0,0',
-	        // check for nodeJS
-	        hasModule = (typeof module !== 'undefined' && module.exports);
-
-
-	    /************************************
-	        Constructors
-	    ************************************/
-
-
-	    // Numeral prototype object
-	    function Numeral (number) {
-	        this._value = number;
-	    }
-
-	    /**
-	     * Implementation of toFixed() that treats floats more like decimals
-	     *
-	     * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
-	     * problems for accounting- and finance-related software.
-	     */
-	    function toFixed (value, precision, roundingFunction, optionals) {
-	        var power = Math.pow(10, precision),
-	            optionalsRegExp,
-	            output;
-	            
-	        //roundingFunction = (roundingFunction !== undefined ? roundingFunction : Math.round);
-	        // Multiply up by precision, round accurately, then divide and use native toFixed():
-	        output = (roundingFunction(value * power) / power).toFixed(precision);
-
-	        if (optionals) {
-	            optionalsRegExp = new RegExp('0{1,' + optionals + '}$');
-	            output = output.replace(optionalsRegExp, '');
-	        }
-
-	        return output;
-	    }
-
-	    /************************************
-	        Formatting
-	    ************************************/
-
-	    // determine what type of formatting we need to do
-	    function formatNumeral (n, format, roundingFunction) {
-	        var output;
-
-	        // figure out what kind of format we are dealing with
-	        if (format.indexOf('$') > -1) { // currency!!!!!
-	            output = formatCurrency(n, format, roundingFunction);
-	        } else if (format.indexOf('%') > -1) { // percentage
-	            output = formatPercentage(n, format, roundingFunction);
-	        } else if (format.indexOf(':') > -1) { // time
-	            output = formatTime(n, format);
-	        } else { // plain ol' numbers or bytes
-	            output = formatNumber(n._value, format, roundingFunction);
-	        }
-
-	        // return string
-	        return output;
-	    }
-
-	    // revert to number
-	    function unformatNumeral (n, string) {
-	        var stringOriginal = string,
-	            thousandRegExp,
-	            millionRegExp,
-	            billionRegExp,
-	            trillionRegExp,
-	            suffixes = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-	            bytesMultiplier = false,
-	            power;
-
-	        if (string.indexOf(':') > -1) {
-	            n._value = unformatTime(string);
-	        } else {
-	            if (string === zeroFormat) {
-	                n._value = 0;
-	            } else {
-	                if (languages[currentLanguage].delimiters.decimal !== '.') {
-	                    string = string.replace(/\./g,'').replace(languages[currentLanguage].delimiters.decimal, '.');
-	                }
-
-	                // see if abbreviations are there so that we can multiply to the correct number
-	                thousandRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.thousand + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-	                millionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.million + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-	                billionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.billion + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-	                trillionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.trillion + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
-
-	                // see if bytes are there so that we can multiply to the correct number
-	                for (power = 0; power <= suffixes.length; power++) {
-	                    bytesMultiplier = (string.indexOf(suffixes[power]) > -1) ? Math.pow(1024, power + 1) : false;
-
-	                    if (bytesMultiplier) {
-	                        break;
-	                    }
-	                }
-
-	                // do some math to create our number
-	                n._value = ((bytesMultiplier) ? bytesMultiplier : 1) * ((stringOriginal.match(thousandRegExp)) ? Math.pow(10, 3) : 1) * ((stringOriginal.match(millionRegExp)) ? Math.pow(10, 6) : 1) * ((stringOriginal.match(billionRegExp)) ? Math.pow(10, 9) : 1) * ((stringOriginal.match(trillionRegExp)) ? Math.pow(10, 12) : 1) * ((string.indexOf('%') > -1) ? 0.01 : 1) * (((string.split('-').length + Math.min(string.split('(').length-1, string.split(')').length-1)) % 2)? 1: -1) * Number(string.replace(/[^0-9\.]+/g, ''));
-
-	                // round if we are talking about bytes
-	                n._value = (bytesMultiplier) ? Math.ceil(n._value) : n._value;
-	            }
-	        }
-	        return n._value;
-	    }
-
-	    function formatCurrency (n, format, roundingFunction) {
-	        var symbolIndex = format.indexOf('$'),
-	            openParenIndex = format.indexOf('('),
-	            minusSignIndex = format.indexOf('-'),
-	            space = '',
-	            spliceIndex,
-	            output;
-
-	        // check for space before or after currency
-	        if (format.indexOf(' $') > -1) {
-	            space = ' ';
-	            format = format.replace(' $', '');
-	        } else if (format.indexOf('$ ') > -1) {
-	            space = ' ';
-	            format = format.replace('$ ', '');
-	        } else {
-	            format = format.replace('$', '');
-	        }
-
-	        // format the number
-	        output = formatNumber(n._value, format, roundingFunction);
-
-	        // position the symbol
-	        if (symbolIndex <= 1) {
-	            if (output.indexOf('(') > -1 || output.indexOf('-') > -1) {
-	                output = output.split('');
-	                spliceIndex = 1;
-	                if (symbolIndex < openParenIndex || symbolIndex < minusSignIndex){
-	                    // the symbol appears before the "(" or "-"
-	                    spliceIndex = 0;
-	                }
-	                output.splice(spliceIndex, 0, languages[currentLanguage].currency.symbol + space);
-	                output = output.join('');
-	            } else {
-	                output = languages[currentLanguage].currency.symbol + space + output;
-	            }
-	        } else {
-	            if (output.indexOf(')') > -1) {
-	                output = output.split('');
-	                output.splice(-1, 0, space + languages[currentLanguage].currency.symbol);
-	                output = output.join('');
-	            } else {
-	                output = output + space + languages[currentLanguage].currency.symbol;
-	            }
-	        }
-
-	        return output;
-	    }
-
-	    function formatPercentage (n, format, roundingFunction) {
-	        var space = '',
-	            output,
-	            value = n._value * 100;
-
-	        // check for space before %
-	        if (format.indexOf(' %') > -1) {
-	            space = ' ';
-	            format = format.replace(' %', '');
-	        } else {
-	            format = format.replace('%', '');
-	        }
-
-	        output = formatNumber(value, format, roundingFunction);
-	        
-	        if (output.indexOf(')') > -1 ) {
-	            output = output.split('');
-	            output.splice(-1, 0, space + '%');
-	            output = output.join('');
-	        } else {
-	            output = output + space + '%';
-	        }
-
-	        return output;
-	    }
-
-	    function formatTime (n) {
-	        var hours = Math.floor(n._value/60/60),
-	            minutes = Math.floor((n._value - (hours * 60 * 60))/60),
-	            seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
-	        return hours + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds);
-	    }
-
-	    function unformatTime (string) {
-	        var timeArray = string.split(':'),
-	            seconds = 0;
-	        // turn hours and minutes into seconds and add them all up
-	        if (timeArray.length === 3) {
-	            // hours
-	            seconds = seconds + (Number(timeArray[0]) * 60 * 60);
-	            // minutes
-	            seconds = seconds + (Number(timeArray[1]) * 60);
-	            // seconds
-	            seconds = seconds + Number(timeArray[2]);
-	        } else if (timeArray.length === 2) {
-	            // minutes
-	            seconds = seconds + (Number(timeArray[0]) * 60);
-	            // seconds
-	            seconds = seconds + Number(timeArray[1]);
-	        }
-	        return Number(seconds);
-	    }
-
-	    function formatNumber (value, format, roundingFunction) {
-	        var negP = false,
-	            signed = false,
-	            optDec = false,
-	            abbr = '',
-	            abbrK = false, // force abbreviation to thousands
-	            abbrM = false, // force abbreviation to millions
-	            abbrB = false, // force abbreviation to billions
-	            abbrT = false, // force abbreviation to trillions
-	            abbrForce = false, // force abbreviation
-	            bytes = '',
-	            ord = '',
-	            abs = Math.abs(value),
-	            suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
-	            min,
-	            max,
-	            power,
-	            w,
-	            precision,
-	            thousands,
-	            d = '',
-	            neg = false;
-
-	        // check if number is zero and a custom zero format has been set
-	        if (value === 0 && zeroFormat !== null) {
-	            return zeroFormat;
-	        } else {
-	            // see if we should use parentheses for negative number or if we should prefix with a sign
-	            // if both are present we default to parentheses
-	            if (format.indexOf('(') > -1) {
-	                negP = true;
-	                format = format.slice(1, -1);
-	            } else if (format.indexOf('+') > -1) {
-	                signed = true;
-	                format = format.replace(/\+/g, '');
-	            }
-
-	            // see if abbreviation is wanted
-	            if (format.indexOf('a') > -1) {
-	                // check if abbreviation is specified
-	                abbrK = format.indexOf('aK') >= 0;
-	                abbrM = format.indexOf('aM') >= 0;
-	                abbrB = format.indexOf('aB') >= 0;
-	                abbrT = format.indexOf('aT') >= 0;
-	                abbrForce = abbrK || abbrM || abbrB || abbrT;
-
-	                // check for space before abbreviation
-	                if (format.indexOf(' a') > -1) {
-	                    abbr = ' ';
-	                    format = format.replace(' a', '');
-	                } else {
-	                    format = format.replace('a', '');
-	                }
-
-	                if (abs >= Math.pow(10, 12) && !abbrForce || abbrT) {
-	                    // trillion
-	                    abbr = abbr + languages[currentLanguage].abbreviations.trillion;
-	                    value = value / Math.pow(10, 12);
-	                } else if (abs < Math.pow(10, 12) && abs >= Math.pow(10, 9) && !abbrForce || abbrB) {
-	                    // billion
-	                    abbr = abbr + languages[currentLanguage].abbreviations.billion;
-	                    value = value / Math.pow(10, 9);
-	                } else if (abs < Math.pow(10, 9) && abs >= Math.pow(10, 6) && !abbrForce || abbrM) {
-	                    // million
-	                    abbr = abbr + languages[currentLanguage].abbreviations.million;
-	                    value = value / Math.pow(10, 6);
-	                } else if (abs < Math.pow(10, 6) && abs >= Math.pow(10, 3) && !abbrForce || abbrK) {
-	                    // thousand
-	                    abbr = abbr + languages[currentLanguage].abbreviations.thousand;
-	                    value = value / Math.pow(10, 3);
-	                }
-	            }
-
-	            // see if we are formatting bytes
-	            if (format.indexOf('b') > -1) {
-	                // check for space before
-	                if (format.indexOf(' b') > -1) {
-	                    bytes = ' ';
-	                    format = format.replace(' b', '');
-	                } else {
-	                    format = format.replace('b', '');
-	                }
-
-	                for (power = 0; power <= suffixes.length; power++) {
-	                    min = Math.pow(1024, power);
-	                    max = Math.pow(1024, power+1);
-
-	                    if (value >= min && value < max) {
-	                        bytes = bytes + suffixes[power];
-	                        if (min > 0) {
-	                            value = value / min;
-	                        }
-	                        break;
-	                    }
-	                }
-	            }
-
-	            // see if ordinal is wanted
-	            if (format.indexOf('o') > -1) {
-	                // check for space before
-	                if (format.indexOf(' o') > -1) {
-	                    ord = ' ';
-	                    format = format.replace(' o', '');
-	                } else {
-	                    format = format.replace('o', '');
-	                }
-
-	                ord = ord + languages[currentLanguage].ordinal(value);
-	            }
-
-	            if (format.indexOf('[.]') > -1) {
-	                optDec = true;
-	                format = format.replace('[.]', '.');
-	            }
-
-	            w = value.toString().split('.')[0];
-	            precision = format.split('.')[1];
-	            thousands = format.indexOf(',');
-
-	            if (precision) {
-	                if (precision.indexOf('[') > -1) {
-	                    precision = precision.replace(']', '');
-	                    precision = precision.split('[');
-	                    d = toFixed(value, (precision[0].length + precision[1].length), roundingFunction, precision[1].length);
-	                } else {
-	                    d = toFixed(value, precision.length, roundingFunction);
-	                }
-
-	                w = d.split('.')[0];
-
-	                if (d.split('.')[1].length) {
-	                    d = languages[currentLanguage].delimiters.decimal + d.split('.')[1];
-	                } else {
-	                    d = '';
-	                }
-
-	                if (optDec && Number(d.slice(1)) === 0) {
-	                    d = '';
-	                }
-	            } else {
-	                w = toFixed(value, null, roundingFunction);
-	            }
-
-	            // format number
-	            if (w.indexOf('-') > -1) {
-	                w = w.slice(1);
-	                neg = true;
-	            }
-
-	            if (thousands > -1) {
-	                w = w.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + languages[currentLanguage].delimiters.thousands);
-	            }
-
-	            if (format.indexOf('.') === 0) {
-	                w = '';
-	            }
-
-	            return ((negP && neg) ? '(' : '') + ((!negP && neg) ? '-' : '') + ((!neg && signed) ? '+' : '') + w + d + ((ord) ? ord : '') + ((abbr) ? abbr : '') + ((bytes) ? bytes : '') + ((negP && neg) ? ')' : '');
-	        }
-	    }
-
-	    /************************************
-	        Top Level Functions
-	    ************************************/
-
-	    numeral = function (input) {
-	        if (numeral.isNumeral(input)) {
-	            input = input.value();
-	        } else if (input === 0 || typeof input === 'undefined') {
-	            input = 0;
-	        } else if (!Number(input)) {
-	            input = numeral.fn.unformat(input);
-	        }
-
-	        return new Numeral(Number(input));
-	    };
-
-	    // version number
-	    numeral.version = VERSION;
-
-	    // compare numeral object
-	    numeral.isNumeral = function (obj) {
-	        return obj instanceof Numeral;
-	    };
-
-	    // This function will load languages and then set the global language.  If
-	    // no arguments are passed in, it will simply return the current global
-	    // language key.
-	    numeral.language = function (key, values) {
-	        if (!key) {
-	            return currentLanguage;
-	        }
-
-	        if (key && !values) {
-	            if(!languages[key]) {
-	                throw new Error('Unknown language : ' + key);
-	            }
-	            currentLanguage = key;
-	        }
-
-	        if (values || !languages[key]) {
-	            loadLanguage(key, values);
-	        }
-
-	        return numeral;
-	    };
-	    
-	    // This function provides access to the loaded language data.  If
-	    // no arguments are passed in, it will simply return the current
-	    // global language object.
-	    numeral.languageData = function (key) {
-	        if (!key) {
-	            return languages[currentLanguage];
-	        }
-	        
-	        if (!languages[key]) {
-	            throw new Error('Unknown language : ' + key);
-	        }
-	        
-	        return languages[key];
-	    };
-
-	    numeral.language('en', {
-	        delimiters: {
-	            thousands: ',',
-	            decimal: '.'
-	        },
-	        abbreviations: {
-	            thousand: 'k',
-	            million: 'm',
-	            billion: 'b',
-	            trillion: 't'
-	        },
-	        ordinal: function (number) {
-	            var b = number % 10;
-	            return (~~ (number % 100 / 10) === 1) ? 'th' :
-	                (b === 1) ? 'st' :
-	                (b === 2) ? 'nd' :
-	                (b === 3) ? 'rd' : 'th';
-	        },
-	        currency: {
-	            symbol: '$'
-	        }
-	    });
-
-	    numeral.zeroFormat = function (format) {
-	        zeroFormat = typeof(format) === 'string' ? format : null;
-	    };
-
-	    numeral.defaultFormat = function (format) {
-	        defaultFormat = typeof(format) === 'string' ? format : '0.0';
-	    };
-
-	    /************************************
-	        Helpers
-	    ************************************/
-
-	    function loadLanguage(key, values) {
-	        languages[key] = values;
-	    }
-
-	    /************************************
-	        Floating-point helpers
-	    ************************************/
-
-	    // The floating-point helper functions and implementation
-	    // borrows heavily from sinful.js: http://guipn.github.io/sinful.js/
-
-	    /**
-	     * Array.prototype.reduce for browsers that don't support it
-	     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce#Compatibility
-	     */
-	    if ('function' !== typeof Array.prototype.reduce) {
-	        Array.prototype.reduce = function (callback, opt_initialValue) {
-	            'use strict';
-	            
-	            if (null === this || 'undefined' === typeof this) {
-	                // At the moment all modern browsers, that support strict mode, have
-	                // native implementation of Array.prototype.reduce. For instance, IE8
-	                // does not support strict mode, so this check is actually useless.
-	                throw new TypeError('Array.prototype.reduce called on null or undefined');
-	            }
-	            
-	            if ('function' !== typeof callback) {
-	                throw new TypeError(callback + ' is not a function');
-	            }
-
-	            var index,
-	                value,
-	                length = this.length >>> 0,
-	                isValueSet = false;
-
-	            if (1 < arguments.length) {
-	                value = opt_initialValue;
-	                isValueSet = true;
-	            }
-
-	            for (index = 0; length > index; ++index) {
-	                if (this.hasOwnProperty(index)) {
-	                    if (isValueSet) {
-	                        value = callback(value, this[index], index, this);
-	                    } else {
-	                        value = this[index];
-	                        isValueSet = true;
-	                    }
-	                }
-	            }
-
-	            if (!isValueSet) {
-	                throw new TypeError('Reduce of empty array with no initial value');
-	            }
-
-	            return value;
-	        };
-	    }
-
-	    
-	    /**
-	     * Computes the multiplier necessary to make x >= 1,
-	     * effectively eliminating miscalculations caused by
-	     * finite precision.
-	     */
-	    function multiplier(x) {
-	        var parts = x.toString().split('.');
-	        if (parts.length < 2) {
-	            return 1;
-	        }
-	        return Math.pow(10, parts[1].length);
-	    }
-
-	    /**
-	     * Given a variable number of arguments, returns the maximum
-	     * multiplier that must be used to normalize an operation involving
-	     * all of them.
-	     */
-	    function correctionFactor() {
-	        var args = Array.prototype.slice.call(arguments);
-	        return args.reduce(function (prev, next) {
-	            var mp = multiplier(prev),
-	                mn = multiplier(next);
-	        return mp > mn ? mp : mn;
-	        }, -Infinity);
-	    }        
-
-
-	    /************************************
-	        Numeral Prototype
-	    ************************************/
-
-
-	    numeral.fn = Numeral.prototype = {
-
-	        clone : function () {
-	            return numeral(this);
-	        },
-
-	        format : function (inputString, roundingFunction) {
-	            return formatNumeral(this, 
-	                  inputString ? inputString : defaultFormat, 
-	                  (roundingFunction !== undefined) ? roundingFunction : Math.round
-	              );
-	        },
-
-	        unformat : function (inputString) {
-	            if (Object.prototype.toString.call(inputString) === '[object Number]') { 
-	                return inputString; 
-	            }
-	            return unformatNumeral(this, inputString ? inputString : defaultFormat);
-	        },
-
-	        value : function () {
-	            return this._value;
-	        },
-
-	        valueOf : function () {
-	            return this._value;
-	        },
-
-	        set : function (value) {
-	            this._value = Number(value);
-	            return this;
-	        },
-
-	        add : function (value) {
-	            var corrFactor = correctionFactor.call(null, this._value, value);
-	            function cback(accum, curr, currI, O) {
-	                return accum + corrFactor * curr;
-	            }
-	            this._value = [this._value, value].reduce(cback, 0) / corrFactor;
-	            return this;
-	        },
-
-	        subtract : function (value) {
-	            var corrFactor = correctionFactor.call(null, this._value, value);
-	            function cback(accum, curr, currI, O) {
-	                return accum - corrFactor * curr;
-	            }
-	            this._value = [value].reduce(cback, this._value * corrFactor) / corrFactor;            
-	            return this;
-	        },
-
-	        multiply : function (value) {
-	            function cback(accum, curr, currI, O) {
-	                var corrFactor = correctionFactor(accum, curr);
-	                return (accum * corrFactor) * (curr * corrFactor) /
-	                    (corrFactor * corrFactor);
-	            }
-	            this._value = [this._value, value].reduce(cback, 1);
-	            return this;
-	        },
-
-	        divide : function (value) {
-	            function cback(accum, curr, currI, O) {
-	                var corrFactor = correctionFactor(accum, curr);
-	                return (accum * corrFactor) / (curr * corrFactor);
-	            }
-	            this._value = [this._value, value].reduce(cback);            
-	            return this;
-	        },
-
-	        difference : function (value) {
-	            return Math.abs(numeral(this._value).subtract(value).value());
-	        }
-
-	    };
-
-	    /************************************
-	        Exposing Numeral
-	    ************************************/
-
-	    // CommonJS module is defined
-	    if (hasModule) {
-	        module.exports = numeral;
-	    }
-
-	    /*global ender:false */
-	    if (typeof ender === 'undefined') {
-	        // here, `this` means `window` in the browser, or `global` on the server
-	        // add `numeral` as a global object via a string identifier,
-	        // for Closure Compiler 'advanced' mode
-	        this['numeral'] = numeral;
-	    }
-
-	    /*global define:false */
-	    if (true) {
-	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
-	            return numeral;
-	        }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-	    }
-	}).call(this);
-
-
-/***/ },
-/* 11 */
 /***/ function(module, exports) {
 
 	this.j$ = this.jStat = (function(Math, undefined) {
@@ -8826,21 +6236,2632 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var _ = __webpack_require__(3);
+	var criteriaEval = __webpack_require__(4);
+	var error = __webpack_require__(5);
+	var information = __webpack_require__(9);
+	var matrix = __webpack_require__(10);
+	var statistical = __webpack_require__(2);
+	var utils = __webpack_require__(6);
+
+	exports.ABS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.abs(utils.parseNumber(number));
+	};
+
+	exports.ACOS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+
+	  if ((number < -1) || (number > 1)) {
+	    return error.num;
+	  }
+
+	  return Math.acos(number);
+	};
+
+	exports.ACOSH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+
+	  if (number < 1) {
+	    return error.num;
+	  }
+
+	  return Math.log(number + Math.sqrt(number * number - 1));
+	};
+
+	exports.ACOT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.atan(1 / number);
+	};
+
+	exports.ACOTH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 0.5 * Math.log((number + 1) / (number - 1));
+	};
+
+	//TODO: use options
+	exports.AGGREGATE = function(function_num, options, ref1, ref2) {
+	  function_num = utils.parseNumber(function_num);
+	  if (function_num instanceof Error) {
+	    return function_num;
+	  }
+	  options = utils.parseNumber(function_num);
+	  if (options instanceof Error) {
+	    return options;
+	  }
+	  switch (function_num) {
+	    case 1:
+	      return statistical.AVERAGE(ref1);
+	    case 2:
+	      return statistical.COUNT(ref1);
+	    case 3:
+	      return statistical.COUNTA(ref1);
+	    case 4:
+	      return statistical.MAX(ref1);
+	    case 5:
+	      return statistical.MIN(ref1);
+	    case 6:
+	      return exports.PRODUCT(ref1);
+	    case 7:
+	      return statistical.STDEV.S(ref1);
+	    case 8:
+	      return statistical.STDEV.P(ref1);
+	    case 9:
+	      return exports.SUM(ref1);
+	    case 10:
+	      return statistical.VAR.S(ref1);
+	    case 11:
+	      return statistical.VAR.P(ref1);
+	    case 12:
+	      return statistical.MEDIAN(ref1);
+	    case 13:
+	      return statistical.MODE.SNGL(ref1);
+	    case 14:
+	      return statistical.LARGE(ref1, ref2);
+	    case 15:
+	      return statistical.SMALL(ref1, ref2);
+	    case 16:
+	      return statistical.PERCENTILE.INC(ref1, ref2);
+	    case 17:
+	      return statistical.QUARTILE.INC(ref1, ref2);
+	    case 18:
+	      return statistical.PERCENTILE.EXC(ref1, ref2);
+	    case 19:
+	      return statistical.QUARTILE.EXC(ref1, ref2);
+	  }
+	};
+
+	exports.ARABIC = function(text) {
+	  text = text.trim().toUpperCase();
+
+	  // Credits: Rafa? Kukawski
+	  if (!/^-?M*(?:D?C{0,3}|C[MD])(?:L?X{0,3}|X[CL])(?:V?I{0,3}|I[XV])$/.test(text)) {
+	    return error.value;
+	  }
+	  var result = 0;
+	  text.replace(/[MDLV]|C[MD]?|X[CL]?|I[XV]?/g, function(i) {
+	    result += {
+	      M: 1000,
+	      CM: 900,
+	      D: 500,
+	      CD: 400,
+	      C: 100,
+	      XC: 90,
+	      L: 50,
+	      XL: 40,
+	      X: 10,
+	      IX: 9,
+	      V: 5,
+	      IV: 4,
+	      I: 1
+	    }[i];
+	  });
+	  if (text[0] === '-') {
+	    result *= -1;
+	  }
+	  return result;
+	};
+
+	exports.ASIN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+
+	  if ((number < -1) || (number > 1)) {
+	    return error.num;
+	  }
+
+	  return Math.asin(number);
+	};
+
+	exports.ASINH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.log(number + Math.sqrt(number * number + 1));
+	};
+
+	exports.ATAN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.atan(number);
+	};
+
+	exports.ATAN2 = function(number_x, number_y) {
+	  number_x = utils.parseNumber(number_x);
+	  if (number_x instanceof Error) {
+	    return number_x;
+	  }
+	  number_y = utils.parseNumber(number_y);
+	  if (number_y instanceof Error) {
+	    return number_y;
+	  }
+	  return Math.atan2(number_x, number_y);
+	};
+
+	exports.ATANH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+
+	  if ((number <= -1) || (number >= 1)) {
+	    return error.num;
+	  }
+
+	  return Math.log((1 + number) / (1 - number)) / 2;
+	};
+
+	exports.BASE = function(number, radix, min_length) {
+	  if (min_length === undefined || min_length === null) {
+	    min_length = 0;
+	  }
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0 || number >= 2e53) {
+	    return error.num;
+	  }
+	  radix = utils.parseNumber(radix);
+	  if (radix instanceof Error) {
+	    return radix;
+	  }
+	  if (radix < 2 || radix > 36) {
+	    return error.num;
+	  }
+	  min_length = utils.parseNumber(min_length);
+	  if (min_length instanceof Error) {
+	    return min_length;
+	  }
+	  if (min_length < 0) {
+	    return error.num;
+	  }
+	  var result = number.toString(radix);
+	  return new Array(Math.max(min_length + 1 - result.length, 0)).join('0') + result;
+	};
+
+	exports.CEILING = function(number, significance) {
+	  return exports.CEILING.MATH(number,
+	                              Math.abs(significance),
+	                              significance >= 0 ? 0 : -1);
+	};
+
+	exports.CEILING.MATH = function(number, significance, mode) {
+	  significance = (significance === undefined) ? 1 : Math.abs(significance);
+	  mode = mode || 0;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  significance = utils.parseNumber(significance);
+	  if (significance instanceof Error) {
+	    return significance;
+	  }
+	  mode = utils.parseNumber(mode);
+	  if (mode instanceof Error) {
+	    return mode;
+	  }
+	  if (significance === 0) {
+	    return 0;
+	  }
+	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+	  if (number >= 0) {
+	    return exports.ROUND(Math.ceil(number / significance) * significance, precision);
+	  } else {
+	    if (mode === 0) {
+	      return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	    } else {
+	      return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	    }
+	  }
+	};
+
+	exports.CEILING.PRECISE = function(number, significance) {
+	    significance = (significance === undefined) ? 1 : Math.abs(significance);
+	    return exports.CEILING(number, significance);
+	};
+
+	exports.COMBIN = function(number, number_chosen) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  number_chosen = utils.parseNumber(number_chosen);
+	  if (number_chosen instanceof Error) {
+	    return number_chosen;
+	  }
+	  return exports.FACT(number) / (exports.FACT(number_chosen) * exports.FACT(number - number_chosen));
+	};
+
+	exports.COMBINA = function(number, number_chosen) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  number_chosen = utils.parseNumber(number_chosen);
+	  if (number_chosen instanceof Error) {
+	    return number_chosen;
+	  }
+	  return (number === 0 && number_chosen === 0) ? 1 : exports.COMBIN(number + number_chosen - 1, number - 1);
+	};
+
+	exports.COS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.cos(number);
+	};
+
+	exports.COSH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.exp(number) + Math.exp(-number)) / 2;
+	};
+
+	exports.COT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 1 / Math.tan(number);
+	};
+
+	exports.COTH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  var e2 = Math.exp(2 * number);
+	  return (e2 + 1) / (e2 - 1);
+	};
+
+	exports.CSC = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 1 / Math.sin(number);
+	};
+
+	exports.CSCH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 2 / (Math.exp(number) - Math.exp(-number));
+	};
+
+	exports.DECIMAL = function(number, radix) {
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  radix = utils.parseNumber(radix);
+	  if (radix instanceof Error) {
+	    return radix;
+	  }
+	  if (radix < 2 || radix > 36) {
+	    return error.num;
+	  }
+	  number = parseInt(number, radix);
+	  if (isNaN(number)) {
+	    return error.num;
+	  }
+	  return number;
+	};
+
+	exports.DEGREES = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return number * 180 / Math.PI;
+	};
+
+	exports.EVEN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return exports.CEILING(number, -2, -1);
+	};
+
+	exports.EXP = Math.exp;
+
+	var MEMOIZED_FACT = [];
+	exports.FACT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  var n = Math.floor(number);
+	  if (n === 0 || n === 1) {
+	    return 1;
+	  } else if (MEMOIZED_FACT[n] > 0) {
+	    return MEMOIZED_FACT[n];
+	  } else {
+	    MEMOIZED_FACT[n] = exports.FACT(n - 1) * n;
+	    return MEMOIZED_FACT[n];
+	  }
+	};
+
+	exports.FACTDOUBLE = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  var n = Math.floor(number);
+	  if (n <= 1) {
+	    return 1;
+	  } else {
+	    return n * exports.FACTDOUBLE(n - 2);
+	  }
+	};
+
+	exports.FLOOR = function(number, significance) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  significance = utils.parseNumber(significance);
+	  if (significance instanceof Error) {
+	    return significance;
+	  }
+	  if (significance === 0) {
+	    return 0;
+	  }
+
+	  if (!(number > 0 && significance > 0) && !(number < 0 && significance < 0)) {
+	    return error.num;
+	  }
+
+	  significance = Math.abs(significance);
+	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+	  if (number >= 0) {
+	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
+	  } else {
+	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance), precision);
+	  }
+	};
+
+	//TODO: Verify
+	exports.FLOOR.MATH = function(number, significance, mode) {
+	  significance = (significance === undefined) ? 1 : significance;
+	  mode = (mode === undefined) ? 0 : mode;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  significance = utils.parseNumber(significance);
+	  if (significance instanceof Error) {
+	    return significance;
+	  }
+	  mode = utils.parseNumber(mode);
+	  if (mode instanceof Error) {
+	    return mode;
+	  }
+	  if (significance === 0) {
+	    return 0;
+	  }
+
+	  significance = significance ? Math.abs(significance) : 1;
+	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+	  if (number >= 0) {
+	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
+	  } else if (mode === 0 || mode === undefined) {
+	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	  }
+	  return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	};
+
+	// Deprecated
+	exports.FLOOR.PRECISE = exports.FLOOR.MATH;
+
+	// adapted http://rosettacode.org/wiki/Greatest_common_divisor#JavaScript
+	exports.GCD = function () {
+	  var numbers = utils.parseNumbersConvert(_.flatten(arguments));
+	  if (numbers instanceof Error) {
+	    return numbers;
+	  }
+	  if (numbers.length === 0) {
+	    return error.value;
+	  }
+	  var r0 = numbers[0];
+	  var x = r0 < 0 ? -r0 : r0;
+	  for (var i = 1; i < numbers.length; i++) {
+	    var ri = numbers[i];
+	    var y = ri < 0 ? -ri : ri;
+	    while (x && y) {
+	      if (x > y) {
+	        x %= y;
+	      } else {
+	        y %= x;
+	      }
+	    }
+	    x += y;
+	  }
+	  return x;
+	};
+
+
+	exports.INT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.floor(number);
+	};
+
+	exports.ISO = {
+	  CEILING: exports.CEILING.PRECISE
+	};
+
+	exports.LCM = function () {
+	  var o = _.flatten(arguments);
+	  var n = o.length;
+	  while (n--) {
+	    o[n] = utils.parseNumber(o[n]);
+	    if (o[n] instanceof Error) {
+	      return o[n];
+	    }
+	    if (o[n] === 0) {
+	      return 0;
+	    }
+	    if (o[n] < 0) {
+	      return error.num;
+	    }
+	  }
+
+	  function lcm(numbers) {
+	    return numbers.reduce(function(a, b) {
+	      return Math.abs(a * b) / exports.GCD(a, b);
+	    });
+	  }
+	  return lcm(o);
+	};
+
+	exports.LN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number <= 0) {
+	    return error.num;
+	  }
+	  return Math.log(number);
+	};
+
+	exports.LOG = function(number, base) {
+	  base = (base === undefined) ? 10 : base;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number <= 0) {
+	    return error.num;
+	  }
+	  base = utils.parseNumber(base);
+	  if (base instanceof Error) {
+	    return base;
+	  }
+	  if (base <= 0) {
+	    return error.num;
+	  }
+	  var b = Math.log(base);
+	  if (b === 0) {
+	    return error.div0;
+	  }
+	  return Math.log(number) / b;
+	};
+
+	exports.LOG10 = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number <= 0) {
+	    return error.num;
+	  }
+	  return Math.log(number) / Math.log(10);
+	};
+
+	exports.MDETERM = function(x) {
+	  x = utils.parseMatrix(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+
+	  var s = matrix.dim(x);
+	  if(s.length !== 2 || s[0] !== s[1]) {
+	    throw new Error('can only calculate determinant on square matrices');
+	  }
+	  var n = s[0], ret = 1,i,j,k,A = x,Aj,Ai,alpha,temp,k1,k2,k3;
+	  for(j=0;j<n-1;j++) {
+	    k=j;
+	    for(i=j+1;i<n;i++) {
+	      if(Math.abs(A[i][j]) > Math.abs(A[k][j])) {
+	        k = i;
+	      }
+	    }
+	    if(k !== j) {
+	      temp = A[k]; A[k] = A[j]; A[j] = temp;
+	      ret *= -1;
+	    }
+	    Aj = A[j];
+	    for(i=j+1;i<n;i++) {
+	      Ai = A[i];
+	      alpha = Ai[j]/Aj[j];
+	      for(k=j+1;k<n-1;k+=2) {
+	        k1 = k+1;
+	        Ai[k] -= Aj[k]*alpha;
+	        Ai[k1] -= Aj[k1]*alpha;
+	      }
+	      if(k!==n) {
+	        Ai[k] -= Aj[k]*alpha;
+	      }
+	    }
+	    if(Aj[j] === 0) {
+	      return 0;
+	    }
+	    ret *= Aj[j];
+	  }
+	  return ret*A[j][j];
+
+	};
+
+	exports.MINVERSE = function(x) {
+	  x = utils.parseMatrix(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+	  var s = matrix.dim(x), m = s[0], n = s[1];
+	  var A = x, Ai, Aj;
+	  var I = matrix.identity(m), Ii, Ij;
+	  var i,j,k;
+	  for(j=0;j<n;++j) {
+	    var i0 = -1;
+	    var v0 = -1;
+	    for(i=j;i!==m;++i) {
+	      k = Math.abs(A[i][j]);
+	      if(k>v0) {
+	        i0 = i; v0 = k;
+	      }
+	    }
+	    Aj = A[i0]; A[i0] = A[j]; A[j] = Aj;
+	    Ij = I[i0]; I[i0] = I[j]; I[j] = Ij;
+	    x = Aj[j];
+	    for(k=j;k!==n;++k) {
+	      Aj[k] /= x;
+	    }
+	    for(k=n-1;k!==-1;--k) {
+	      Ij[k] /= x;
+	    }
+	    for(i=m-1;i!==-1;--i) {
+	      if(i!==j) {
+	        Ai = A[i];
+	        Ii = I[i];
+	        x = Ai[j];
+	        for(k=j+1;k!==n;++k) {
+	          Ai[k] -= Aj[k]*x;
+	        }
+	        for(k=n-1;k>0;--k) {
+	          Ii[k] -= Ij[k]*x; --k; Ii[k] -= Ij[k]*x;
+	        }
+	        if(k===0) {
+	          Ii[0] -= Ij[0]*x;
+	        }
+	      }
+	    }
+	  }
+	  return I;
+	};
+
+	exports.MMULT = function(x, y) {
+	  x = utils.parseMatrix(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+	  y = utils.parseMatrix(y);
+	  if (y instanceof Error) {
+	    return y;
+	  }
+	  var matrix = [];
+
+	  for (var col = 0; col < y.length; col++) {
+	    matrix[col] = [];
+
+	    for (var row = 0; row < x[0].length; row++) {
+	      var sum = 0;
+	      for (var i = 0; i < x.length; i++) {
+	          sum += x[i][row] * y[col][i];
+	      }
+	      matrix[col][row] = sum;
+	    }
+	  }
+	  return matrix;
+	};
+
+	exports.MOD = function(dividend, divisor) {
+	  dividend = utils.parseNumber(dividend);
+	  if (dividend instanceof Error) {
+	    return dividend;
+	  }
+	  divisor = utils.parseNumber(divisor);
+	  if (divisor instanceof Error) {
+	    return divisor;
+	  }
+	  if (divisor === 0) {
+	    return error.div0;
+	  }
+	  var modulus = Math.abs(dividend % divisor);
+	  return (divisor > 0) ? modulus : -modulus;
+	};
+
+	exports.MROUND = function(number, multiple) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  multiple = utils.parseNumber(multiple);
+	  if (multiple instanceof Error) {
+	    return multiple;
+	  }
+	  if (number * multiple < 0) {
+	    return error.num;
+	  }
+
+	  return Math.round(number / multiple) * multiple;
+	};
+
+	exports.MULTINOMIAL = function () {
+	  var args = _.flatten(arguments);
+	  var n = args.length;
+	  for (var i = 0; i < n; i++) {
+	    args[i] = utils.parseNumber(args[i]);
+	    if (args[i] instanceof Error) {
+	      return args[i];
+	    }
+	  }
+	  var sum = 0;
+	  var divisor = 1;
+	  for (var i = 0; i < args.length; i++) {
+	    sum += args[i];
+	    divisor *= exports.FACT(args[i]);
+	  }
+	  return exports.FACT(sum) / divisor;
+	};
+
+	exports.MUNIT = function(dimension) {
+	  dimension = utils.parseNumber(dimension);
+	  if (dimension instanceof Error) {
+	    return dimension;
+	  }
+	  return matrix.identity(dimension);
+	};
+
+	exports.ODD = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  var temp = Math.ceil(Math.abs(number));
+	  temp = (temp & 1) ? temp : temp + 1;
+	  return (number > 0) ? temp : -temp;
+	};
+
+	exports.PI = function () {
+	  return Math.PI;
+	};
+
+	exports.POWER = function(number, power) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  power = utils.parseNumber(power);
+	  if (power instanceof Error) {
+	    return power;
+	  }
+	  var result = Math.pow(number, power);
+	  if (isNaN(result)) {
+	    return error.num;
+	  }
+
+	  return result;
+	};
+
+	exports.PRODUCT = function () {
+	  var args = utils.parseNumbers(_.flatten(arguments));
+	  if (args instanceof Error) {
+	    return args;
+	  }
+	  var result = 1;
+	  for (var i = 0; i < args.length; i++) {
+	    result *= args[i];
+	  }
+	  return result;
+	};
+
+	exports.QUOTIENT = function(numerator, denominator) {
+	  numerator = utils.parseNumber(numerator);
+	  if (numerator instanceof Error) {
+	    return numerator;
+	  }
+	  denominator = utils.parseNumber(denominator);
+	  if (denominator instanceof Error) {
+	    return denominator;
+	  }
+	  if (denominator === 0) {
+	    return error.div0;
+	  }
+	  return parseInt(numerator / denominator, 10);
+	};
+
+	exports.RADIANS = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return number * Math.PI / 180;
+	};
+
+	exports.RAND = function () {
+	  return Math.random();
+	};
+
+	exports.RANDBETWEEN = function(bottom, top) {
+	  bottom = utils.parseNumber(bottom);
+	  if (bottom instanceof Error) {
+	    return bottom;
+	  }
+	  top = utils.parseNumber(top);
+	  if (top instanceof Error) {
+	    return top;
+	  }
+	  // Creative Commons Attribution 3.0 License
+	  // Copyright (c) 2012 eqcode
+	  return bottom + Math.ceil((top - bottom + 1) * Math.random()) - 1;
+	};
+
+	// TODO
+	exports.ROMAN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  // The MIT License
+	  // Copyright (c) 2008 Steven Levithan
+	  var digits = String(number).split('');
+	  var key = ['', 'C', 'CC', 'CCC', 'CD', 'D', 'DC', 'DCC', 'DCCC', 'CM', '', 'X', 'XX', 'XXX', 'XL', 'L', 'LX', 'LXX', 'LXXX', 'XC', '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX'];
+	  var roman = '';
+	  var i = 3;
+	  while (i--) {
+	    roman = (key[+digits.pop() + (i * 10)] || '') + roman;
+	  }
+	  return new Array(+digits.join('') + 1).join('M') + roman;
+	};
+
+	exports.ROUND = function(number, digits) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.round(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+	exports.ROUNDDOWN = function(number, digits) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+	exports.ROUNDUP = function(number, digits) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.ceil(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+	exports.SEC = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 1 / Math.cos(number);
+	};
+
+	exports.SECH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return 2 / (Math.exp(number) + Math.exp(-number));
+	};
+
+	exports.SERIESSUM = function(x, n, m, coefficients) {
+	  x = utils.parseNumber(x);
+	  if (x instanceof Error) {
+	    return x;
+	  }
+	  n = utils.parseNumber(n);
+	  if (n instanceof Error) {
+	    return n;
+	  }
+	  m = utils.parseNumber(m);
+	  if (m instanceof Error) {
+	    return m;
+	  }
+	  coefficients = utils.parseNumbers(coefficients);
+	  if (coefficients instanceof Error) {
+	    return coefficients;
+	  }
+	  var result = coefficients[0] * Math.pow(x, n);
+	  for (var i = 1; i < coefficients.length; i++) {
+	    result += coefficients[i] * Math.pow(x, n + i * m);
+	  }
+	  return result;
+	};
+
+	exports.SIGN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return -1;
+	  } else if (number === 0) {
+	    return 0;
+	  } else {
+	    return 1;
+	  }
+	};
+
+	exports.SIN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.sin(number);
+	};
+
+	exports.SINH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.exp(number) - Math.exp(-number)) / 2;
+	};
+
+	exports.SQRT = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  return Math.sqrt(number);
+	};
+
+	exports.SQRTPI = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.num;
+	  }
+	  return Math.sqrt(number * Math.PI);
+	};
+
+	exports.SUBTOTAL = function () {
+	  var args = utils.argsToArray(arguments);
+	  var function_code = utils.parseNumber(args.shift());
+	  if (function_code instanceof Error) {
+	    return function_code;
+	  }
+	  switch (function_code) {
+	    case 1:
+	      return statistical.AVERAGE.apply(null, args);
+	    case 2:
+	      return statistical.COUNT.apply(null, args);
+	    case 3:
+	      return statistical.COUNTA.apply(null, args);
+	    case 4:
+	      return statistical.MAX.apply(null, args);
+	    case 5:
+	      return statistical.MIN.apply(null, args);
+	    case 6:
+	      return exports.PRODUCT.apply(null, args);
+	    case 7:
+	      return statistical.STDEV.S.apply(null, args);
+	    case 8:
+	      return statistical.STDEV.P.apply(null, args);
+	    case 9:
+	      return exports.SUM.apply(null, args);
+	    case 10:
+	      return statistical.VAR.S.apply(null, args);
+	    case 11:
+	      return statistical.VAR.P.apply(null, args);
+	      // no hidden values for us
+	    case 101:
+	      return statistical.AVERAGE.apply(null, args);
+	    case 102:
+	      return statistical.COUNT.apply(null, args);
+	    case 103:
+	      return statistical.COUNTA.apply(null, args);
+	    case 104:
+	      return statistical.MAX.apply(null, args);
+	    case 105:
+	      return statistical.MIN.apply(null, args);
+	    case 106:
+	      return exports.PRODUCT.apply(null, args);
+	    case 107:
+	      return statistical.STDEV.S.apply(null, args);
+	    case 108:
+	      return statistical.STDEV.P.apply(null, args);
+	    case 109:
+	      return exports.SUM.apply(null, args);
+	    case 110:
+	      return statistical.VAR.S.apply(null, args);
+	    case 111:
+	      return statistical.VAR.P.apply(null, args);
+	  }
+	};
+
+	exports.SUM = function () {
+	  var numbers = utils.parseNumbersFromArguments(arguments);
+	  if (numbers instanceof Error)
+	    return numbers;
+	  var sum = 0;
+	  for (var i = 0; i < numbers.length; ++i)
+	    sum += numbers[i];
+	  return sum;
+	};
+
+	/**
+	 * Excel only allows this function to be entered into a cell for spreadsheet ranges.
+	 * None-the-less, this is implemented to operate on literal values with each parameter allowed to 
+	 * be an array of values (ignoring any non-number values) or a non-array value which is treated 
+	 * like a one element array.
+	 */
+	exports.SUMIF = function () {
+	  var sum = 0;
+	  criteriaEval.performIf(arguments, function(value) {
+	    if (typeof value === 'number')
+	      sum += value;
+	  });
+	  return sum;
+	};
+
+	exports.SUMIFS = function () {
+	  var sum = 0;
+	  criteriaEval.performIfs(arguments, function (value) {
+	    if (typeof value === 'number')
+	      sum += value;
+	  });
+	  return sum;
+	};
+
+	exports.SUMPRODUCT = function () {
+	  if (!arguments || arguments.length === 0) {
+	    return error.value;
+	  }
+	  var arrays = arguments.length + 1;
+	  var result = 0;
+	  var product;
+	  var i;
+	  if (!(arguments[0] instanceof Array)) {
+	    product = 1;
+	    for (i = 0; i < arguments.length; i++) {
+	      if (typeof arguments[i] === 'number') {
+	        product *= arguments[i];
+	      } else {
+	        return error.value;
+	      }
+	    }
+	    return product;
+	  }
+	  var k;
+	  var _i;
+	  var _ij;
+	  for (i = 0; i < arguments[0].length; i++) {
+	    if (!(arguments[0][i] instanceof Array)) {
+	      product = 1;
+	      for (k = 1; k < arrays; k++) {
+	        _i = utils.parseNumber(arguments[k - 1][i]);
+	        if (_i instanceof Error) {
+	          return _i;
+	        }
+	        product *= _i;
+	      }
+	      result += product;
+	    } else {
+	      for (var j = 0; j < arguments[0][i].length; j++) {
+	        product = 1;
+	        for (k = 1; k < arrays; k++) {
+	          _ij = utils.parseNumber(arguments[k - 1][i][j]);
+	          if (_ij instanceof Error) {
+	            return _ij;
+	          }
+	          product *= _ij;
+	        }
+	        result += product;
+	      }
+	    }
+	  }
+	  return result;
+	};
+
+	exports.SUMSQ = function () {
+	  var numbers = utils.parseNumbers(_.flatten(arguments));
+	  if (numbers instanceof Error) {
+	    return numbers;
+	  }
+	  var result = 0;
+	  var length = numbers.length;
+	  for (var i = 0; i < length; i++) {
+	    result += (information.ISNUMBER(numbers[i])) ? numbers[i] * numbers[i] : 0;
+	  }
+	  return result;
+	};
+
+	exports.SUMX2MY2 = function(array_x, array_y) {
+	  var parsed = utils.parseNumbersX(array_x, array_y);
+	  if (parsed instanceof Error) {
+	    return parsed;
+	  }
+	  var parsed_x = parsed[0];
+	  var parsed_y = parsed[1];
+	  var result = 0;
+	  for (var i = 0; i < parsed_x.length; i++) {
+	    result += parsed_x[i] * parsed_x[i] - parsed_y[i] * parsed_y[i];
+	  }
+	  return result;
+	};
+
+	exports.SUMX2PY2 = function(array_x, array_y) {
+	  var parsed = utils.parseNumbersX(array_x, array_y);
+	  if (parsed instanceof Error) {
+	    return parsed;
+	  }
+	  var parsed_x = parsed[0];
+	  var parsed_y = parsed[1];
+	  var result = 0;
+	  for (var i = 0; i < parsed_x.length; i++) {
+	    result += parsed_x[i] * parsed_x[i] + parsed_y[i] * parsed_y[i];
+	  }
+	  return result;
+	};
+
+	exports.SUMXMY2 = function(array_x, array_y) {
+	  var parsed = utils.parseNumbersX(array_x, array_y);
+	  if (parsed instanceof Error) {
+	    return parsed;
+	  }
+	  var parsed_x = parsed[0];
+	  var parsed_y = parsed[1];
+	  var result = 0;
+	  for (var i = 0; i < parsed_x.length; i++) {
+	    result += Math.pow(parsed_x[i] - parsed_y[i], 2);
+	  }
+	  return result;
+	};
+
+	exports.TAN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return Math.tan(number);
+	};
+
+	exports.TANH = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  var e2 = Math.exp(2 * number);
+	  return (e2 - 1) / (e2 + 1);
+	};
+
+	exports.TRUNC = function(number, digits) {
+	  digits = (digits === undefined) ? 0 : digits;
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  digits = utils.parseNumber(digits);
+	  if (digits instanceof Error) {
+	    return digits;
+	  }
+	  var sign = (number > 0) ? 1 : -1;
+	  return sign * (Math.floor(Math.abs(number) * Math.pow(10, digits))) / Math.pow(10, digits);
+	};
+
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var utils = __webpack_require__(6);
+	var error = __webpack_require__(5);
+
+	// TODO
+	exports.CELL = function () {
+	 throw new Error('CELL is not implemented');
+	};
+
+	exports.ERROR = {};
+	exports.ERROR.TYPE = function(error_val) {
+	  switch (error_val) {
+	    case error.nil: return 1;
+	    case error.div0: return 2;
+	    case error.value: return 3;
+	    case error.ref: return 4;
+	    case error.name: return 5;
+	    case error.num: return 6;
+	    case error.na: return 7;
+	    case error.data: return 8;
+	  }
+	  return error.na;
+	};
+
+	// TODO
+	exports.INFO = function () {
+	 throw new Error('INFO is not implemented');
+	};
+
+	exports.ISBLANK = function(value) {
+	  return value === null;
+	};
+
+	exports.ISERR = function(value) {
+	  return ([error.value, error.ref, error.div0, error.num, error.name, error.nil]).indexOf(value) >= 0 ||
+	    (typeof value === 'number' && (isNaN(value) || !isFinite(value)));
+	};
+
+	exports.ISERROR = function(value) {
+	  return exports.ISERR(value) || value === error.na;
+	};
+
+	exports.ISEVEN = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.floor(Math.abs(number)) & 1) ? false : true;
+	};
+
+	// TODO
+	exports.ISFORMULA = function () {
+	  throw new Error('ISFORMULA is not implemented');
+	};
+
+	exports.ISLOGICAL = function(value) {
+	  return value === true || value === false;
+	};
+
+	exports.ISNA = function(value) {
+	  return value === error.na;
+	};
+
+	exports.ISNONTEXT = function(value) {
+	  return typeof(value) !== 'string';
+	};
+
+	exports.ISNUMBER = function(value) {
+	  return typeof(value) === 'number' && !isNaN(value) && isFinite(value);
+	};
+
+	exports.ISODD = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  return (Math.floor(Math.abs(number)) & 1) ? true : false;
+	};
+
+	// TODO
+	exports.ISREF = function () {
+	  throw new Error('ISREF is not implemented');
+	};
+
+	exports.ISTEXT = function(value) {
+	  return typeof(value) === 'string';
+	};
+
+	exports.N = function(value) {
+	  if (exports.ISNUMBER(value)) {
+	    return value;
+	  }
+	  if (value instanceof Date) {
+	    return utils.jsToExcelTimestamp(value.getTime());
+	  }
+	  if (value === true) {
+	    return 1;
+	  }
+	  if (value === false) {
+	    return 0;
+	  }
+	  if (exports.ISERROR(value)) {
+	    return value;
+	  }
+	  return 0;
+	};
+
+	exports.NA = function () {
+	  return error.na;
+	};
+
+	// TODO
+	exports.SHEET = function () {
+	  throw new Error('SHEET is not implemented');
+	};
+
+	// TODO
+	exports.SHEETS = function () {
+	  throw new Error('SHEETS is not implemented');
+	};
+
+	exports.TYPE = function(value) {
+	  if (exports.ISNUMBER(value)) {
+	    return 1;
+	  }
+	  if (exports.ISTEXT(value)) {
+	    return 2;
+	  }
+	  if (exports.ISLOGICAL(value)) {
+	    return 4;
+	  }
+	  if (exports.ISERROR(value)) {
+	    return 16;
+	  }
+	  if (Array.isArray(value)) {
+	    return 64;
+	  }
+	};
+
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	function _dim(x) {
+	  var ret = [];
+	  while(typeof x === "object") {
+	    ret.push(x.length); x = x[0];
+	  }
+	  return ret;
+	};
+
+	exports.dim = function dim(x) {
+	  var y,z;
+	  if(typeof x === "object") {
+	    y = x[0];
+	    if(typeof y === "object") {
+	      z = y[0];
+	      if(typeof z === "object") {
+	        return _dim(x);
+	      }
+	      return [x.length,y.length];
+	    }
+	    return [x.length];
+	  }
+	  return [];
+	};
+
+	exports.diag = function diag(d) {
+	  var i,i1,j,n = d.length, A = Array(n), Ai;
+	  for(i=n-1;i>=0;i--) {
+	    Ai = Array(n);
+	    i1 = i+2;
+	    for(j=n-1;j>=i1;j-=2) {
+	      Ai[j] = 0;
+	      Ai[j-1] = 0;
+	    }
+	    if(j>i) { Ai[j] = 0; }
+	    Ai[i] = d[i];
+	    for(j=i-1;j>=1;j-=2) {
+	      Ai[j] = 0;
+	      Ai[j-1] = 0;
+	    }
+	    if(j===0) {
+	      Ai[0] = 0;
+	    }
+	    A[i] = Ai;
+	  }
+	  return A;
+	};
+
+	exports.rep = function rep(s,v,k) {
+	  if(k === undefined) {
+	    k=0;
+	  }
+	  var n = s[k], ret = Array(n), i;
+	  if(k === s.length-1) {
+	    for(i=n-2;i>=0;i-=2) {
+	      ret[i+1] = v; ret[i] = v;
+	    }
+	    if(i===-1) {
+	      ret[0] = v;
+	    }
+	    return ret;
+	  }
+	  for(i=n-1;i>=0;i--) {
+	    ret[i] = exports.rep(s,v,k+1);
+	  }
+	  return ret;
+	};
+
+	exports.identity = function identity(n) {
+	  return exports.diag(exports.rep([n],1));
+	};
+
+	exports.dotMMsmall = function dotMMsmall (x,y) {
+	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0;
+	  p = x.length; q = y.length; r = y[0].length;
+	  ret = Array(p);
+	  for(i=p-1;i>=0;i--) {
+	    foo = Array(r);
+	    bar = x[i];
+	    for(k=r-1;k>=0;k--) {
+	      woo = bar[q-1]*y[q-1][k];
+	      for(j=q-2;j>=1;j-=2) {
+	          i0 = j-1;
+	          woo += bar[j]*y[j][k] + bar[i0]*y[i0][k];
+	      }
+	      if(j===0) {
+	        woo += bar[0]*y[0][k];
+	      }
+	      foo[k] = woo;
+	    }
+	    ret[i] = foo;
+	  }
+	  return ret;
+	};
+
+	exports.dotMMbig = function dotMMbig (x,y) {
+	  function gc(A,j,x) {
+	      var n = A.length, i;
+	      for(i=n-1;i>0;--i) {
+	          x[i] = A[i][j];
+	          --i;
+	          x[i] = A[i][j];
+	      }
+	      if(i===0) x[0] = A[0][j];
+	  }
+	  var p = y.length, v = Array(p);
+	  var m = x.length, n = y[0].length, A = new Array(m), xj;
+	  var VV = exports.dotVV;
+	  var i,j,k,z;
+	  --p;
+	  --m;
+	  for(i=m;i!==-1;--i) A[i] = Array(n);
+	  --n;
+	  for(i=n;i!==-1;--i) {
+	      gc(y,i,v);
+	      for(j=m;j!==-1;--j) {
+	          z=0;
+	          xj = x[j];
+	          A[j][i] = VV(xj,v);
+	      }
+	  }
+	  return A;
+	};
+
+	exports.dotMV = function dotMV (x,y) {
+	  var p = x.length, q = y.length,i;
+	  var ret = Array(p), dotVV = exports.dotVV;
+	  for(i=p-1;i>=0;i--) {
+	    ret[i] = dotVV(x[i],y);
+	  }
+	  return ret;
+	};
+
+	exports.dotVM = function dotVM (x,y) {
+	  var i,j,k,p,q,r,ret,foo,bar,woo,i0,k0,p0,r0,s1,s2,s3,baz,accum;
+	  p = x.length; q = y[0].length;
+	  ret = Array(q);
+	  for(k=q-1;k>=0;k--) {
+	    woo = x[p-1]*y[p-1][k];
+	    for(j=p-2;j>=1;j-=2) {
+	      i0 = j-1;
+	      woo += x[j]*y[j][k] + x[i0]*y[i0][k];
+	    }
+	    if(j===0) {
+	      woo += x[0]*y[0][k];
+	    }
+	    ret[k] = woo;
+	  }
+	  return ret;
+	};
+
+	exports.dotVV = function dotVV (x,y) {
+	  var i,n=x.length,i1,ret = x[n-1]*y[n-1];
+	  for(i=n-2;i>=1;i-=2) {
+	    i1 = i-1;
+	    ret += x[i]*y[i] + x[i1]*y[i1];
+	  }
+	  if(i===0) {
+	    ret += x[0]*y[0];
+	  }
+	  return ret;
+	};
+
+	exports.mulVS = function mulVS (x,y) {
+	  var _n = x.length;
+	  var i, ret = Array(_n);
+
+	  for(i=_n-1;i!==-1;--i) {
+	    ret[i] = x[i] * y;
+	  }
+	  return ret;
+	};
+
+	exports.mulSV = function mulSV (x,y) {
+	  var _n = y.length;
+	  var i, ret = Array(_n);
+
+	  for(i=_n-1;i!==-1;--i) {
+	    ret[i] = x * y[i];
+	  }
+
+	  return ret;
+	};
+
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var utils = __webpack_require__(6);
+	var error = __webpack_require__(5);
+	var numeral = __webpack_require__(12);
+	var _ = __webpack_require__(3);
+
+	//TODO
+	exports.ASC = function () {
+	 throw new Error('ASC is not implemented');
+	};
+
+	//TODO
+	exports.BAHTTEXT = function () {
+	 throw new Error('BAHTTEXT is not implemented');
+	};
+
+	exports.CHAR = function(number) {
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 1 || number > 255) {
+	    return error.value;
+	  }
+	  return String.fromCharCode(number);
+	};
+
+	exports.CLEAN = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return text.replace(/[\0-\x1F]/g, "");
+	};
+
+	exports.CODE = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return text.charCodeAt(0);
+	};
+
+	exports.CONCATENATE = function () {
+	  var args = _.flatten(arguments);
+
+	  for (var i = 0; i < args.length; i++) {
+	    var text = utils.parseText(args[i]);
+	    if (text instanceof Error) {
+	      return text;
+	    }
+	    args[i] = text;
+	  }
+
+	  return args.join('');
+	};
+
+	//TODO
+	exports.DBCS = function () {
+	 throw new Error('DBCS is not implemented');
+	};
+
+	exports.DOLLAR = function(number, decimals) {
+	  decimals = (decimals === undefined) ? 2 : decimals;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  decimals = utils.parseNumber(decimals);
+	  if (decimals instanceof Error) {
+	    return decimals;
+	  }
+	  var format = '';
+	  if (decimals <= 0) {
+	    number = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
+	    format = '($0,0)';
+	  } else if (decimals > 0) {
+	    format = '($0,0.' + new Array(decimals + 1).join('0') + ')';
+	  }
+	  return numeral(number).format(format);
+	};
+
+	exports.EXACT = function(text1, text2) {
+	  text1 = utils.parseText(text1);
+	  if (text1 instanceof Error) {
+	    return text1;
+	  }
+	  text2 = utils.parseText(text2);
+	  if (text2 instanceof Error) {
+	    return text2;
+	  }
+	  return text1 === text2;
+	};
+
+	exports.FIND = function(find_text, within_text, position) {
+	  position = (position === undefined) ? 0 : position;
+
+	  find_text = utils.parseText(find_text);
+	  if (find_text instanceof Error) {
+	    return find_text;
+	  }
+	  within_text = utils.parseText(within_text);
+	  if (within_text instanceof Error) {
+	    return within_text;
+	  }
+	  position = utils.parseNumber(position);
+	  if (position instanceof Error) {
+	    return position;
+	  }
+	  if (position < 0 || position > within_text.length) {
+	    return error.value;
+	  }
+	  var result = within_text.indexOf(find_text, position - 1) + 1;
+	  if (result === 0) {
+	    return error.value;
+	  }
+	  return result;
+	};
+
+	exports.FIXED = function(number, decimals, no_commas) {
+	  decimals = (decimals === undefined) ? 2 : decimals;
+	  no_commas = (no_commas === undefined) ? false : no_commas;
+
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  decimals = utils.parseNumber(decimals);
+	  if (decimals instanceof Error) {
+	    return decimals;
+	  }
+
+	  var format = no_commas ? '0' : '0,0';
+	  if (decimals <= 0) {
+	    number = Math.round(number * Math.pow(10, decimals)) / Math.pow(10, decimals);
+	  } else if (decimals > 0) {
+	    format += '.' + new Array(decimals + 1).join('0');
+	  }
+	  return numeral(number).format(format);
+	};
+
+	exports.LEFT = function(text, number) {
+	  number = (number === undefined) ? 1 : number;
+
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.value;
+	  }
+	  return text.substring(0, number);
+	};
+
+	exports.LEN = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return text.length;
+	};
+
+	exports.LOWER = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return text.toLowerCase();
+	};
+
+	exports.MID = function(text, start, number) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  start = utils.parseNumber(start);
+	  if (start instanceof Error) {
+	    return start;
+	  }
+	  if (start < 1) {
+	    return error.value;
+	  }
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.value;
+	  }
+	  return text.substring(start - 1, number);
+	};
+
+	// TODO
+	exports.NUMBERVALUE = function () {
+	 throw new Error('NUMBERVALUE is not implemented');
+	};
+
+	// TODO
+	exports.PRONETIC = function () {
+	 throw new Error('PRONETIC is not implemented');
+	};
+
+	exports.PROPER = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+
+	  return text.replace(/\w\S*/g, function(txt) {
+	    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+	  });
+	};
+
+	exports.REPLACE = function(text, position, length, new_text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  position = utils.parseNumber(position);
+	  if (position instanceof Error) {
+	    return position;
+	  }
+	  if (position < 1) {
+	    return error.value;
+	  }
+	  length = utils.parseNumber(length);
+	  if (length instanceof Error) {
+	    return length;
+	  }
+	  if (length < 0) {
+	    return error.value;
+	  }
+	  new_text = utils.parseText(new_text);
+	  if (new_text instanceof Error) {
+	    return new_text;
+	  }
+	  return text.substr(0, position - 1) + new_text + text.substr(position - 1 + length);
+	};
+
+	exports.REPT = function(text, number) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  number = Math.floor(number);
+	  if (number < 0) {
+	    return error.value;
+	  }
+	  return new Array(number + 1).join(text);
+	};
+
+	exports.RIGHT = function(text, number) {
+	  if (number === undefined || number === null) {
+	    number = 1;
+	  }
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  number = utils.parseNumber(number);
+	  if (number instanceof Error) {
+	    return number;
+	  }
+	  if (number < 0) {
+	    return error.value;
+	  }
+	  return text.substring(text.length - number);
+	};
+
+	// TODO: wildcards
+	exports.SEARCH = function(find_text, within_text, position) {
+	  position = (position === undefined) ? 0 : position;
+
+	  find_text = utils.parseText(find_text);
+	  if (find_text instanceof Error) {
+	    return find_text;
+	  }
+	  within_text = utils.parseText(within_text);
+	  if (within_text instanceof Error) {
+	    return within_text;
+	  }
+	  position = utils.parseNumber(position);
+	  if (position instanceof Error) {
+	    return position;
+	  }
+	  if (position < 0 || position > within_text.length) {
+	    return error.value;
+	  }
+	  var result = within_text.toLowerCase().indexOf(find_text.toLowerCase(), position - 1) + 1;
+	  if (result === 0) {
+	    return error.value;
+	  }
+	  return result;
+	};
+
+	exports.SUBSTITUTE = function(text, old_text, new_text, occurrence) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  old_text = utils.parseText(old_text);
+	  if (old_text instanceof Error) {
+	    return old_text;
+	  }
+	  new_text = utils.parseText(new_text);
+	  if (new_text instanceof Error) {
+	    return new_text;
+	  }
+	  if (occurrence === undefined) {
+	    return text.replace(new RegExp(old_text, 'g'), new_text);
+	  }
+	  occurrence = utils.parseNumber(occurrence);
+	  if (occurrence instanceof Error) {
+	    return occurrence;
+	  }
+	  if (occurrence < 1) {
+	    return error.value;
+	  }
+	  for (var i = 1, index = 0; i <= occurrence; i++, index++) {
+	    index = text.indexOf(old_text, index);
+	  }
+	  return text.substring(0, index - 1) + new_text + text.substring(index - 1 + old_text.length);
+	};
+
+	exports.T = function(value) {
+	  if (value instanceof Error) {
+	    return value;
+	  }
+	  return (typeof(value) === 'string') ? value : '';
+	};
+
+	// TODO
+	exports.TEXT = function () {
+	  throw new Error('TEXT is not implemented');
+	};
+
+	exports.TRIM = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return text.replace(/ +/g, ' ').trim();
+	};
+
+	exports.UNICHAR = exports.CHAR;
+
+	exports.UNICODE = exports.CODE;
+
+	exports.UPPER = function(text) {
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return text.toUpperCase();
+	};
+
+	// TODO: improve invalid formats
+	exports.VALUE = function(text) {
+	  text = utils.parseText(text);
+	  if (text instanceof Error) {
+	    return text;
+	  }
+	  return numeral().unformat(text);
+	};
+
+
+/***/ },
 /* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	 * numeral.js
+	 * version : 1.5.3
+	 * author : Adam Draper
+	 * license : MIT
+	 * http://adamwdraper.github.com/Numeral-js/
+	 */
+
+	(function () {
+
+	    /************************************
+	        Constants
+	    ************************************/
+
+	    var numeral,
+	        VERSION = '1.5.3',
+	        // internal storage for language config files
+	        languages = {},
+	        currentLanguage = 'en',
+	        zeroFormat = null,
+	        defaultFormat = '0,0',
+	        // check for nodeJS
+	        hasModule = (typeof module !== 'undefined' && module.exports);
+
+
+	    /************************************
+	        Constructors
+	    ************************************/
+
+
+	    // Numeral prototype object
+	    function Numeral (number) {
+	        this._value = number;
+	    }
+
+	    /**
+	     * Implementation of toFixed() that treats floats more like decimals
+	     *
+	     * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
+	     * problems for accounting- and finance-related software.
+	     */
+	    function toFixed (value, precision, roundingFunction, optionals) {
+	        var power = Math.pow(10, precision),
+	            optionalsRegExp,
+	            output;
+	            
+	        //roundingFunction = (roundingFunction !== undefined ? roundingFunction : Math.round);
+	        // Multiply up by precision, round accurately, then divide and use native toFixed():
+	        output = (roundingFunction(value * power) / power).toFixed(precision);
+
+	        if (optionals) {
+	            optionalsRegExp = new RegExp('0{1,' + optionals + '}$');
+	            output = output.replace(optionalsRegExp, '');
+	        }
+
+	        return output;
+	    }
+
+	    /************************************
+	        Formatting
+	    ************************************/
+
+	    // determine what type of formatting we need to do
+	    function formatNumeral (n, format, roundingFunction) {
+	        var output;
+
+	        // figure out what kind of format we are dealing with
+	        if (format.indexOf('$') > -1) { // currency!!!!!
+	            output = formatCurrency(n, format, roundingFunction);
+	        } else if (format.indexOf('%') > -1) { // percentage
+	            output = formatPercentage(n, format, roundingFunction);
+	        } else if (format.indexOf(':') > -1) { // time
+	            output = formatTime(n, format);
+	        } else { // plain ol' numbers or bytes
+	            output = formatNumber(n._value, format, roundingFunction);
+	        }
+
+	        // return string
+	        return output;
+	    }
+
+	    // revert to number
+	    function unformatNumeral (n, string) {
+	        var stringOriginal = string,
+	            thousandRegExp,
+	            millionRegExp,
+	            billionRegExp,
+	            trillionRegExp,
+	            suffixes = ['KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+	            bytesMultiplier = false,
+	            power;
+
+	        if (string.indexOf(':') > -1) {
+	            n._value = unformatTime(string);
+	        } else {
+	            if (string === zeroFormat) {
+	                n._value = 0;
+	            } else {
+	                if (languages[currentLanguage].delimiters.decimal !== '.') {
+	                    string = string.replace(/\./g,'').replace(languages[currentLanguage].delimiters.decimal, '.');
+	                }
+
+	                // see if abbreviations are there so that we can multiply to the correct number
+	                thousandRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.thousand + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
+	                millionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.million + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
+	                billionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.billion + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
+	                trillionRegExp = new RegExp('[^a-zA-Z]' + languages[currentLanguage].abbreviations.trillion + '(?:\\)|(\\' + languages[currentLanguage].currency.symbol + ')?(?:\\))?)?$');
+
+	                // see if bytes are there so that we can multiply to the correct number
+	                for (power = 0; power <= suffixes.length; power++) {
+	                    bytesMultiplier = (string.indexOf(suffixes[power]) > -1) ? Math.pow(1024, power + 1) : false;
+
+	                    if (bytesMultiplier) {
+	                        break;
+	                    }
+	                }
+
+	                // do some math to create our number
+	                n._value = ((bytesMultiplier) ? bytesMultiplier : 1) * ((stringOriginal.match(thousandRegExp)) ? Math.pow(10, 3) : 1) * ((stringOriginal.match(millionRegExp)) ? Math.pow(10, 6) : 1) * ((stringOriginal.match(billionRegExp)) ? Math.pow(10, 9) : 1) * ((stringOriginal.match(trillionRegExp)) ? Math.pow(10, 12) : 1) * ((string.indexOf('%') > -1) ? 0.01 : 1) * (((string.split('-').length + Math.min(string.split('(').length-1, string.split(')').length-1)) % 2)? 1: -1) * Number(string.replace(/[^0-9\.]+/g, ''));
+
+	                // round if we are talking about bytes
+	                n._value = (bytesMultiplier) ? Math.ceil(n._value) : n._value;
+	            }
+	        }
+	        return n._value;
+	    }
+
+	    function formatCurrency (n, format, roundingFunction) {
+	        var symbolIndex = format.indexOf('$'),
+	            openParenIndex = format.indexOf('('),
+	            minusSignIndex = format.indexOf('-'),
+	            space = '',
+	            spliceIndex,
+	            output;
+
+	        // check for space before or after currency
+	        if (format.indexOf(' $') > -1) {
+	            space = ' ';
+	            format = format.replace(' $', '');
+	        } else if (format.indexOf('$ ') > -1) {
+	            space = ' ';
+	            format = format.replace('$ ', '');
+	        } else {
+	            format = format.replace('$', '');
+	        }
+
+	        // format the number
+	        output = formatNumber(n._value, format, roundingFunction);
+
+	        // position the symbol
+	        if (symbolIndex <= 1) {
+	            if (output.indexOf('(') > -1 || output.indexOf('-') > -1) {
+	                output = output.split('');
+	                spliceIndex = 1;
+	                if (symbolIndex < openParenIndex || symbolIndex < minusSignIndex){
+	                    // the symbol appears before the "(" or "-"
+	                    spliceIndex = 0;
+	                }
+	                output.splice(spliceIndex, 0, languages[currentLanguage].currency.symbol + space);
+	                output = output.join('');
+	            } else {
+	                output = languages[currentLanguage].currency.symbol + space + output;
+	            }
+	        } else {
+	            if (output.indexOf(')') > -1) {
+	                output = output.split('');
+	                output.splice(-1, 0, space + languages[currentLanguage].currency.symbol);
+	                output = output.join('');
+	            } else {
+	                output = output + space + languages[currentLanguage].currency.symbol;
+	            }
+	        }
+
+	        return output;
+	    }
+
+	    function formatPercentage (n, format, roundingFunction) {
+	        var space = '',
+	            output,
+	            value = n._value * 100;
+
+	        // check for space before %
+	        if (format.indexOf(' %') > -1) {
+	            space = ' ';
+	            format = format.replace(' %', '');
+	        } else {
+	            format = format.replace('%', '');
+	        }
+
+	        output = formatNumber(value, format, roundingFunction);
+	        
+	        if (output.indexOf(')') > -1 ) {
+	            output = output.split('');
+	            output.splice(-1, 0, space + '%');
+	            output = output.join('');
+	        } else {
+	            output = output + space + '%';
+	        }
+
+	        return output;
+	    }
+
+	    function formatTime (n) {
+	        var hours = Math.floor(n._value/60/60),
+	            minutes = Math.floor((n._value - (hours * 60 * 60))/60),
+	            seconds = Math.round(n._value - (hours * 60 * 60) - (minutes * 60));
+	        return hours + ':' + ((minutes < 10) ? '0' + minutes : minutes) + ':' + ((seconds < 10) ? '0' + seconds : seconds);
+	    }
+
+	    function unformatTime (string) {
+	        var timeArray = string.split(':'),
+	            seconds = 0;
+	        // turn hours and minutes into seconds and add them all up
+	        if (timeArray.length === 3) {
+	            // hours
+	            seconds = seconds + (Number(timeArray[0]) * 60 * 60);
+	            // minutes
+	            seconds = seconds + (Number(timeArray[1]) * 60);
+	            // seconds
+	            seconds = seconds + Number(timeArray[2]);
+	        } else if (timeArray.length === 2) {
+	            // minutes
+	            seconds = seconds + (Number(timeArray[0]) * 60);
+	            // seconds
+	            seconds = seconds + Number(timeArray[1]);
+	        }
+	        return Number(seconds);
+	    }
+
+	    function formatNumber (value, format, roundingFunction) {
+	        var negP = false,
+	            signed = false,
+	            optDec = false,
+	            abbr = '',
+	            abbrK = false, // force abbreviation to thousands
+	            abbrM = false, // force abbreviation to millions
+	            abbrB = false, // force abbreviation to billions
+	            abbrT = false, // force abbreviation to trillions
+	            abbrForce = false, // force abbreviation
+	            bytes = '',
+	            ord = '',
+	            abs = Math.abs(value),
+	            suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+	            min,
+	            max,
+	            power,
+	            w,
+	            precision,
+	            thousands,
+	            d = '',
+	            neg = false;
+
+	        // check if number is zero and a custom zero format has been set
+	        if (value === 0 && zeroFormat !== null) {
+	            return zeroFormat;
+	        } else {
+	            // see if we should use parentheses for negative number or if we should prefix with a sign
+	            // if both are present we default to parentheses
+	            if (format.indexOf('(') > -1) {
+	                negP = true;
+	                format = format.slice(1, -1);
+	            } else if (format.indexOf('+') > -1) {
+	                signed = true;
+	                format = format.replace(/\+/g, '');
+	            }
+
+	            // see if abbreviation is wanted
+	            if (format.indexOf('a') > -1) {
+	                // check if abbreviation is specified
+	                abbrK = format.indexOf('aK') >= 0;
+	                abbrM = format.indexOf('aM') >= 0;
+	                abbrB = format.indexOf('aB') >= 0;
+	                abbrT = format.indexOf('aT') >= 0;
+	                abbrForce = abbrK || abbrM || abbrB || abbrT;
+
+	                // check for space before abbreviation
+	                if (format.indexOf(' a') > -1) {
+	                    abbr = ' ';
+	                    format = format.replace(' a', '');
+	                } else {
+	                    format = format.replace('a', '');
+	                }
+
+	                if (abs >= Math.pow(10, 12) && !abbrForce || abbrT) {
+	                    // trillion
+	                    abbr = abbr + languages[currentLanguage].abbreviations.trillion;
+	                    value = value / Math.pow(10, 12);
+	                } else if (abs < Math.pow(10, 12) && abs >= Math.pow(10, 9) && !abbrForce || abbrB) {
+	                    // billion
+	                    abbr = abbr + languages[currentLanguage].abbreviations.billion;
+	                    value = value / Math.pow(10, 9);
+	                } else if (abs < Math.pow(10, 9) && abs >= Math.pow(10, 6) && !abbrForce || abbrM) {
+	                    // million
+	                    abbr = abbr + languages[currentLanguage].abbreviations.million;
+	                    value = value / Math.pow(10, 6);
+	                } else if (abs < Math.pow(10, 6) && abs >= Math.pow(10, 3) && !abbrForce || abbrK) {
+	                    // thousand
+	                    abbr = abbr + languages[currentLanguage].abbreviations.thousand;
+	                    value = value / Math.pow(10, 3);
+	                }
+	            }
+
+	            // see if we are formatting bytes
+	            if (format.indexOf('b') > -1) {
+	                // check for space before
+	                if (format.indexOf(' b') > -1) {
+	                    bytes = ' ';
+	                    format = format.replace(' b', '');
+	                } else {
+	                    format = format.replace('b', '');
+	                }
+
+	                for (power = 0; power <= suffixes.length; power++) {
+	                    min = Math.pow(1024, power);
+	                    max = Math.pow(1024, power+1);
+
+	                    if (value >= min && value < max) {
+	                        bytes = bytes + suffixes[power];
+	                        if (min > 0) {
+	                            value = value / min;
+	                        }
+	                        break;
+	                    }
+	                }
+	            }
+
+	            // see if ordinal is wanted
+	            if (format.indexOf('o') > -1) {
+	                // check for space before
+	                if (format.indexOf(' o') > -1) {
+	                    ord = ' ';
+	                    format = format.replace(' o', '');
+	                } else {
+	                    format = format.replace('o', '');
+	                }
+
+	                ord = ord + languages[currentLanguage].ordinal(value);
+	            }
+
+	            if (format.indexOf('[.]') > -1) {
+	                optDec = true;
+	                format = format.replace('[.]', '.');
+	            }
+
+	            w = value.toString().split('.')[0];
+	            precision = format.split('.')[1];
+	            thousands = format.indexOf(',');
+
+	            if (precision) {
+	                if (precision.indexOf('[') > -1) {
+	                    precision = precision.replace(']', '');
+	                    precision = precision.split('[');
+	                    d = toFixed(value, (precision[0].length + precision[1].length), roundingFunction, precision[1].length);
+	                } else {
+	                    d = toFixed(value, precision.length, roundingFunction);
+	                }
+
+	                w = d.split('.')[0];
+
+	                if (d.split('.')[1].length) {
+	                    d = languages[currentLanguage].delimiters.decimal + d.split('.')[1];
+	                } else {
+	                    d = '';
+	                }
+
+	                if (optDec && Number(d.slice(1)) === 0) {
+	                    d = '';
+	                }
+	            } else {
+	                w = toFixed(value, null, roundingFunction);
+	            }
+
+	            // format number
+	            if (w.indexOf('-') > -1) {
+	                w = w.slice(1);
+	                neg = true;
+	            }
+
+	            if (thousands > -1) {
+	                w = w.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + languages[currentLanguage].delimiters.thousands);
+	            }
+
+	            if (format.indexOf('.') === 0) {
+	                w = '';
+	            }
+
+	            return ((negP && neg) ? '(' : '') + ((!negP && neg) ? '-' : '') + ((!neg && signed) ? '+' : '') + w + d + ((ord) ? ord : '') + ((abbr) ? abbr : '') + ((bytes) ? bytes : '') + ((negP && neg) ? ')' : '');
+	        }
+	    }
+
+	    /************************************
+	        Top Level Functions
+	    ************************************/
+
+	    numeral = function (input) {
+	        if (numeral.isNumeral(input)) {
+	            input = input.value();
+	        } else if (input === 0 || typeof input === 'undefined') {
+	            input = 0;
+	        } else if (!Number(input)) {
+	            input = numeral.fn.unformat(input);
+	        }
+
+	        return new Numeral(Number(input));
+	    };
+
+	    // version number
+	    numeral.version = VERSION;
+
+	    // compare numeral object
+	    numeral.isNumeral = function (obj) {
+	        return obj instanceof Numeral;
+	    };
+
+	    // This function will load languages and then set the global language.  If
+	    // no arguments are passed in, it will simply return the current global
+	    // language key.
+	    numeral.language = function (key, values) {
+	        if (!key) {
+	            return currentLanguage;
+	        }
+
+	        if (key && !values) {
+	            if(!languages[key]) {
+	                throw new Error('Unknown language : ' + key);
+	            }
+	            currentLanguage = key;
+	        }
+
+	        if (values || !languages[key]) {
+	            loadLanguage(key, values);
+	        }
+
+	        return numeral;
+	    };
+	    
+	    // This function provides access to the loaded language data.  If
+	    // no arguments are passed in, it will simply return the current
+	    // global language object.
+	    numeral.languageData = function (key) {
+	        if (!key) {
+	            return languages[currentLanguage];
+	        }
+	        
+	        if (!languages[key]) {
+	            throw new Error('Unknown language : ' + key);
+	        }
+	        
+	        return languages[key];
+	    };
+
+	    numeral.language('en', {
+	        delimiters: {
+	            thousands: ',',
+	            decimal: '.'
+	        },
+	        abbreviations: {
+	            thousand: 'k',
+	            million: 'm',
+	            billion: 'b',
+	            trillion: 't'
+	        },
+	        ordinal: function (number) {
+	            var b = number % 10;
+	            return (~~ (number % 100 / 10) === 1) ? 'th' :
+	                (b === 1) ? 'st' :
+	                (b === 2) ? 'nd' :
+	                (b === 3) ? 'rd' : 'th';
+	        },
+	        currency: {
+	            symbol: '$'
+	        }
+	    });
+
+	    numeral.zeroFormat = function (format) {
+	        zeroFormat = typeof(format) === 'string' ? format : null;
+	    };
+
+	    numeral.defaultFormat = function (format) {
+	        defaultFormat = typeof(format) === 'string' ? format : '0.0';
+	    };
+
+	    /************************************
+	        Helpers
+	    ************************************/
+
+	    function loadLanguage(key, values) {
+	        languages[key] = values;
+	    }
+
+	    /************************************
+	        Floating-point helpers
+	    ************************************/
+
+	    // The floating-point helper functions and implementation
+	    // borrows heavily from sinful.js: http://guipn.github.io/sinful.js/
+
+	    /**
+	     * Array.prototype.reduce for browsers that don't support it
+	     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/Reduce#Compatibility
+	     */
+	    if ('function' !== typeof Array.prototype.reduce) {
+	        Array.prototype.reduce = function (callback, opt_initialValue) {
+	            'use strict';
+	            
+	            if (null === this || 'undefined' === typeof this) {
+	                // At the moment all modern browsers, that support strict mode, have
+	                // native implementation of Array.prototype.reduce. For instance, IE8
+	                // does not support strict mode, so this check is actually useless.
+	                throw new TypeError('Array.prototype.reduce called on null or undefined');
+	            }
+	            
+	            if ('function' !== typeof callback) {
+	                throw new TypeError(callback + ' is not a function');
+	            }
+
+	            var index,
+	                value,
+	                length = this.length >>> 0,
+	                isValueSet = false;
+
+	            if (1 < arguments.length) {
+	                value = opt_initialValue;
+	                isValueSet = true;
+	            }
+
+	            for (index = 0; length > index; ++index) {
+	                if (this.hasOwnProperty(index)) {
+	                    if (isValueSet) {
+	                        value = callback(value, this[index], index, this);
+	                    } else {
+	                        value = this[index];
+	                        isValueSet = true;
+	                    }
+	                }
+	            }
+
+	            if (!isValueSet) {
+	                throw new TypeError('Reduce of empty array with no initial value');
+	            }
+
+	            return value;
+	        };
+	    }
+
+	    
+	    /**
+	     * Computes the multiplier necessary to make x >= 1,
+	     * effectively eliminating miscalculations caused by
+	     * finite precision.
+	     */
+	    function multiplier(x) {
+	        var parts = x.toString().split('.');
+	        if (parts.length < 2) {
+	            return 1;
+	        }
+	        return Math.pow(10, parts[1].length);
+	    }
+
+	    /**
+	     * Given a variable number of arguments, returns the maximum
+	     * multiplier that must be used to normalize an operation involving
+	     * all of them.
+	     */
+	    function correctionFactor() {
+	        var args = Array.prototype.slice.call(arguments);
+	        return args.reduce(function (prev, next) {
+	            var mp = multiplier(prev),
+	                mn = multiplier(next);
+	        return mp > mn ? mp : mn;
+	        }, -Infinity);
+	    }        
+
+
+	    /************************************
+	        Numeral Prototype
+	    ************************************/
+
+
+	    numeral.fn = Numeral.prototype = {
+
+	        clone : function () {
+	            return numeral(this);
+	        },
+
+	        format : function (inputString, roundingFunction) {
+	            return formatNumeral(this, 
+	                  inputString ? inputString : defaultFormat, 
+	                  (roundingFunction !== undefined) ? roundingFunction : Math.round
+	              );
+	        },
+
+	        unformat : function (inputString) {
+	            if (Object.prototype.toString.call(inputString) === '[object Number]') { 
+	                return inputString; 
+	            }
+	            return unformatNumeral(this, inputString ? inputString : defaultFormat);
+	        },
+
+	        value : function () {
+	            return this._value;
+	        },
+
+	        valueOf : function () {
+	            return this._value;
+	        },
+
+	        set : function (value) {
+	            this._value = Number(value);
+	            return this;
+	        },
+
+	        add : function (value) {
+	            var corrFactor = correctionFactor.call(null, this._value, value);
+	            function cback(accum, curr, currI, O) {
+	                return accum + corrFactor * curr;
+	            }
+	            this._value = [this._value, value].reduce(cback, 0) / corrFactor;
+	            return this;
+	        },
+
+	        subtract : function (value) {
+	            var corrFactor = correctionFactor.call(null, this._value, value);
+	            function cback(accum, curr, currI, O) {
+	                return accum - corrFactor * curr;
+	            }
+	            this._value = [value].reduce(cback, this._value * corrFactor) / corrFactor;            
+	            return this;
+	        },
+
+	        multiply : function (value) {
+	            function cback(accum, curr, currI, O) {
+	                var corrFactor = correctionFactor(accum, curr);
+	                return (accum * corrFactor) * (curr * corrFactor) /
+	                    (corrFactor * corrFactor);
+	            }
+	            this._value = [this._value, value].reduce(cback, 1);
+	            return this;
+	        },
+
+	        divide : function (value) {
+	            function cback(accum, curr, currI, O) {
+	                var corrFactor = correctionFactor(accum, curr);
+	                return (accum * corrFactor) / (curr * corrFactor);
+	            }
+	            this._value = [this._value, value].reduce(cback);            
+	            return this;
+	        },
+
+	        difference : function (value) {
+	            return Math.abs(numeral(this._value).subtract(value).value());
+	        }
+
+	    };
+
+	    /************************************
+	        Exposing Numeral
+	    ************************************/
+
+	    // CommonJS module is defined
+	    if (hasModule) {
+	        module.exports = numeral;
+	    }
+
+	    /*global ender:false */
+	    if (typeof ender === 'undefined') {
+	        // here, `this` means `window` in the browser, or `global` on the server
+	        // add `numeral` as a global object via a string identifier,
+	        // for Closure Compiler 'advanced' mode
+	        this['numeral'] = numeral;
+	    }
+
+	    /*global define:false */
+	    if (true) {
+	        !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+	            return numeral;
+	        }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+	    }
+	}).call(this);
+
+
+/***/ },
+/* 13 */
 /***/ function(module, exports) {
 
 	
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
-	var jStat = __webpack_require__(11).jStat;
-	var text = __webpack_require__(9);
-	var utils = __webpack_require__(4);
-	var bessel = __webpack_require__(14);
-	var _ = __webpack_require__(8);
+	var jStat = __webpack_require__(7).jStat;
+	var text = __webpack_require__(11);
+	var utils = __webpack_require__(6);
+	var bessel = __webpack_require__(15);
+	var _ = __webpack_require__(3);
 
 	function isValidBinaryNumber(number) {
 	  return (/^[01]{1,10}$/).test(number);
@@ -10468,7 +10489,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var M = Math;
@@ -10683,13 +10704,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
-	var utils = __webpack_require__(4);
-	var information = __webpack_require__(6);
-	var _ = __webpack_require__(8);
+	var utils = __webpack_require__(6);
+	var information = __webpack_require__(9);
+	var _ = __webpack_require__(3);
 
 	exports.AND = function () {
 	  var args = _.flatten(arguments);
@@ -10779,13 +10800,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 16 */
-12,
 /* 17 */
+13,
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
-	var utils = __webpack_require__(4);
+	var utils = __webpack_require__(6);
 
 	var WEEK_STARTS = [
 	  undefined,
@@ -11284,13 +11305,13 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
-	var dateTime = __webpack_require__(17);
-	var utils = __webpack_require__(4);
-	var _ = __webpack_require__(8);
+	var dateTime = __webpack_require__(18);
+	var utils = __webpack_require__(6);
+	var _ = __webpack_require__(3);
 
 	exports.ACCRINT = function (issue, first, settlement, rate, par, frequency, basis) {
 	  issue = utils.parseDate(issue);
@@ -12375,11 +12396,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var _ = __webpack_require__(8);
-	var utils = __webpack_require__(4);
+	var _ = __webpack_require__(3);
+	var utils = __webpack_require__(6);
 	var error = __webpack_require__(5);
 
 	exports.CHOOSE = function (index_num) {
@@ -12650,8 +12671,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 20 */
-12
+/* 21 */
+13
 /******/ ])))
 });
 ;
