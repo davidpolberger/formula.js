@@ -590,11 +590,11 @@ suite('Math & Trig', function () {
 
   suite('SUM', function () {
     test('sums values', function () {
-      mathTrig.SUM(1, 2, 3).should.equal(6);
+      mathTrig.SUM(1, 2, 3.3).should.equal(6.3);
       mathTrig.SUM(1, [2, 3]).should.equal(6);
     });
     test('converts args (but not array items) to number if possible', function () {
-      mathTrig.SUM(true, false, '3').should.equal(4);
+      mathTrig.SUM(true, false, '3.1').should.equal(4.1);
       mathTrig.SUM([true, false, '3']).should.equal(0);
     });
     test('returns value error for any value not representing number', function () {
