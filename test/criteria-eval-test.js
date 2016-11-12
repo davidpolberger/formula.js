@@ -2,7 +2,75 @@ var should = require('should');
 var criteriaEval = require('../lib/criteria-eval');
 var error = require('../lib/error');
 
-suite('criteria-eval', function () {
+suite('Criteria Evaluation', function () {
+  suite('matchWithWildcards', function () {
+    test('returns true for blank pattern and text', function () {
+      criteriaEval.matchWithWildcards('', '').should.be.true();
+    });
+    test('returns true for blank text', function () {
+      criteriaEval.matchWithWildcards('a', '').should.be.false();
+    });
+    test('returns true for blank pattern', function () {
+      criteriaEval.matchWithWildcards('', 'a').should.be.false();
+    });
+    test('returns true for same text', function () {
+      criteriaEval.matchWithWildcards('a', 'a').should.be.true();
+    });
+    test('returns false for different text ... of same length', function () {
+      criteriaEval.matchWithWildcards('a', 'b').should.be.false();
+    });
+    test('returns false for different text ... of shorter length', function () {
+      criteriaEval.matchWithWildcards('ab', 'c').should.be.false();
+    });
+    test('returns false for different text ... of longer length', function () {
+      criteriaEval.matchWithWildcards('a', 'bc').should.be.false();
+    });
+    test('returns true for ? matching a char', function () {
+      criteriaEval.matchWithWildcards('a?', 'ab').should.be.true();
+      criteriaEval.matchWithWildcards('?b', 'ab').should.be.true();
+    });
+    test('returns false for ? with no chars left in text', function () {
+      criteriaEval.matchWithWildcards('a?', 'a').should.be.false();
+    });
+    test('returns false for ? matching last char of text', function () {
+      criteriaEval.matchWithWildcards('?a', 'a').should.be.false();
+    });
+    test('returns true for * matching one char', function () {
+      criteriaEval.matchWithWildcards('a*', 'ab').should.be.true();
+    });
+    test('returns true for * matching multiple char at end of pattern', function () {
+      criteriaEval.matchWithWildcards('a*', 'abc').should.be.true();
+    });
+    test('returns false for * matching char _not_ at end of pattern', function () {
+      criteriaEval.matchWithWildcards('a*d', 'abc').should.be.false();
+    });
+    test('returns true for * matching multiple char _not_ at end of pattern', function () {
+      criteriaEval.matchWithWildcards('a*c', 'abc').should.be.true();
+    });
+    test('returns true for * matching no chars', function () {
+      criteriaEval.matchWithWildcards('a*c', 'ac').should.be.true();
+    });
+    test('returns true for * matching multiple chars', function () {
+      criteriaEval.matchWithWildcards('a*c', 'a123c').should.be.true();
+    });
+    test('treats * as non-wildcard with ~ prefix', function () {
+      criteriaEval.matchWithWildcards('a~*c', 'a*c').should.be.true();
+      criteriaEval.matchWithWildcards('a~*c', 'aXc').should.be.false();
+    });
+    test('treats ? as non-wildcard with ~ prefix', function () {
+      criteriaEval.matchWithWildcards('a~?c', 'a?c').should.be.true();
+      criteriaEval.matchWithWildcards('a~?c', 'aXc').should.be.false();
+    });
+    test('Handles multiple sequential ?', function () {
+      criteriaEval.matchWithWildcards('a???c', 'aXYZc').should.be.true();
+    });
+    test('Handles multiple sequential *', function () {
+      criteriaEval.matchWithWildcards('a**c', 'aXYZc').should.be.true();
+    });
+    test('Handles escaped *, then (unescaped) *', function () {
+      criteriaEval.matchWithWildcards('a~**c', 'a*XYZc').should.be.true();
+    });
+  });
   suite('parseCriteria returns function that', function () {
     test('evaluates equal operator', function () {
       criteriaEval.parseCriteria('=0')(1).should.be.false();
