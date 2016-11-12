@@ -38,3 +38,9 @@ Many changes were implemented in date/time functions to conform to Excel.
 ### Enhance date/time tests to use more realistic dates
 
 Many tests used dates in 1900.  These are valid dates, but are too edge case.  It's good to test edge cases, but most tests should use inputs that are more normal.  So, many tests were changed to use more current dates.
+
+### Add behavior description text for tests
+
+The tests were well organized, but rather mysterious in there intension and intertwined such that if one behavior of the function failed, then subsequent tests for that function would not run.  Tests have been split into behaviors -- with each given descriptive text.  So, if a test fails, it should be much more clear what is broken.
+
+TODO: This is only partially implemented.
