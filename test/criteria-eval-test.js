@@ -30,6 +30,7 @@ suite('Criteria Evaluation', function () {
       criteriaEval.matchWithWildcards('?b', 'ab').should.be.true();
     });
     test('returns false for ? with no chars left in text', function () {
+      criteriaEval.matchWithWildcards('?', '').should.be.false();
       criteriaEval.matchWithWildcards('a?', 'a').should.be.false();
     });
     test('returns false for ? matching last char of text', function () {
@@ -37,6 +38,12 @@ suite('Criteria Evaluation', function () {
     });
     test('returns true for * matching one char', function () {
       criteriaEval.matchWithWildcards('a*', 'ab').should.be.true();
+    });
+    test('returns true for * matching nothing', function () {
+      criteriaEval.matchWithWildcards('*', '').should.be.true();
+    });
+    test('returns true for * matching everything', function () {
+      criteriaEval.matchWithWildcards('*', 'abc').should.be.true();
     });
     test('returns true for * matching multiple char at end of pattern', function () {
       criteriaEval.matchWithWildcards('a*', 'abc').should.be.true();
@@ -67,6 +74,20 @@ suite('Criteria Evaluation', function () {
     test('Handles multiple sequential *', function () {
       criteriaEval.matchWithWildcards('a**c', 'aXYZc').should.be.true();
     });
+    test('Handles *?', function () {
+      criteriaEval.matchWithWildcards('a*?c', 'abc').should.be.true();
+      criteriaEval.matchWithWildcards('a*?c', 'a123c').should.be.true();
+      criteriaEval.matchWithWildcards('a*?', 'ab').should.be.true();
+
+      criteriaEval.matchWithWildcards('a*?c', 'ac').should.be.false();
+    });
+    test('Handles *??', function () {
+      criteriaEval.matchWithWildcards('a*??', 'abc').should.be.true();
+      criteriaEval.matchWithWildcards('a*??', 'ab').should.be.false();
+    });
+    test('Handles *?*?', function () {
+      criteriaEval.matchWithWildcards('a*?*?', 'abc').should.be.true();
+    });
     test('Handles escaped *, then (unescaped) *', function () {
       criteriaEval.matchWithWildcards('a~**c', 'a*XYZc').should.be.true();
     });
@@ -76,6 +97,16 @@ suite('Criteria Evaluation', function () {
       criteriaEval.parseCriteria('=0')(1).should.be.false();
       criteriaEval.parseCriteria('=1')(1).should.be.true();
       criteriaEval.parseCriteria('=2')(1).should.be.false();
+    });
+    test('evaluates equal operator -- match with wildcards for strings', function () {
+      criteriaEval.parseCriteria('=?')('a').should.be.true();
+      criteriaEval.parseCriteria('=a?c')('abc').should.be.true();
+      criteriaEval.parseCriteria('=?')('').should.be.false();
+      criteriaEval.parseCriteria('=?')('ab').should.be.false();
+      criteriaEval.parseCriteria('=a?a')('abc').should.be.false();
+
+      criteriaEval.parseCriteria('=*')('abc').should.be.true();
+      criteriaEval.parseCriteria('=a*c')('a123c').should.be.true();
     });
     test('evaluates not-equal operator', function () {
       criteriaEval.parseCriteria('<>0')(1).should.be.true();
