@@ -29,7 +29,7 @@ NOTE: work on this implemented for some functions, but not all.
 
 The functions that take a criteria -- like COUNTIF and COUNTIFS -- were evaluating the criteria expression as javascript, but it's not.  Excel evaluates it using a much simpler syntax than javascript.  For example, "=1+2" matches on "1+2" -- not "3".  The evaluator has been replaced with new, custom code.  
 
-TODO: still need to implement wildcard matching (* and ?).
+And, wildcard matching (* and ?) has been implemented!
 
 ### Enhance date/time functions
 
