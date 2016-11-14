@@ -68,27 +68,34 @@ suite('Criteria Evaluation', function () {
       criteriaEval.matchWithWildcards('a~?c', 'a?c').should.be.true();
       criteriaEval.matchWithWildcards('a~?c', 'aXc').should.be.false();
     });
-    test('Handles multiple sequential ?', function () {
+    test('handles multiple sequential ?', function () {
       criteriaEval.matchWithWildcards('a???c', 'aXYZc').should.be.true();
     });
-    test('Handles multiple sequential *', function () {
+    test('ignores * immediately after *', function () {
       criteriaEval.matchWithWildcards('a**c', 'aXYZc').should.be.true();
     });
-    test('Handles *?', function () {
+    test('requires char for ? after *', function () {
       criteriaEval.matchWithWildcards('a*?c', 'abc').should.be.true();
       criteriaEval.matchWithWildcards('a*?c', 'a123c').should.be.true();
       criteriaEval.matchWithWildcards('a*?', 'ab').should.be.true();
 
       criteriaEval.matchWithWildcards('a*?c', 'ac').should.be.false();
     });
-    test('Handles *??', function () {
+    test('requires two chars for two ?s after *', function () {
       criteriaEval.matchWithWildcards('a*??', 'abc').should.be.true();
       criteriaEval.matchWithWildcards('a*??', 'ab').should.be.false();
     });
-    test('Handles *?*?', function () {
+    test('matches text to * to maximize matching', function () {
+      criteriaEval.matchWithWildcards('a*b', 'abb').should.be.true();
+    });
+    //test('matches text to * to maximize matching', function () {
+    //  criteriaEval.matchWithWildcards('a*?b', 'abb').should.be.true();
+    //  criteriaEval.matchWithWildcards('a*?b', 'axbb').should.be.true();
+    //});
+    test('treats multiple *s in a sequence of *,? same as single *', function () {
       criteriaEval.matchWithWildcards('a*?*?', 'abc').should.be.true();
     });
-    test('Handles escaped *, then (unescaped) *', function () {
+    test('handles escaped *, then (unescaped) *', function () {
       criteriaEval.matchWithWildcards('a~**c', 'a*XYZc').should.be.true();
     });
   });
