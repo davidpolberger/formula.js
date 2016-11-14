@@ -7,14 +7,17 @@ suite('Criteria Evaluation', function () {
     test('returns true for blank pattern and text', function () {
       criteriaEval.matchWithWildcards('', '').should.be.true();
     });
-    test('returns true for blank text', function () {
+    test('returns false for blank text', function () {
       criteriaEval.matchWithWildcards('a', '').should.be.false();
     });
-    test('returns true for blank pattern', function () {
+    test('returns false for blank pattern', function () {
       criteriaEval.matchWithWildcards('', 'a').should.be.false();
     });
     test('returns true for same text', function () {
       criteriaEval.matchWithWildcards('a', 'a').should.be.true();
+    });
+    test('returns false for pattern in text', function () {
+      criteriaEval.matchWithWildcards('b', 'abc').should.be.false();
     });
     test('returns false for different text ... of same length', function () {
       criteriaEval.matchWithWildcards('a', 'b').should.be.false();
@@ -87,11 +90,9 @@ suite('Criteria Evaluation', function () {
     });
     test('matches text to * to maximize matching', function () {
       criteriaEval.matchWithWildcards('a*b', 'abb').should.be.true();
+      criteriaEval.matchWithWildcards('a*?b', 'abb').should.be.true();
+      criteriaEval.matchWithWildcards('a*?b', 'axbb').should.be.true();
     });
-    //test('matches text to * to maximize matching', function () {
-    //  criteriaEval.matchWithWildcards('a*?b', 'abb').should.be.true();
-    //  criteriaEval.matchWithWildcards('a*?b', 'axbb').should.be.true();
-    //});
     test('treats multiple *s in a sequence of *,? same as single *', function () {
       criteriaEval.matchWithWildcards('a*?*?', 'abc').should.be.true();
     });
