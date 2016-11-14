@@ -29,7 +29,7 @@ NOTE: work on this implemented for some functions, but not all.
 
 The functions that take a criteria -- like COUNTIF and COUNTIFS -- were evaluating the criteria expression as javascript, but it's not.  Excel evaluates it using a much simpler syntax than javascript.  For example, "=1+2" matches on "1+2" -- not "3".  The evaluator has been replaced with new, custom code.  
 
-TODO: still need to implement wildcard matching (* and ?).
+And, wildcard matching (* and ?) has been implemented!
 
 ### Enhance date/time functions
 
@@ -43,4 +43,4 @@ Many tests used dates in 1900.  These are valid dates, but are too edge case.  I
 
 The tests were well organized, but rather mysterious in there intension and intertwined such that if one behavior of the function failed, then subsequent tests for that function would not run.  Tests have been split into behaviors -- with each given descriptive text.  So, if a test fails, it should be much more clear what is broken.
 
-TODO: This is only partially implemented.
+TODO: This is only partially implemented ... there are alot of tests!
