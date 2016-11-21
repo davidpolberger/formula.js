@@ -281,7 +281,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  cumulative = utils.parseBool(cumulative);
 	  if (cumulative instanceof Error) {
-	    return cumulative
+	    return cumulative;
 	  }
 	  A = utils.parseNumber(A);
 	  if (A instanceof Error) {
@@ -666,7 +666,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return x;
 	  }
 	  if (x < 0) {
-	    return error.num
+	    return error.num;
 	  }
 	  lambda = utils.parseNumber(lambda);
 	  if (lambda instanceof Error) {
@@ -692,7 +692,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return x;
 	  }
 	  if (x < 0) {
-	    return error.num
+	    return error.num;
 	  }
 	  d1 = utils.parseNumber(d1);
 	  if (d1 instanceof Error) {
@@ -1152,7 +1152,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  parsed_known_y = parsed[0];
 	  parsed_known_x = parsed[1];
 	  if (parsed_known_y.length === 0 || parsed_known_x.length === 0) {
-	    return error.na
+	    return error.na;
 	  }
 
 	  return exports.FORECAST(0, parsed_known_y, parsed_known_x);
@@ -1209,7 +1209,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  data_y = parsed[0];
 	  data_x = parsed[1];
 	  if (data_y.length === 0 || data_x.length === 0) {
-	    return error.na
+	    return error.na;
 	  }
 	  var ymean = jStat.mean(data_y);
 	  var xmean = jStat.mean(data_x);
@@ -2345,6 +2345,106 @@ return /******/ (function(modules) { // webpackBootstrap
 	var error = __webpack_require__(5);
 	var utils = __webpack_require__(6);
 
+	function preg_quote(str, delimiter) {
+	  // http://kevin.vanzonneveld.net
+	  // +   original by: booeyOH
+	  // +   improved by: Ates Goral (http://magnetiq.com)
+	  // +   improved by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+	  // +   bugfixed by: Onno Marsman
+	  // +   improved by: Brett Zamir (http://brett-zamir.me)
+	  // *     example 1: preg_quote("$40");
+	  // *     returns 1: '\$40'
+	  // *     example 2: preg_quote("*RRRING* Hello?");
+	  // *     returns 2: '\*RRRING\* Hello\?'
+	  // *     example 3: preg_quote("\\.+*?[^]$(){}=!<>|:");
+	  // *     returns 3: '\\\.\+\*\?\[\^\]\$\(\)\{\}\=\!\<\>\|\:'
+	  return (str + '').replace(new RegExp('[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + (delimiter || '') + '-]', 'g'), '\\$&');
+	}
+
+	function globPatternToRegExp(globStr) {
+	  var regexStr = preg_quote(globStr)
+	    .replace(/\\\*/g, '.*') // replace pattern to match * char with pattern to match anything
+	    .replace(/\\\?/g, '.') // replace pattern to match ? char with pattern to match char
+	    .replace('~.*', '\\\*') // replace escaped * with pattern to match * char
+	    .replace('~.', '\\\?'); // replace escaped ? with pattern to match ? char
+	  regexStr = '^' + regexStr + '$';
+	  return new RegExp(regexStr, 'g');
+	}
+
+	/**
+	 * Indicates whether text matches a pattern that may contain wildcard chars.  Star (*) selects any
+	 * number of chars and question (?) selects exactly one char.  Preceding either wildcard char with
+	 * a tilda (~) escapes its special meaning.
+	 */
+	exports.matchWithWildcards = function (pattern, text) {
+	  return globPatternToRegExp(pattern).test(text);
+	};
+
+	///**
+	// * Indicates whether text matches a pattern that may contain wildcard chars.  Star (*) selects any
+	// * number of chars and question (?) selects exactly one char.  Preceding either wildcard char with
+	// * a tilda (~) escapes its special meaning.
+	// */
+	//exports.matchWithWildcardsOLD = function (pattern, text) {
+	//  //console.log('matchWithWildcards(' + pattern + ',' + text + ')');
+	//  var textPos = 0;
+	//  for (var patternPos = 0; patternPos < pattern.length; ++patternPos) {
+	//    //console.log('top of loop');
+	//    var patternCh = pattern[patternPos];
+	//    var ignoreWildcard = false;
+	//    if (patternCh === '~') {
+	//      var postTildaChar = pattern[patternPos + 1];
+	//      if (postTildaChar === '*' || postTildaChar === '?') {
+	//        patternCh = pattern[++patternPos];
+	//        ignoreWildcard = true;
+	//      }
+	//    }
+	//    //console.log('patternCh:' + patternCh);
+	//    if (patternCh === '*' && !ignoreWildcard) {
+	//      // handle * plus any ? and * that immediately follow it
+	//      var minCharCount = 0;
+	//      while (true) {
+	//        var ch = pattern[patternPos + 1];
+	//        if (ch === '*')
+	//          ; // ignore multiple * chars -- same behavior as just one
+	//        else if (ch === '?')
+	//          ++minCharCount; // each ? (in a * expression) requires one char in match substring
+	//        else
+	//          break;
+	//        ++patternPos;
+	//      }
+	//      if (patternPos >= pattern.length - 1) {
+	//        // pattern ends with * to match rest of text; just need to make sure ?s match text
+	//        var remainingTextLen = text.length - textPos;
+	//        return remainingTextLen >= minCharCount; 
+	//      }
+	//      var nextPatternCh = pattern[patternPos + 1];
+	//      //console.log('nextPatternCh:' + nextPatternCh);
+	//      var nextTextPos = text.indexOf(nextPatternCh, textPos);
+	//      //console.log('nextTextPos:' + nextTextPos);
+	//      if (nextTextPos === -1)
+	//        return false; // didn't find char in text
+	//      var matchedLen = nextTextPos - textPos;
+	//      //console.log('matchedLen:' + matchedLen);
+	//      //console.log('minCharCount:' + minCharCount);
+	//      if (matchedLen < minCharCount)
+	//        return false; // didn't find as many chars as ?s
+	//      textPos = nextTextPos;
+	//    } else {
+	//      if (textPos >= text.length)
+	//        return false; // more pattern than text
+	//      if (patternCh === '?' && !ignoreWildcard) {
+	//        // ignore the text char -- matches ?
+	//      } else {
+	//        if (patternCh !== text[textPos])
+	//          return false;
+	//      }
+	//      ++textPos;
+	//    }
+	//  }
+	//  return textPos >= text.length;
+	//}
+
 	/**
 	 * Evaluates the criteria parameter to an *IF function -- returning a function that accepts one 
 	 * value and returns the comparison result.
@@ -2355,8 +2455,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * conversion is performed ... sadly too complicated to describe :( ... checkout the code and tests.
 	 * 
 	 * String comparison is case insensitive and based on alphabetical ordering.
-	 * 
-	 * TODO: Support wildcard (* and ?) matching and support escaping the wildcard chars (with ~).
 	 * 
 	 * @param {string|number|boolean|null} criteria - Right operand plus optional operator prefix.
 	 * @returns {boolean function(value)} 
@@ -2381,8 +2479,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      rightArg = criteria.substring(1);
 	    }
 	  } else if (ch0 === '>') {
-	    var ch1 = criteria[1];
-	    if (ch1 === '=') {
+	    if (criteria[1] === '=') {
 	      operation = function (left, right) { return left >= right; };
 	      rightArg = criteria.substring(2);
 	    }
@@ -2392,7 +2489,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  } else {
 	    rightArg = ch0 === '=' ? criteria.substring(1) : criteria;
-	    operation = function (left, right) { return left === right; };
+	    operation = function (left, right) {
+	      if (typeof left === 'string' & typeof right === 'string')
+	        return exports.matchWithWildcards(right, left);
+	      return left === right;
+	    };
 	  }
 	  var rightIsNumber;
 	  var rightNumber = parseFloat(rightArg);
@@ -2422,8 +2523,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (typeof left === 'string')
 	      left = left.toUpperCase();
 	    return operation(left, rightArg);
-	  }
-	}
+	  };
+	};
 
 	/**
 	 * Implements the comparison algorithm for *IF functions.  Returns the evaluated value of each
@@ -2440,7 +2541,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  for (var i = 0; i < values.length; ++i)
 	    results[i] = compare(values[i]);
 	  return results;
-	}
+	};
 
 	/**
 	 * Implements an *IF function for its arguments and an action function.
@@ -2464,7 +2565,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  for (var i = 0; i < range.length; ++i)
 	    if (comparisons[i])
 	      action(valueRange[i]);
-	}
+	};
 
 	/**
 	 * Implements an *IFS function for its arguments and an action function.
@@ -2499,7 +2600,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  for (var i = 0; i < valueRange.length; ++i)
 	    if (comparisons[i])
 	      action(valueRange[i]);
-	}
+	};
 
 
 /***/ },
@@ -2531,7 +2632,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (item instanceof Array)
 	    return item;
 	  return [item];
-	}
+	};
 
 	exports.argsToArray = function (args) {
 	  return Array.prototype.slice.call(args, 0);
@@ -2540,12 +2641,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.throwIfMissingArgument = function (arg, name) {
 	  if (arg === undefined)
 	    throw new Error('Missing ' + (name || 'argument') + '.');
-	}
+	};
 
 	exports.throwIfNoArguments = function (args) {
 	  if (args.length === 0)
 	    throw new Error('Function requires at least one argument.');
-	}
+	};
 
 	exports.cleanFloat = function(number) {
 	  var power = 1e14;
@@ -2610,7 +2711,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      numbers.push(item);
 	  }
 	  return numbers;
-	}
+	};
 
 	/**
 	 * Parses the arguments to a function that accepts the standard, variable-length numbers.
@@ -7606,7 +7707,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    ret.push(x.length); x = x[0];
 	  }
 	  return ret;
-	};
+	}
 
 	exports.dim = function dim(x) {
 	  var y,z;
@@ -12488,6 +12589,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    array = [array];
 	  }
 
+	  //TODO: following condition is always false; should it be (!(array instanceof Array))?
+	  // But, line above would fail if array is not Array, so is this code needed?
+	  // or should it be above the use of array[0]?
 	  if (!array instanceof Array) {
 	    array = [array];
 	  }
