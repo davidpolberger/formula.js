@@ -16,7 +16,7 @@ test-watch:
 	@$(mocha) -u tdd -R min -w
 
 lint:
-	@jshint lib/*.js
+	@$(jshint) lib/*.js
 
 coveralls:
 	@$(mocha) -r blanket -u tdd -R mocha-lcov-reporter | $(coveralls)
