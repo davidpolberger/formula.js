@@ -49,3 +49,9 @@ Many tests used dates in 1900.  These are valid dates, but are too edge case.  I
 The tests were well organized, but rather mysterious in there intension and intertwined such that if one behavior of the function failed, then subsequent tests for that function would not run.  Tests have been split into behaviors -- with each given descriptive text.  So, if a test fails, it should be much more clear what is broken.
 
 TODO: This is only partially implemented ... there are alot of tests!
+
+## Ideas
+
+### Change tests to BDD-style functions
+
+Personally, I would like to see the tests changed to use the BDD-stle names like describe and it -- instead of the TDD-style suite and test.  IMO the BDD style is a little better and possibly more common today than the TDD style.  So, the result would be a modest improvement.  It would require changing a zillion lines of test code, but I think that is as simple as two global replaces.
