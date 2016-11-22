@@ -1,3 +1,6 @@
+
+![alt text](https://api.travis-ci.org/TruDB/formulajs.svg?branch=master "Build/test status")
+
 # formulajs
 
 JavaScript implementation of Microsoft Excel formula functions.
