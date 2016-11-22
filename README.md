@@ -1,9 +1,11 @@
-
-![alt text](https://api.travis-ci.org/TruDB/formulajs.svg?branch=master "Build/test status")
-
 # formulajs
 
 JavaScript implementation of Microsoft Excel formula functions.
+
+## Build/Test Status
+
+![Build/test status](https://api.travis-ci.org/TruDB/formulajs.svg?branch=master "Build/test status")
+[details](https://travis-ci.org/TruDB/formulajs)
 
 ## Fork/Branch History
 This was forked from [davidpolberger fork](https://github.com/davidpolberger/formulajs) in October 2016 (although github fork graph doesn't show this anymore!?!?). That fork was forked from the latest (as of that date) [CrowdProcess fork](https://github.com/CrowdProcess/formula.js/). That in turn was forked from the [root project](https://github.com/sutoiku/formula.js/) 19-Aug-2014.
