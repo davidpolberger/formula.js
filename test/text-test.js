@@ -11,7 +11,7 @@ suite('Text', function () {
     text.BAHTTEXT.should.throw('BAHTTEXT is not implemented');
   });
 
-  test("CHAR", function () {
+  test('CHAR', function () {
     text.CHAR(65).should.equal('A');
     text.CHAR(255).should.equal('ÿ');
     text.CHAR(0).should.equal(error.value);
@@ -100,7 +100,7 @@ suite('Text', function () {
     text.LEN(error.na).should.equal(error.na);
   });
 
-  test("LOWER", function () {
+  test('LOWER', function () {
     text.LOWER('abcd').should.equal('abcd');
     text.LOWER('ABcd').should.equal('abcd');
     text.LOWER('ABCD').should.equal('abcd');
@@ -183,7 +183,7 @@ suite('Text', function () {
     text.SEARCH('s', 'string', error.na).should.equal(error.na);
   });
 
-  test("SUBSTITUTE", function () {
+  test('SUBSTITUTE', function () {
     text.SUBSTITUTE('Sales Data', 'Sales', 'Cost').should.equal('Cost Data');
     text.SUBSTITUTE('Quarter 1, 2008', '1', '2', 1).should.equal('Quarter 2, 2008');
     text.SUBSTITUTE('Quarter 1, 2011', '1', '2', 3).should.equal('Quarter 1, 2012');
@@ -212,14 +212,14 @@ suite('Text', function () {
   });
 
   test('UNICHAR', function () {
-    text.UNICHAR(65).should.equal("A");
-    text.UNICHAR(255).should.equal("ÿ");
+    text.UNICHAR(65).should.equal('A');
+    text.UNICHAR(255).should.equal('ÿ');
     text.UNICHAR(1000).should.equal(error.value);
   });
 
   test('UNICODE', function () {
     text.UNICODE('A').should.equal(65);
-    text.UNICODE("Ϩ").should.equal(1000);
+    text.UNICODE('Ϩ').should.equal(1000);
   });
 
   test('UPPER', function () {
