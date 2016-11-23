@@ -4,35 +4,40 @@ mocha = node_modules/mocha/bin/mocha
 coveralls = node_modules/coveralls/bin/coveralls.js
 
 build:
-	@$(webpack)
-	@$(webpack) --standalone
-	@$(webpack) --prod
-	@$(webpack) --prod --standalone
-
-test:
-	@$(mocha) -u tdd -R mocha-spec-cov -r blanket
-
-test-watch:
-	@$(mocha) -u tdd -R min -w
+	$(webpack)
+	$(webpack) --standalone
+	$(webpack) --prod
+	$(webpack) --prod --standalone
 
 lint:
-	@jshint lib/*.js
+	$(jshint) lib/*.js
 
+test:
+	# NOTE: mocha-spec-cov does not work ... error is that JSONCov is undefined
+	# $(mocha) --ui tdd --reporter mocha-spec-cov --require blanket
+	$(mocha) --ui tdd
+
+tdd:
+	$(mocha) --ui tdd --reporter min --watch
+
+# NOTE: this rule does not work
+watch:
+	$(mocha) --ui tdd --reporter mocha-spec-cov --require blanket --watch
+
+# NOTE: this rule does not work
 coveralls:
-	@$(mocha) -r blanket -u tdd -R mocha-lcov-reporter | $(coveralls)
+	$(mocha) --require blanket --ui tdd --reporter mocha-lcov-reporter | $(coveralls)
 
+# NOTE: this rule does not work
 coverage:
-	@$(mocha) -u tdd -R html-cov -r blanket > coverage-report.html
+	$(mocha) --ui tdd --reporter html-cov --require blanket > coverage-report.html
 
 package: clean build
 	rm -rf *.tgz || true
-	@npm pack
-
-watch:
-	@$(mocha) -u tdd -R mocha-spec-cov -r blanket -w
+	npm pack
 
 clean:
-	@rm -rf build/
-	@rm -f coverage-report.html
+	rm -rf build/
+	rm -f coverage-report.html
 
 .PHONY: build clean coverage test watch

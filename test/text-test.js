@@ -2,35 +2,35 @@ var error = require('../lib/error');
 var should = require('should');
 var text = require('../lib/text');
 
-suite('Text', function() {
-  test('ASC', function() {
+suite('Text', function () {
+  test('ASC', function () {
     text.ASC.should.throw('ASC is not implemented');
   });
 
-  test('BAHTTEXT', function() {
+  test('BAHTTEXT', function () {
     text.BAHTTEXT.should.throw('BAHTTEXT is not implemented');
   });
 
-  test("CHAR", function() {
+  test('CHAR', function () {
     text.CHAR(65).should.equal('A');
     text.CHAR(255).should.equal('ÿ');
     text.CHAR(0).should.equal(error.value);
     text.CHAR('invalid').should.equal(error.value);
   });
 
-  test('CLEAN', function() {
+  test('CLEAN', function () {
     text.CLEAN('Monthly Report').should.equal('Monthly Report');
     text.CLEAN(text.CHAR(1)).should.equal('');
     text.CLEAN([1]).should.equal(error.value);
   });
 
-  test('CODE', function() {
+  test('CODE', function () {
     text.CODE('A').should.equal(65);
     text.CODE('Ϩ').should.equal(1000);
     text.CODE(1).should.equal(49);
   });
 
-  test('CONCATENATE', function() {
+  test('CONCATENATE', function () {
     text.CONCATENATE('hello', ' ', 'world').should.equal('hello world');
     text.CONCATENATE(1, 'one').should.equal('1one');
     text.CONCATENATE(true, 'yes').should.equal('TRUEyes');
@@ -39,11 +39,11 @@ suite('Text', function() {
     text.CONCATENATE(false, error.na).should.equal(error.na);
   });
 
-  test('DBCS', function() {
+  test('DBCS', function () {
     text.DBCS.should.throw('DBCS is not implemented');
   });
 
-  test('DOLLAR', function() {
+  test('DOLLAR', function () {
     text.DOLLAR(1234.567).should.equal('$1,234.57');
     text.DOLLAR(1234.567, -2).should.equal('$1,200');
     text.DOLLAR(-1234.567, -2).should.equal('($1,200)');
@@ -52,7 +52,7 @@ suite('Text', function() {
     text.DOLLAR('invalid').should.equal(error.value);
   });
 
-  test('EXACT', function() {
+  test('EXACT', function () {
     text.EXACT('yes', 'yes').should.equal(true);
     text.EXACT('yes', 'no').should.equal(false);
     text.EXACT(1, '1').should.equal(true);
@@ -61,7 +61,7 @@ suite('Text', function() {
     text.EXACT('1', error.na).should.equal(error.na);
   });
 
-  test('FIND', function() {
+  test('FIND', function () {
     var data = 'Miriam McGovern';
     text.FIND('M', data).should.equal(1);
     text.FIND('m', data).should.equal(6);
@@ -76,7 +76,7 @@ suite('Text', function() {
     text.FIND('s', 'string', error.na).should.equal(error.na);
   });
 
-  test('FIXED', function() {
+  test('FIXED', function () {
     text.FIXED(1234.567, 1).should.equal('1,234.6');
     text.FIXED(1234.567, -1).should.equal('1,230');
     text.FIXED(-1234.567, -1, true).should.equal('-1230');
@@ -84,7 +84,7 @@ suite('Text', function() {
     text.FIXED('invalid').should.equal(error.value);
   });
 
-  test('LEFT', function() {
+  test('LEFT', function () {
     text.LEFT('Sale Price', 4).should.equal('Sale');
     text.LEFT('Sweeden').should.equal('S');
     text.LEFT(3).should.equal('3');
@@ -93,14 +93,14 @@ suite('Text', function() {
     text.LEFT('string', error.na).should.equal(error.na);
   });
 
-  test('LEN', function() {
+  test('LEN', function () {
     text.LEN('four').should.equal(4);
     text.LEN().should.equal(0);
     text.LEN(1).should.equal(1);
     text.LEN(error.na).should.equal(error.na);
   });
 
-  test("LOWER", function() {
+  test('LOWER', function () {
     text.LOWER('abcd').should.equal('abcd');
     text.LOWER('ABcd').should.equal('abcd');
     text.LOWER('ABCD').should.equal('abcd');
@@ -109,7 +109,7 @@ suite('Text', function() {
     text.LOWER(error.na).should.equal(error.na);
   });
 
-  test('MID', function() {
+  test('MID', function () {
     var data = 'Fluid Flow';
     text.MID(data, 1, 5).should.equal('Fluid');
     text.MID(data, 7, 20).should.equal('Flow');
@@ -121,15 +121,15 @@ suite('Text', function() {
     text.MID(data, 1, error.na).should.equal(error.na);
   });
 
-  test('NUMBERVALUE', function() {
+  test('NUMBERVALUE', function () {
     text.NUMBERVALUE.should.throw('NUMBERVALUE is not implemented');
   });
 
-  test('PRONETIC', function() {
+  test('PRONETIC', function () {
     text.PRONETIC.should.throw('PRONETIC is not implemented');
   });
 
-  test('PROPER', function() {
+  test('PROPER', function () {
     text.PROPER('a title case').should.equal('A Title Case');
     text.PROPER(true).should.equal('True');
     text.PROPER(false).should.equal('False');
@@ -138,7 +138,7 @@ suite('Text', function() {
     text.PROPER(error.na).should.equal(error.na);
   });
 
-  test('REPLACE', function() {
+  test('REPLACE', function () {
     text.REPLACE('abcdefghijk', 6, 5, '*').should.equal('abcde*k');
     text.REPLACE('2009', 3, 2, '10').should.equal('2010');
     text.REPLACE('123456', 1, 3, '@').should.equal('@456');
@@ -152,7 +152,7 @@ suite('Text', function() {
     text.REPLACE('string', 1, 0, error.na).should.equal(error.na);
   });
 
-  test('REPT', function() {
+  test('REPT', function () {
     text.REPT('multiple ', 3).should.equal('multiple multiple multiple ');
     text.REPT('m', 0).should.equal('');
     text.REPT('m', 2.5).should.equal('mm');
@@ -161,7 +161,7 @@ suite('Text', function() {
     text.REPT('m', error.na).should.equal(error.na);
   });
 
-  test('RIGHT', function() {
+  test('RIGHT', function () {
     text.RIGHT('Sale Price', 5).should.equal('Price');
     text.RIGHT('Stock Number').should.equal('r');
     text.RIGHT('Stock Number', 20).should.equal('Stock Number');
@@ -170,7 +170,7 @@ suite('Text', function() {
     text.RIGHT('string', error.na).should.equal(error.na);
   });
 
-  test('SEARCH', function() {
+  test('SEARCH', function () {
     text.SEARCH('e', 'Statements', 6).should.equal(7);
     text.SEARCH('margin', 'Profit Margin').should.equal(8);
     text.SEARCH(1, '123').should.equal(1);
@@ -183,7 +183,7 @@ suite('Text', function() {
     text.SEARCH('s', 'string', error.na).should.equal(error.na);
   });
 
-  test("SUBSTITUTE", function() {
+  test('SUBSTITUTE', function () {
     text.SUBSTITUTE('Sales Data', 'Sales', 'Cost').should.equal('Cost Data');
     text.SUBSTITUTE('Quarter 1, 2008', '1', '2', 1).should.equal('Quarter 2, 2008');
     text.SUBSTITUTE('Quarter 1, 2011', '1', '2', 3).should.equal('Quarter 1, 2012');
@@ -195,39 +195,39 @@ suite('Text', function() {
     text.SUBSTITUTE('string', 's', 'x', error.na).should.equal(error.na);
   });
 
-  test('T', function() {
+  test('T', function () {
     text.T('Rainfall').should.equal('Rainfall');
     text.T(19).should.equal('');
     text.T(true).should.equal('');
     text.T(error.na).should.equal(error.na);
   });
 
-  test('TEXT', function() {
+  test('TEXT', function () {
     text.TEXT.should.throw('TEXT is not implemented');
   });
 
-  test('TRIM', function() {
+  test('TRIM', function () {
     text.TRIM(' more  spaces ').should.equal('more spaces');
     text.TRIM(error.na).should.equal(error.na);
   });
 
-  test('UNICHAR', function() {
-    text.UNICHAR(65).should.equal("A");
-    text.UNICHAR(255).should.equal("ÿ");
+  test('UNICHAR', function () {
+    text.UNICHAR(65).should.equal('A');
+    text.UNICHAR(255).should.equal('ÿ');
     text.UNICHAR(1000).should.equal(error.value);
   });
 
-  test('UNICODE', function() {
+  test('UNICODE', function () {
     text.UNICODE('A').should.equal(65);
-    text.UNICODE("Ϩ").should.equal(1000);
+    text.UNICODE('Ϩ').should.equal(1000);
   });
 
-  test('UPPER', function() {
+  test('UPPER', function () {
     text.UPPER('to upper case please').should.equal('TO UPPER CASE PLEASE');
     text.UPPER(error.na).should.equal(error.na);
   });
 
-  test('VALUE', function() {
+  test('VALUE', function () {
     text.VALUE(1).should.equal(1);
     text.VALUE('1').should.equal(1);
     text.VALUE('$1,000').should.equal(1000);

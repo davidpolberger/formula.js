@@ -2,15 +2,15 @@ var lookupAndReference = require('../lib/lookup-reference');
 var error = require('../lib/error');
 var should = require('should');
 
-suite('Lookup & Reference', function() {
-  test('CHOOSE', function() {
+suite('Lookup & Reference', function () {
+  test('CHOOSE', function () {
     lookupAndReference.CHOOSE(2, 1, 2, 3).should.eql(2);
     lookupAndReference.CHOOSE(2, [1,3], [2,4], [3,5]).should.eql([2,4]);
     lookupAndReference.CHOOSE(4, [1,3], [2,4], [3,5]).should.eql(error.value);
     lookupAndReference.CHOOSE(-1, [1,3], [2,4], [3,5]).should.eql(error.value);
   });
 
-  test('HLOOKUP', function() {
+  test('HLOOKUP', function () {
     lookupAndReference.HLOOKUP(1, [1], 1).should.equal(1);
     lookupAndReference.HLOOKUP(1, [[1],[2]], 1).should.equal(1);
     lookupAndReference.HLOOKUP(2, [[1],[2]], 1).should.equal(2);
@@ -51,7 +51,7 @@ suite('Lookup & Reference', function() {
     lookupAndReference.INDEX([1, 2], 1, 0).should.eql(1);
   });
 
-  test('MATCH', function() {
+  test('MATCH', function () {
     lookupAndReference.MATCH(1, [0, 1, 2, 3, 4, 100, 7]).should.equal(2);
     lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], 1).should.equal(5);
     lookupAndReference.MATCH(4, [0, 1, 2, 3, 4, 100, 7], 0).should.equal(5);
@@ -73,13 +73,13 @@ suite('Lookup & Reference', function() {
     lookupAndReference.MATCH('jimc', ['jima', 'jimb', 'jimd', 'bernie'], 1).should.equal(2);
   });
 
-  test('TRANSPOSE', function() {
+  test('TRANSPOSE', function () {
     lookupAndReference.TRANSPOSE([[1,2],[3,4]]).should.eql([[1,3],[2,4]]);
     lookupAndReference.TRANSPOSE([1,2,3]).should.eql([[1],[2],[3]]);
     lookupAndReference.TRANSPOSE([[1],[2],[3]]).should.eql([1,2,3]);
   });
 
-  test('VLOOKUP', function() {
+  test('VLOOKUP', function () {
     lookupAndReference.VLOOKUP(1, [1], 1).should.equal(1);
     lookupAndReference.VLOOKUP(1, [[1, 2]], 1).should.equal(1);
     lookupAndReference.VLOOKUP(2, [[1, 2]], 1).should.equal(2);
