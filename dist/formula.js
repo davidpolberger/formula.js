@@ -75,7 +75,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	return modules;
 }([
 /* 0 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var categories = [
 	  __webpack_require__(1),
@@ -102,9 +102,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 
-/***/ },
+/***/ }),
 /* 1 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var statistical = __webpack_require__(2);
 
@@ -157,9 +157,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.ZTEST = statistical.Z.TEST;
 
 
-/***/ },
+/***/ }),
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var mathTrig = __webpack_require__(3);
 	var text = __webpack_require__(11);
@@ -2273,9 +2273,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var utils = __webpack_require__(4);
 	var error = __webpack_require__(5);
@@ -2527,14 +2527,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (significance === 0) {
 	    return 0;
 	  }
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
+
 	  if (number >= 0) {
-	    return exports.ROUND(Math.ceil(number / significance) * significance, precision);
+	    return exports.MROUND(Math.ceil(number / significance) * significance, significance);
 	  } else {
 	    if (mode === 0) {
-	      return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	      return -exports.MROUND(Math.floor(Math.abs(number) / significance) * significance, significance);
 	    } else {
-	      return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	      return -exports.MROUND(Math.ceil(Math.abs(number) / significance) * significance, significance);
 	    }
 	  }
 	};
@@ -2704,11 +2704,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  significance = Math.abs(significance);
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
 	  if (number >= 0) {
-	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
+	    return exports.MROUND(Math.floor(number / significance) * significance, significance);
 	  } else {
-	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance), precision);
+	    return -exports.MROUND(Math.ceil(Math.abs(number) / significance), significance);
 	  }
 	};
 
@@ -2734,13 +2733,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  significance = significance ? Math.abs(significance) : 1;
-	  var precision = -Math.floor(Math.log(significance) / Math.log(10));
 	  if (number >= 0) {
-	    return exports.ROUND(Math.floor(number / significance) * significance, precision);
+	    return exports.MROUND(Math.floor(number / significance) * significance, significance);
 	  } else if (mode === 0 || mode === undefined) {
-	    return -exports.ROUND(Math.ceil(Math.abs(number) / significance) * significance, precision);
+	    return -exports.MROUND(Math.ceil(Math.abs(number) / significance) * significance, significance);
 	  }
-	  return -exports.ROUND(Math.floor(Math.abs(number) / significance) * significance, precision);
+	  return -exports.MROUND(Math.floor(Math.abs(number) / significance) * significance, significance);
 	};
 
 	// Deprecated
@@ -3536,9 +3534,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 4 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
 	var _ = __webpack_require__(6);
@@ -3953,13 +3951,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 5 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	exports.nil = new Error('#NULL!');
 	exports.div0 = new Error('#DIV/0!');
-	exports.value = new Error('#VALUE?');
+	exports.value = new Error('#VALUE!');
 	exports.ref = new Error('#REF!');
 	exports.name = new Error('#NAME?');
 	exports.num = new Error('#NUM!');
@@ -3967,9 +3965,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.data = new Error('#GETTING_DATA');
 
 
-/***/ },
+/***/ }),
 /* 6 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	exports.flatten = function(array, shallow) {
 	  return _flatten(array, shallow, false, []);
@@ -4064,9 +4062,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  return result;
 	}
 
-/***/ },
+/***/ }),
 /* 7 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var utils = __webpack_require__(4);
 	var error = __webpack_require__(5);
@@ -4207,9 +4205,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var jsep = __webpack_require__(9);
 
@@ -4272,9 +4270,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 9 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	//     JavaScript Expression Parser (JSEP) 0.2.9
 	//     JSEP may be freely distributed under the MIT License
@@ -4894,9 +4892,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(this));
 
 
-/***/ },
+/***/ }),
 /* 10 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	function _dim(x) {
 	  var ret = [];
@@ -5082,9 +5080,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 11 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var utils = __webpack_require__(4);
 	var error = __webpack_require__(5);
@@ -5459,9 +5457,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 12 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
 	 * numeral.js
@@ -6144,9 +6142,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	}).call(this);
 
 
-/***/ },
+/***/ }),
 /* 13 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	this.j$ = this.jStat = (function(Math, undefined) {
 
@@ -9404,15 +9402,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	}(this.jStat, Math));
 
 
-/***/ },
+/***/ }),
 /* 14 */
-/***/ function(module, exports) {
+/***/ (function(module, exports) {
 
 	
 
-/***/ },
+/***/ }),
 /* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
 	var jStat = __webpack_require__(13).jStat;
@@ -11046,9 +11044,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var M = Math;
 	function _horner(arr, v) { return arr.reduce(function(z,w){return v * z + w;},0); };
@@ -11261,9 +11259,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 
-/***/ },
+/***/ }),
 /* 17 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
 	var utils = __webpack_require__(4);
@@ -11357,11 +11355,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 18 */
 14,
 /* 19 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
 	var utils = __webpack_require__(4);
@@ -11857,9 +11855,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 20 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var error = __webpack_require__(5);
 	var dateTime = __webpack_require__(19);
@@ -13129,9 +13127,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 	var _ = __webpack_require__(6);
 	var utils = __webpack_require__(4);
@@ -13404,7 +13402,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
+/***/ }),
 /* 22 */
 14
 /******/ ])))
