@@ -1712,7 +1712,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  if (number_chosen < 0) {
 	    return error.num;
-	  } 
+	  }
 	  return Math.pow(number, number_chosen);
 	};
 
@@ -1766,7 +1766,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (probability.filter(function (el) { return el <= 0 || el > 1; }).length > 0) {
 	    return error.num;
 	  }
-	  if (probability.reduce(function (a, b) { return a+b; }) !== 1) {
+	  if (Math.abs(probability.reduce(function (a, b) { return a+b; }) - 1) > 0.00005) {
 	    return error.num;
 	  }
 	  lower = utils.parseNumber(lower);
